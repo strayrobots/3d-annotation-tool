@@ -60,7 +60,13 @@ public:
       std::cout << "Could not initialize glfw" << std::endl;
       return;
     }
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+#else
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#endif
     window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
     if (!window) {
       std::cout << "Failed to create window." << std::endl;
