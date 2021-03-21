@@ -1,3 +1,4 @@
+#include <memory>
 #include <GLFW/glfw3.h>
 #include <bgfx/platform.h>
 #include <bx/handlealloc.h>
@@ -8,6 +9,8 @@
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #include <GLFW/glfw3native.h>
+
+#include "views/view.h"
 
 static void* glfwNativeWindowHandle(GLFWwindow* _window) {
 # if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
@@ -41,6 +44,7 @@ static void errorCb(int _error, const char* _description) {
 class GLFWWindow {
 private:
   GLFWwindow* window;
+  std::shared_ptr<views::View> view;
 public:
   GLFWWindow(std::string name) {
     glfwSetErrorCallback(errorCb);
@@ -53,47 +57,59 @@ public:
     if (!window) {
       std::cout << "Failed to create window." << std::endl;
     }
-    std::cout << "Created window" << std::endl;
 
-    init();
+    bgfx::renderFrame();
+
+    bgfx::Init init;
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+    init.platformData.ndt = glfwGetX11Display();
+#elif BX_PLATFORM_OSX
+    init.platformData.ndt = NULL;
+#endif
+    init.platformData.nwh = glfwNativeWindowHandle(window);
+    init.platformData.context = nullptr;
+    init.platformData.backBuffer = nullptr;
+    init.platformData.backBufferDS = nullptr;
+
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    init.resolution.width = (uint32_t)width;
+    init.resolution.height = (uint32_t)height;
+    init.resolution.reset = BGFX_RESET_VSYNC;
+
+    if (!bgfx::init(init)) {
+      std::cout << "Could not init bgfx!" << std::endl;
+    }
+    // Set view 0 clear state.
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
+
     glfwShowWindow(window);
-    std::cout << "Init done." << std::endl;
   }
 
   ~GLFWWindow() {
+    view = nullptr;
     glfwDestroyWindowImpl(window);
     glfwTerminate();
     bgfx::shutdown();
   }
 
+  void setView(std::shared_ptr<views::View> v) { view = v; }
+
   bool update() {
+    bgfx::setDebug(BGFX_DEBUG_TEXT);
+
     glfwWaitEventsTimeout(0.016);
     bgfx::setViewRect(0, 0, 0, uint16_t(800), uint16_t(600));
-    bgfx::touch(0);
-    bgfx::dbgTextClear();
+    bgfx::dbgTextPrintf(0, 1, 0x0f, "Hello, World!");
+    view->render();
+
     bgfx::frame();
+
     return !glfwWindowShouldClose(window);
   }
 
-protected:
-  void init() {
-    bgfx::Init init;
-#if BX_PLATFORM_OSX
-    init.platformData.ndt = NULL;
-#endif
-    init.platformData.nwh = glfwNativeWindowHandle(window);
-
-    init.resolution.width = 800;
-    init.resolution.height = 600;
-    init.resolution.reset = BGFX_RESET_VSYNC;
-
-    bgfx::renderFrame();
-    bgfx::init(init);
-
-    bgfx::setDebug(BGFX_DEBUG_TEXT);
-
-    // Set view 0 clear state.
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+  void start() {
   }
 
 };
