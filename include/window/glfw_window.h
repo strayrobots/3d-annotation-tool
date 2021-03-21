@@ -5,12 +5,15 @@
 #include <bx/thread.h>
 #include <bx/mutex.h>
 #include <iostream>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
 #if BX_PLATFORM_OSX
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #include <GLFW/glfw3native.h>
 
 #include "views/view.h"
+using namespace Eigen;
 
 static void* glfwNativeWindowHandle(GLFWwindow* _window) {
 # if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
@@ -45,6 +48,13 @@ class GLFWWindow {
 private:
   GLFWwindow* window;
   std::shared_ptr<views::View> view;
+  bool dragging = false;
+  double mouseDownX, mouseDownY;
+  double width = 800;
+  double height = 600;
+  Eigen::Matrix3f currentRotation = Eigen::Matrix3f::Identity();
+  Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
+  Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
 public:
   GLFWWindow(std::string name) {
     glfwSetErrorCallback(errorCb);
@@ -57,6 +67,24 @@ public:
     if (!window) {
       std::cout << "Failed to create window." << std::endl;
     }
+    glfwSetWindowUserPointer(window, this);
+    glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
+      GLFWWindow* w = (GLFWWindow*)glfwGetWindowUserPointer(window);
+      if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        w->leftButtonDown();
+      } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        w->leftButtonUp();
+      }
+    });
+    glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xpos, double ypos) {
+      GLFWWindow* w = (GLFWWindow*)glfwGetWindowUserPointer(window);
+      w->mouseMoved(xpos, ypos);
+    });
+
+    glfwSetScrollCallback(window, [](GLFWwindow *window, double xoffset, double yoffset) {
+      GLFWWindow* w = (GLFWWindow*)glfwGetWindowUserPointer(window);
+      w->scroll(xoffset, yoffset);
+    });
 
     bgfx::renderFrame();
 
@@ -101,16 +129,37 @@ public:
 
     glfwWaitEventsTimeout(0.016);
     bgfx::setViewRect(0, 0, 0, uint16_t(800), uint16_t(600));
-    bgfx::dbgTextPrintf(0, 1, 0x0f, "Hello, World!");
-    view->render();
+    view->render(eyePos, currentRotation);
 
     bgfx::frame();
 
     return !glfwWindowShouldClose(window);
   }
 
-  void start() {
+  void leftButtonDown() {
+    dragging = true;
+    glfwGetCursorPos(window, &mouseDownX, &mouseDownY);
+    rotationStart = currentRotation;
   }
 
+  void leftButtonUp() {
+    dragging = false;
+  }
+
+  void mouseMoved(double x, double y) {
+    if (dragging) {
+      double diff_x = (x - mouseDownX) / width;
+      double diff_y = (y - mouseDownY) / height;
+      Matrix3f rotation;
+      rotation = AngleAxisf(diff_x * M_PI, Vector3f::UnitY()) * AngleAxisf(diff_y * M_PI, Vector3f::UnitX());
+      currentRotation = rotation * rotationStart;
+    }
+  }
+
+  void scroll(double xoffset, double yoffset) {
+    (void)xoffset;
+    double diff = yoffset * 0.05;
+    eyePos[2] = std::min(eyePos[2] + diff, -0.1);
+  }
 };
 

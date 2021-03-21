@@ -5,6 +5,8 @@
 
 namespace views {
 
+using namespace Eigen;
+
 Eigen::RowVector3f toVector(std::array<float, 3>& a) {
   return Eigen::RowVector3f(a[0], a[1], a[2]);
 }
@@ -79,29 +81,32 @@ public:
     bgfx::destroy(vertexBuffer);
   }
 
-  virtual void render() override {
+  virtual void render(const Vector3f& eyePosition, const Matrix3f &rotation) override {
     bgfx::setViewRect(0, 0, 0, uint16_t(800), uint16_t(600));
-    //const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
-    //const bx::Vec3 eye = { 0.0f, 0.0f, 0.5f };
-    //float view[16];
-    //bx::mtxLookAt(view, eye, at);
+    const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
+    const bx::Vec3 eye = { eyePosition[0], eyePosition[1], eyePosition[2] };
+    float view[16];
+    bx::mtxLookAt(view, eye, at);
 
-    //float proj[16];
-    //bx::mtxProj(proj, 60.0f, float(800)/float(600), 0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth);
+    float proj[16];
+    bx::mtxProj(proj, 60.0f, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
 
-    //bgfx::setViewTransform(0, view, proj);
+    bgfx::setViewTransform(0, view, proj);
 
-    //float modelView[16];
-    //bx::mtxRotateY(modelView, 0.0);
-    //for (int i=0; i<16; i++) modelView[i] = 0.0;
-    //modelView[0] = 1.0;
-    //modelView[5] = 1.0;
-    //modelView[10] = 1.0;
-    //modelView[15] = 1.0;
+    float modelView[16];
+    for (int i=0; i<3; i++) {
+      int row = i * 4;
+      modelView[row] = rotation(i, 0);
+      modelView[row + 1] = rotation(i, 1);
+      modelView[row + 2] = rotation(i, 2);
+    }
+    modelView[15] = 1.0;
 
     bgfx::touch(0);
 
-    //bgfx::setTransform(modelView);
+    Eigen::Matrix4f transform = Matrix4f::Identity();
+    transform.block<3, 3>(0, 0) = rotation;
+    bgfx::setTransform(transform.transpose().data());
     bgfx::setVertexBuffer(0, vertexBuffer);
     bgfx::setIndexBuffer(indexBuffer);
 
