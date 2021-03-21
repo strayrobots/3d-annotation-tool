@@ -7,31 +7,15 @@ namespace views {
 
 using namespace Eigen;
 
-Eigen::RowVector3f toVector(std::array<float, 3>& a) {
-  return Eigen::RowVector3f(a[0], a[1], a[2]);
-}
-
-using RowMatrix = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
-static const float verts[] = {
-  -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, -1.0f,
-  -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, -1.0f,
-   0.5f, -0.5f, 0.0f, 0.0f, 0.0f, -1.0f,
-   0.5f,  0.5f, 0.0f, 0.0f, 0.0f, -1.0f
-};
-
-static const uint16_t faces[] = {
-  0, 3, 1,
-  0, 2, 3
-};
-
+using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
+using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
 class MeshView : public views::View {
 private:
-  RowMatrix V; // Vertices.
-  std::vector<std::vector<size_t>> F;
-  RowMatrix faceNormals;
-  RowMatrix vertexNormals;
-  std::vector<std::array<float, 6>> vertexData;
+  RowMatrixf V; // Vertices.
+  RowMatrixi F;
+  RowMatrixf vertexNormals;
+  Eigen::Matrix<float, Eigen::Dynamic, 6, Eigen::RowMajor> vertexData;
 
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
@@ -40,37 +24,39 @@ private:
 
 public:
   MeshView(const std::string& mesh) {
-    // happly::PLYData plyIn(mesh);
-    // auto vertices = plyIn.getVertexPositions();
-    // V.resize(vertices.size(), 3);
-    // for (int i=0; i < vertices.size(); i++) {
-    //   auto vertex = V.row(i);
-    //   for (int j=0; j < 3; j++) {
-    //     vertex[j] = float(vertices[i][j]);
-    //   }
-    // }
-    // F = plyIn.getFaceIndices<size_t>();
-    // computeNormals();
+    happly::PLYData plyIn(mesh);
+    auto vertices = plyIn.getVertexPositions();
+    V.resize(vertices.size(), 3);
+    for (int i=0; i < vertices.size(); i++) {
+      auto vertex = V.row(i);
+      for (int j=0; j < 3; j++) {
+        vertex[j] = float(vertices[i][j]);
+      }
+    }
+    auto faces = plyIn.getFaceIndices<size_t>();
+    F.resize(faces.size(), 3);
+    for (int i=0; i < faces.size(); i++) {
+      for (int j=0; j < 3; j++) {
+        F(i, j) = faces[i][j];
+      }
+    }
+    computeNormals();
 
     layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
       .end();
 
-    indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(faces, 6 * sizeof(uint16_t)));
+    indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(F.data(), F.rows() * F.cols() * sizeof(uint32_t)), BGFX_BUFFER_INDEX32);
 
-    //vertexData.resize(V.rows());
-    //for (int i=0; i < V.rows(); i++) {
-    //  std::array<float, 6> item;
-    //  auto vertex = V.row(i);
-    //  auto normal = vertexNormals.row(i);
-    //  for (int j=0; j < 3; j++) {
-    //    item[j] = vertex[j];
-    //    item[3 + j] = normal[j];
-    //  }
-    //}
-    //vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(vertexData.data(), sizeof(V.rows() * 2 * 3 * sizeof(float))), layout);
-    vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(verts, 4 * 6 * sizeof(float)), layout);
+    vertexData.resize(V.rows(), 6);
+    for (int i=0; i < V.rows(); i++) {
+      auto vertex = V.row(i);
+      auto normal = vertexNormals.row(i);
+      vertexData.block<1, 3>(i, 0) = V.row(i);
+      vertexData.block<1, 3>(i, 3) = normal;
+    }
+    vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(vertexData.data(), vertexData.rows() * vertexData.cols() * sizeof(float)), layout);
 
     program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
   }
@@ -82,14 +68,14 @@ public:
   }
 
   virtual void render(const Vector3f& eyePosition, const Matrix3f &rotation) override {
-    bgfx::setViewRect(0, 0, 0, uint16_t(800), uint16_t(600));
+    bgfx::setViewRect(0, 0, 0, 800, 600);
     const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
     const bx::Vec3 eye = { eyePosition[0], eyePosition[1], eyePosition[2] };
     float view[16];
     bx::mtxLookAt(view, eye, at);
 
     float proj[16];
-    bx::mtxProj(proj, 60.0f, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
+    bx::mtxProj(proj, 30.0f, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
 
     bgfx::setViewTransform(0, view, proj);
 
@@ -110,46 +96,38 @@ public:
     bgfx::setVertexBuffer(0, vertexBuffer);
     bgfx::setIndexBuffer(indexBuffer);
 
-    bgfx::setState(BGFX_STATE_DEFAULT);
+    bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CCW);
     bgfx::submit(0, program);
   }
 
 protected:
   void computeNormals() {
-    faceNormals.resize(F.size(), 3);
-    vertexNormals = RowMatrix::Zero(V.rows(), 3);
-    for (int i=0; i < F.size(); i++) {
-      auto vertex_indices = F[i];
-      auto vertex1 = V.row(vertex_indices[0]);
-      auto vertex2 = V.row(vertex_indices[1]);
-      auto vertex3 = V.row(vertex_indices[2]);
-
-      Eigen::RowVector3f a = vertex2 - vertex1;
-      Eigen::RowVector3f b = vertex3 - vertex1;
-      faceNormals.row(i) = a.cross(b).normalized();
-    }
     Eigen::RowVector3f mean = V.colwise().mean();
-    Eigen::RowVector3f max = V.colwise().maxCoeff();
-    std::cout << "max: " << max << std::endl;
-    std::cout << "min: " << V.colwise().minCoeff() << std::endl;
     for (int i=0; i < V.rows(); i++) {
-      V.row(i) = (V.row(i) - mean);
-      auto vertex_indices = F[i];
+      V.row(i) -= mean; // Center.
+    }
+    RowMatrixf faceNormals = RowMatrixf::Zero(F.rows(), 3);
+    for (int i=0; i < F.rows(); i++) {
+      auto vertex_indices = F.row(i);
       auto vertex1 = V.row(vertex_indices[0]);
       auto vertex2 = V.row(vertex_indices[1]);
       auto vertex3 = V.row(vertex_indices[2]);
 
-      Eigen::RowVector3f a = vertex2 - vertex1;
-      Eigen::RowVector3f b = vertex3 - vertex1;
-      Eigen::RowVector3f normal = a.cross(b);
-      faceNormals.row(i) = normal;
+      Eigen::RowVector3f a = (vertex2 - vertex1).normalized();
+      Eigen::RowVector3f b = (vertex3 - vertex1).normalized();
+      faceNormals.row(i) = a.cross(b);
+    }
+    vertexNormals.resize(V.rows(), 3);
+    for (int i=0; i < F.rows(); i++) {
+      auto vertex_indices = F.row(i);
+      Eigen::RowVector3f normal = faceNormals.row(i);
       vertexNormals.row(vertex_indices[0]) += normal;
       vertexNormals.row(vertex_indices[1]) += normal;
-      vertexNormals.row(vertex_indices[1]) += normal;
+      vertexNormals.row(vertex_indices[2]) += normal;
     }
 
-    for (int i=0; i < V.rows(); i++) {
-      vertexNormals.row(i).normalize();
+    for (int i=0; i < vertexNormals.rows(); i++) {
+      vertexNormals.row(i) = vertexNormals.row(i).normalized();
     }
   }
 };
