@@ -8,8 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(BGFX_BUILD_TOOLS ON)
-set(BGFX_BUILD_EXAMPLES ON)
-
+set(BGFX_BUILD_EXAMPLES OFF)
 
 include_directories(include ${eigen3_INCLUDE_DIRS})
 add_subdirectory(submodules/bgfx)

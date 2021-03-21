@@ -22,8 +22,8 @@ macro(add_shaders ARG_TARGET)
     get_filename_component(SHADER_DIR ${SHADER} DIRECTORY)
 
     # GLSL
-    # shaderc_parse(OUT FILE "shaders/${SHADER}" OUTPUT "${SHADER_DIRECTORY}/glsl/${SHADER_NAME}.bin" ${T} VARYINGDEF "shaders/${SHADER_DIR}/varying.def.sc" LINUX PROFILE 420 ${BASE_OPTIONS})
-    # list(APPEND SHADER_COMMANDS COMMAND "$<TARGET_FILE:shaderc>" ${OUT})
+    shaderc_parse(OUT FILE "shaders/${SHADER}" OUTPUT "${SHADER_DIRECTORY}/glsl/${SHADER_NAME}.bin" ${T} VARYINGDEF "shaders/${SHADER_DIR}/varying.def.sc" LINUX PROFILE 420 ${BASE_OPTIONS})
+    list(APPEND SHADER_COMMANDS COMMAND "$<TARGET_FILE:shaderc>" ${OUT})
 
     # Metal
     shaderc_parse(OUT FILE "shaders/${SHADER}" OUTPUT "${SHADER_DIRECTORY}/metal/${SHADER_NAME}.bin" ${T} VARYINGDEF "shaders/${SHADER_DIR}/varying.def.sc" OSX ${BASE_OPTIONS} PROFILE metal)
