@@ -1,5 +1,5 @@
+#include <3rdparty/happly.h>
 #include "views/view.h"
-#include "happly.h"
 #include "shader_utils.h"
 #include <eigen3/Eigen/Dense>
 
@@ -22,7 +22,10 @@ private:
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
 
+  float proj[16];
 public:
+  float fov = 30.0f;
+
   MeshView(const std::string& mesh) {
     happly::PLYData plyIn(mesh);
     auto vertices = plyIn.getVertexPositions();
@@ -59,6 +62,8 @@ public:
     vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(vertexData.data(), vertexData.rows() * vertexData.cols() * sizeof(float)), layout);
 
     program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
+
+    bx::mtxProj(proj, fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
   }
 
   ~MeshView() {
@@ -67,15 +72,22 @@ public:
     bgfx::destroy(vertexBuffer);
   }
 
+  Matrix4f projectionMatrix() {
+    Matrix4f out = Matrix4f::Identity();
+    for (int i=0; i < 4; i++) {
+      for (int j=0; j < 4; j++) {
+        out(j, i) = proj[i * 4 + j];
+      }
+    }
+    return out;
+  }
+
   virtual void render(const Vector3f& eyePosition, const Matrix3f &rotation) override {
     bgfx::setViewRect(0, 0, 0, 800, 600);
     const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
     const bx::Vec3 eye = { eyePosition[0], eyePosition[1], eyePosition[2] };
     float view[16];
     bx::mtxLookAt(view, eye, at);
-
-    float proj[16];
-    bx::mtxProj(proj, 30.0f, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
 
     bgfx::setViewTransform(0, view, proj);
 
@@ -98,6 +110,14 @@ public:
 
     bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CCW);
     bgfx::submit(0, program);
+  }
+
+  const RowMatrixf& vertices() {
+    return V;
+  }
+
+  const RowMatrixi& indices() {
+    return F;
   }
 
 protected:
