@@ -10,6 +10,10 @@
 #if BX_PLATFORM_OSX
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
+#if BX_PLATFORM_LINUX 
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#endif
 #include <GLFW/glfw3native.h>
 
 #include "views/view.h"
@@ -61,7 +65,7 @@ public:
       return;
     }
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 #else
