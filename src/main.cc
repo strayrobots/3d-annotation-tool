@@ -55,7 +55,7 @@ public:
 
     initRayTracing();
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-      if((GLFW_MOD_CONTROL == mods ) && ( GLFW_KEY_S   == key ))  {
+      if((GLFW_MOD_CONTROL == mods) && (GLFW_KEY_S == key))  {
         LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
         nlohmann::json json;
         for (size_t i = 0; i < w->keypoints.size(); i++) {
