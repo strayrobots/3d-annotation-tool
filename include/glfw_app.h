@@ -50,9 +50,6 @@ protected:
   std::shared_ptr<views::View> view;
   double width = 800;
   double height = 600;
-  Eigen::Matrix3f currentRotation = Eigen::Matrix3f::Identity();
-  Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
-  Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
 public:
   GLFWApp(std::string name) {
     glfwSetErrorCallback(errorCb);
@@ -112,17 +109,6 @@ public:
 
   void setView(std::shared_ptr<views::View> v) { view = v; }
 
-  bool update() {
-    bgfx::setDebug(BGFX_DEBUG_TEXT);
-
-    glfwWaitEventsTimeout(0.016);
-    bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
-    view->render(eyePos, currentRotation);
-
-    bgfx::frame();
-
-    return !glfwWindowShouldClose(window);
-  }
-
+  virtual bool update() const = 0;
 };
 
