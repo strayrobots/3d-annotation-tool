@@ -8,6 +8,7 @@
 #include <bx/thread.h>
 #include "3rdparty/nanort.h"
 #include "views/mesh_view.h"
+#include <3rdparty/json.hpp>
 #include "glfw_app.h"
 
 int renderThread(bx::Thread *thread, void* userData) {
@@ -28,6 +29,7 @@ private:
   Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
   Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
 
+  std::vector<Eigen::Vector3f> keypoints;
 public:
   LabelStudio() : GLFWApp("LabelStudio") {
     meshView = std::make_shared<views::MeshView>("../bunny.ply");
@@ -52,6 +54,18 @@ public:
     });
 
     initRayTracing();
+    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+      if((GLFW_MOD_CONTROL == mods ) && ( GLFW_KEY_S   == key ))  {
+        LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+        nlohmann::json json;
+        for (size_t i = 0; i < w->keypoints.size(); i++) {
+          json[std::to_string(i)] = { {"x", w->keypoints[i][0]}, {"y", w->keypoints[i][1]}, {"z", w->keypoints[i][2]} };
+        }
+        std::ofstream file("keypoints.json");
+        file << json;
+        std::cout << "Saved keypoints to keypoints.json" << std::endl;
+      }
+    });
   }
 
   void leftButtonDown() {
