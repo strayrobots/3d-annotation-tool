@@ -8,16 +8,12 @@
 #include <bx/thread.h>
 #include "3rdparty/nanort.h"
 #include "views/mesh_view.h"
+#include <3rdparty/json.hpp>
 #include "glfw_app.h"
-
-int renderThread(bx::Thread *thread, void* userData) {
-  return 0;
-}
-
 
 class LabelStudio : public GLFWApp {
 private:
-  bool dragging = false;
+  bool dragging = false, moved = false;
   double mouseDownX, mouseDownY;
   std::unique_ptr<nanort::TriangleMesh<float>> mesh;
   std::unique_ptr<nanort::TriangleSAHPred<float>> triangle_pred;
@@ -28,6 +24,8 @@ private:
   Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
   Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
 
+  std::vector<Eigen::Vector3f> keypoints;
+  Eigen::Vector3f pointingAt = Eigen::Vector3f::Zero();
 public:
   LabelStudio() : GLFWApp("LabelStudio") {
     meshView = std::make_shared<views::MeshView>("../bunny.ply");
@@ -52,19 +50,37 @@ public:
     });
 
     initRayTracing();
+    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+      if((GLFW_MOD_CONTROL == mods) && (GLFW_KEY_S == key))  {
+        LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+        nlohmann::json json = nlohmann::json::array();
+        for (size_t i = 0; i < w->keypoints.size(); i++) {
+          json[i] = { {"x", w->keypoints[i][0]}, {"y", w->keypoints[i][1]}, {"z", w->keypoints[i][2]} };
+        }
+        std::ofstream file("keypoints.json");
+        file << json;
+        std::cout << "Saved keypoints to keypoints.json" << std::endl;
+      }
+    });
   }
 
   void leftButtonDown() {
     dragging = true;
+    moved = false;
     glfwGetCursorPos(window, &mouseDownX, &mouseDownY);
     rotationStart = currentRotation;
   }
 
   void leftButtonUp() {
     dragging = false;
+    if (!moved) {
+      keypoints.push_back(pointingAt);
+      std::cout << "Added keypoint: " << pointingAt << std::endl;
+    }
   }
 
   void mouseMoved(double x, double y) {
+    moved = true;
     if (dragging) {
       double diff_x = (x - mouseDownX) / width;
       double diff_y = (y - mouseDownY) / height;
@@ -97,7 +113,14 @@ public:
     nanort::TriangleIntersection<float> isect;
     const bool hit = bvh.Traverse(ray, triangleIntersector, &isect);
     if (hit) {
-      std::cout << "hit mesh" << std::endl;
+      uint32_t faceId = isect.prim_id;
+      const auto& face = meshView->indices().row(faceId);
+      const Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& vertices = meshView->vertices();
+      auto vertex1 = vertices.row(face[0]);
+      auto vertex2 = vertices.row(face[1]);
+      auto vertex3 = vertices.row(face[2]);
+      auto point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
+      pointingAt = point;
     }
   }
 
