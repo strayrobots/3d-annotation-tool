@@ -37,10 +37,12 @@ public:
   const Matrix4f& getTransform() const { return transform; }
 
   void setRotation(const Matrix3f& rotation) {
-    transform.block<3, 3>(0, 0) = rotation.transpose();
+    transform.block<3, 3>(0, 0) = rotation;
   }
 
-  void setTransform(const Matrix4f& T) { transform = T; }
+  void setTransform(const Matrix4f& T) {
+    transform = T;
+  }
 
   void render() const {
     bgfx::setTransform(transform.data());
@@ -216,16 +218,12 @@ protected:
 class MeshView : public views::View {
 private:
   bgfx::ProgramHandle program;
-
   std::vector<std::shared_ptr<TriangleMesh>> objects;
   float proj[16];
+  float view[16];
 public:
-  float fov = 30.0f;
-
   MeshView() {
     program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
-
-    bx::mtxProj(proj, fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
   }
 
   ~MeshView() {
@@ -236,16 +234,20 @@ public:
     objects.push_back(obj);
   }
 
-  virtual void render(const Vector3f& eyePosition) override {
+  virtual void render(const Camera& camera) override {
     bgfx::setViewRect(0, 0, 0, 800, 600);
+    bgfx::touch(0);
+
+    auto position = camera.getPosition();
+    auto cameraUp = camera.getUpVector();
+
     const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
-    const bx::Vec3 eye = { eyePosition[0], eyePosition[1], eyePosition[2] };
-    float view[16];
-    bx::mtxLookAt(view, eye, at);
+    const bx::Vec3 eye = { position[0], position[1], position[2] };
+    const bx::Vec3 up = { cameraUp[0], cameraUp[1], cameraUp[2] };
+    bx::mtxProj(proj, camera.fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
+    bx::mtxLookAt(view, eye, at, up, bx::Handness::Left);
 
     bgfx::setViewTransform(0, view, proj);
-
-    bgfx::touch(0);
 
     for (const auto& object : objects) {
       object->render();

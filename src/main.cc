@@ -3,9 +3,6 @@
 #include <chrono>
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
-#include <bx/bx.h>
-#include <bx/mutex.h>
-#include <bx/thread.h>
 #include "3rdparty/nanort.h"
 #include "views/mesh_view.h"
 #include <3rdparty/json.hpp>
@@ -13,17 +10,17 @@
 
 class LabelStudio : public GLFWApp {
 private:
-  bool dragging = false, moved = false;
-  double mouseDownX, mouseDownY;
   std::unique_ptr<nanort::TriangleMesh<float>> nanoMesh;
   std::unique_ptr<nanort::TriangleSAHPred<float>> triangle_pred;
   nanort::BVHAccel<float> bvh;
   std::shared_ptr<views::MeshView> meshView;
   std::shared_ptr<views::TriangleMesh> mesh;
 
-  Eigen::Matrix3f currentRotation = Eigen::Matrix3f::Identity();
-  Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
-  Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
+  // Changing view point.
+  double mouseDownX, mouseDownY;
+  double prevX, prevY;
+  bool dragging = false, moved = false;
+  views::Camera camera;
 
   // Keypoints.
   bool pointingAtMesh = false;
@@ -31,13 +28,10 @@ private:
   Eigen::Vector3f pointingAt = Eigen::Vector3f::Zero();
 public:
 
-  LabelStudio() : GLFWApp("LabelStudio") {
+  LabelStudio() : GLFWApp("LabelStudio"), camera(Vector3f(0.0, 1.0, 0.0)) {
     meshView = std::make_shared<views::MeshView>();
     mesh = std::make_shared<views::Mesh>("../bunny.ply");
     meshView->addObject(mesh);
-
-    currentRotation = AngleAxisf(-M_PI / 2, Vector3f::UnitX());
-    mesh->setRotation(currentRotation);
 
     setView(meshView);
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
@@ -78,7 +72,8 @@ public:
     dragging = true;
     moved = false;
     glfwGetCursorPos(window, &mouseDownX, &mouseDownY);
-    rotationStart = currentRotation;
+    prevX = mouseDownX;
+    prevY = mouseDownY;
   }
 
   void leftButtonUp() {
@@ -87,8 +82,8 @@ public:
       keypoints.push_back(pointingAt);
 
       Matrix4f T = Matrix4f::Identity();
-      T.block(0, 3, 3, 1) = currentRotation.transpose() * pointingAt;
-      auto sphere = std::make_shared<views::Sphere>(T, 0.01);
+      T.block(0, 3, 3, 1) = pointingAt;
+      auto sphere = std::make_shared<views::Sphere>(T, 0.005);
       meshView->addObject(sphere);
       std::cout << "Added keypoint: " << pointingAt.transpose() << std::endl;
     }
@@ -97,28 +92,28 @@ public:
   void mouseMoved(double x, double y) {
     moved = true;
     if (dragging) {
-      double diffX = (x - mouseDownX) / width;
-      double diffY = (y - mouseDownY) / height;
-      Matrix3f rotation;
-      rotation = AngleAxisf(diffX * M_PI, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI, Vector3f::UnitX());
-      currentRotation = rotation * rotationStart;
-      mesh->setRotation(currentRotation);
-      //updateKeypoints();
+      float diffX = (x - prevX) * M_PI / 1000.0;
+      float diffY = (y - prevY) * M_PI / 1000.0;
+      Quaternionf rotationX, rotationY;
+      rotationY = AngleAxis(diffY, camera.getOrientation() * Vector3f::UnitX());
+      rotationX = AngleAxis(diffX, camera.getOrientation() * Vector3f::UnitY());
+      camera.setOrientation(rotationX * rotationY * camera.getOrientation());
+
+      prevX = x;
+      prevY = y;
     }
     nanort::Ray<float> ray;
     ray.min_t = 0.0;
     ray.max_t = 1e9f;
 
     float aspectRatio = width / height;
-    float fov = meshView->fov;
+    float fov = camera.fov;
     float pX = (2.0f * (x / width) - 1.0f) * std::tan(fov / 2.0f * M_PI / 180) * aspectRatio;
     float pY = (1.0f - 2.0f * (y / height)) * std::tan(fov / 2.0f * M_PI / 180);
     Vector3f cameraRay(pX, pY, 1.0f);
-    cameraRay.normalize();
-    cameraRay = currentRotation * cameraRay;
+    cameraRay = camera.getOrientation() * cameraRay.normalized();
 
-    Vector3f rayOrigin = currentRotation * eyePos;
-
+    Vector3f rayOrigin = camera.getPosition();
     ray.org[0] = rayOrigin[0];
     ray.org[1] = rayOrigin[1];
     ray.org[2] = rayOrigin[2];
@@ -146,15 +141,17 @@ public:
   void scroll(double xoffset, double yoffset) {
     (void)xoffset;
     double diff = yoffset * 0.05;
-    eyePos[2] = std::min(eyePos[2] + diff, -0.1);
+    const auto& cameraPosition = camera.getPosition();
+    double newNorm = std::max(cameraPosition.norm() + diff, 0.1);
+    camera.setPosition(newNorm * cameraPosition.normalized());
   }
 
   bool update() const override {
     bgfx::setDebug(BGFX_DEBUG_TEXT);
 
-    glfwWaitEventsTimeout(0.016);
+    glfwWaitEventsTimeout(0.02);
     bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
-    view->render(eyePos);
+    view->render(camera);
 
     bgfx::frame();
 
