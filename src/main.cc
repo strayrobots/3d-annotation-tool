@@ -83,7 +83,7 @@ public:
 
       Matrix4f T = Matrix4f::Identity();
       T.block(0, 3, 3, 1) = pointingAt;
-      auto sphere = std::make_shared<views::Sphere>(T, 0.005);
+      auto sphere = std::make_shared<views::Sphere>(T, 0.005, Vector4f(1.0, 0.5, 0.5, 1.0));
       meshView->addObject(sphere);
       std::cout << "Added keypoint: " << pointingAt.transpose() << std::endl;
     }

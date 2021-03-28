@@ -22,16 +22,29 @@ protected:
   RowMatrixf vertexNormals;
   Eigen::Matrix<float, Eigen::Dynamic, 6, Eigen::RowMajor> vertexData;
 
+  // Uniform data.
+  Vector4f lightDir;
+  Vector4f color;
+
   // Rendering.
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
+  bgfx::UniformHandle u_color, u_lightDir;
 public:
-  TriangleMesh(const Matrix4f T = Matrix4f::Identity()) : transform(T) {
+  TriangleMesh(const Matrix4f T = Matrix4f::Identity(), const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0)) : transform(T),
+    lightDir(0.2, 1.0, -1.0, 1.0), color(c) {
     layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
       .end();
+    u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
+    u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+  }
+
+  ~TriangleMesh() {
+    bgfx::destroy(u_lightDir);
+    bgfx::destroy(u_color);
   }
 
   const Matrix4f& getTransform() const { return transform; }
@@ -45,6 +58,8 @@ public:
   }
 
   void render() const {
+    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
+    bgfx::setUniform(u_color, color.data(), 1);
     bgfx::setTransform(transform.data());
     bgfx::setVertexBuffer(0, vertexBuffer);
     bgfx::setIndexBuffer(indexBuffer);
@@ -94,7 +109,7 @@ class Sphere : public TriangleMesh {
 private:
   float radius;
 public:
-  Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius) {
+  Sphere(const Matrix4f T, float radius, const Vector4f& c) : TriangleMesh(T, c), radius(radius) {
     createSphere();
   }
 
