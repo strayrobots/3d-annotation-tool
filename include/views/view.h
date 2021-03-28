@@ -6,7 +6,7 @@ namespace views {
 
 class View {
 public:
-  virtual void render(const Eigen::Vector3f& eye, const Eigen::Matrix3f& rotation) = 0;
+  virtual void render(const Eigen::Vector3f& eye) = 0;
 };
 
 }
