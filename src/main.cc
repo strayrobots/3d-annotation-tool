@@ -20,12 +20,13 @@ private:
   nanort::BVHAccel<float> bvh;
   std::shared_ptr<views::MeshView> meshView;
   std::shared_ptr<views::TriangleMesh> mesh;
-  std::shared_ptr<views::Sphere> sphere;
 
   Eigen::Matrix3f currentRotation = Eigen::Matrix3f::Identity();
   Eigen::Matrix3f rotationStart = Eigen::Matrix3f::Identity();
   Eigen::Vector3f eyePos = Eigen::Vector3f(0.0, 0.0, -1.0);
 
+  // Keypoints.
+  bool pointingAtMesh = false;
   std::vector<Eigen::Vector3f> keypoints;
   Eigen::Vector3f pointingAt = Eigen::Vector3f::Zero();
 public:
@@ -34,8 +35,6 @@ public:
     meshView = std::make_shared<views::MeshView>();
     mesh = std::make_shared<views::Mesh>("../bunny.ply");
     meshView->addObject(mesh);
-    sphere = std::make_shared<views::Sphere>(0.5);
-    meshView->addObject(sphere);
 
     currentRotation = AngleAxisf(-M_PI / 2, Vector3f::UnitX());
     mesh->setRotation(currentRotation);
@@ -84,8 +83,13 @@ public:
 
   void leftButtonUp() {
     dragging = false;
-    if (!moved) {
+    if (!moved && pointingAtMesh) {
       keypoints.push_back(pointingAt);
+
+      Matrix4f T = Matrix4f::Identity();
+      T.block(0, 3, 3, 1) = currentRotation.transpose() * pointingAt;
+      auto sphere = std::make_shared<views::Sphere>(T, 0.01);
+      meshView->addObject(sphere);
       std::cout << "Added keypoint: " << pointingAt.transpose() << std::endl;
     }
   }
@@ -93,13 +97,13 @@ public:
   void mouseMoved(double x, double y) {
     moved = true;
     if (dragging) {
-      double diff_x = (x - mouseDownX) / width;
-      double diff_y = (y - mouseDownY) / height;
+      double diffX = (x - mouseDownX) / width;
+      double diffY = (y - mouseDownY) / height;
       Matrix3f rotation;
-      rotation = AngleAxisf(diff_x * M_PI, Vector3f::UnitY()) * AngleAxisf(diff_y * M_PI, Vector3f::UnitX());
+      rotation = AngleAxisf(diffX * M_PI, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI, Vector3f::UnitX());
       currentRotation = rotation * rotationStart;
       mesh->setRotation(currentRotation);
-      sphere->setRotation(currentRotation);
+      //updateKeypoints();
     }
     nanort::Ray<float> ray;
     ray.min_t = 0.0;
@@ -111,9 +115,9 @@ public:
     float pY = (1.0f - 2.0f * (y / height)) * std::tan(fov / 2.0f * M_PI / 180);
     Vector3f cameraRay(pX, pY, 1.0f);
     cameraRay.normalize();
-    cameraRay = currentRotation.transpose() * cameraRay;
+    cameraRay = currentRotation * cameraRay;
 
-    Vector3f rayOrigin = currentRotation.transpose() * eyePos;
+    Vector3f rayOrigin = currentRotation * eyePos;
 
     ray.org[0] = rayOrigin[0];
     ray.org[1] = rayOrigin[1];
@@ -125,16 +129,17 @@ public:
     const auto& faces = mesh->indices();
     nanort::TriangleIntersector<float, nanort::TriangleIntersection<float>> triangleIntersector(mesh->vertices().data(), faces.data(), sizeof(float) * 3);
     nanort::TriangleIntersection<float> isect;
-    const bool hit = bvh.Traverse(ray, triangleIntersector, &isect);
-    if (hit) {
+    pointingAtMesh = bvh.Traverse(ray, triangleIntersector, &isect);
+    if (pointingAtMesh) {
       uint32_t faceId = isect.prim_id;
       const auto& face = faces.row(faceId);
       const Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& vertices = mesh->vertices();
       auto vertex1 = vertices.row(face[0]);
       auto vertex2 = vertices.row(face[1]);
       auto vertex3 = vertices.row(face[2]);
-      auto point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
+      Vector3f point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
       pointingAt = point;
+      std::cout << "pointingAt: " << pointingAt.transpose() << std::endl;
     }
   }
 

@@ -14,7 +14,7 @@ using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 class TriangleMesh {
 protected:
   // Transforms.
-  Eigen::Matrix4f transform = Matrix4f::Identity();
+  Eigen::Matrix4f transform;
 
   // Vertex data.
   RowMatrixf V; // Vertices.
@@ -27,19 +27,23 @@ protected:
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
 public:
-  TriangleMesh() {
+  TriangleMesh(const Matrix4f T = Matrix4f::Identity()) : transform(T) {
     layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
       .end();
   }
 
+  const Matrix4f& getTransform() const { return transform; }
+
   void setRotation(const Matrix3f& rotation) {
-    transform.block<3, 3>(0, 0) = rotation;
+    transform.block<3, 3>(0, 0) = rotation.transpose();
   }
 
+  void setTransform(const Matrix4f& T) { transform = T; }
+
   void render() const {
-    bgfx::setTransform(transform.transpose().data());
+    bgfx::setTransform(transform.data());
     bgfx::setVertexBuffer(0, vertexBuffer);
     bgfx::setIndexBuffer(indexBuffer);
   }
@@ -88,7 +92,7 @@ class Sphere : public TriangleMesh {
 private:
   float radius;
 public:
-  Sphere(float radius) : radius(radius) {
+  Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius) {
     createSphere();
   }
 
