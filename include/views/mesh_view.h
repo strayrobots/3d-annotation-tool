@@ -165,7 +165,7 @@ private:
       RowVector3f b = V.row(triangle[1]);
       RowVector3f c = V.row(triangle[2]);
 
-      // Create new V.
+      // Create new vertices.
       RowVector3f d = ((a + b) * 0.5).normalized() * radius;
       RowVector3f e = ((b + c) * 0.5).normalized() * radius;
       RowVector3f f = ((c + a) * 0.5).normalized() * radius;
@@ -173,7 +173,7 @@ private:
       newVertices.row(nextVertexIndex+1) = e;
       newVertices.row(nextVertexIndex+2) = f;
 
-      // Add vertices.
+      // Add faces.
       TriangleFace faceADF(triangle[0], nextVertexIndex, nextVertexIndex + 2);
       TriangleFace faceDBE(nextVertexIndex, triangle[1], nextVertexIndex + 1);
       TriangleFace faceCFE(triangle[2], nextVertexIndex + 2, nextVertexIndex + 1);

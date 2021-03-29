@@ -17,7 +17,6 @@ private:
   std::shared_ptr<views::TriangleMesh> mesh;
 
   // Changing view point.
-  double mouseDownX, mouseDownY;
   double prevX, prevY;
   bool dragging = false, moved = false;
   views::Camera camera;
@@ -71,9 +70,7 @@ public:
   void leftButtonDown() {
     dragging = true;
     moved = false;
-    glfwGetCursorPos(window, &mouseDownX, &mouseDownY);
-    prevX = mouseDownX;
-    prevY = mouseDownY;
+    glfwGetCursorPos(window, &prevX, &prevY);
   }
 
   void leftButtonUp() {
