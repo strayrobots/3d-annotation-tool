@@ -57,11 +57,13 @@ public:
 
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
       LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
-      if((CommandModifier == mods) && (GLFW_KEY_S == key)) {
-        LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
-        w->sceneModel.save();
-      } else if ((CommandModifier == mods) && (GLFW_KEY_Z == key)) {
-        w->undo();
+      if (action == GLFW_PRESS) {
+        if((CommandModifier == mods) && (GLFW_KEY_S == key)) {
+          LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+          w->sceneModel.save();
+        } else if ((CommandModifier == mods) && (GLFW_KEY_Z == key)) {
+          w->undo();
+        }
       }
     });
   }
@@ -109,8 +111,10 @@ public:
   }
 
   void undo() {
+    if (!sceneModel.getKeypoints().empty()) {
+      meshView->popObject();
+    }
     sceneModel.popKeypoint();
-    meshView->popObject();
   }
 
   bool update() const override {

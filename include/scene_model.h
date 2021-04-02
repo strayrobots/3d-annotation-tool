@@ -76,7 +76,9 @@ public:
     return sphere;
   }
 
+  const std::vector<Vector3f>& getKeypoints() const { return keypoints; }
   void popKeypoint() {
+    if (keypoints.empty()) return;
     keypoints.pop_back();
     objects.pop_back();
   }
