@@ -2,6 +2,8 @@
 #define H_SCENE_MODEL
 #include <memory>
 #include <optional>
+#include <fstream>
+#include <filesystem>
 #include "3rdparty/nanort.h"
 #include "camera.h"
 #include "geometry/mesh.h"
@@ -11,6 +13,7 @@ const int Height = 600;
 
 class SceneModel {
 private:
+  std::filesystem::path datasetPath;
   // Geometry.
   std::shared_ptr<geometry::TriangleMesh> mesh;
   std::unique_ptr<nanort::TriangleMesh<float>> nanoMesh;
@@ -23,8 +26,9 @@ private:
   std::vector<Eigen::Vector3f> keypoints;
   std::vector<std::shared_ptr<geometry::TriangleMesh>> objects;
 public:
-  SceneModel(const std::string& scenePath) : camera(Vector3f(0.0, 1.0, 0.0)) {
-    mesh = std::make_shared<geometry::Mesh>(scenePath);
+  SceneModel(const std::string& datasetFolder) : camera(Vector3f(0.0, 1.0, 0.0)), datasetPath(datasetFolder) {
+    auto scenePath = datasetPath / "scene" / "integrated.ply";
+    mesh = std::make_shared<geometry::Mesh>(scenePath.string());
     initRayTracing();
   }
 
@@ -92,11 +96,12 @@ public:
   }
 
   void save() const {
+    auto keypointPath = datasetPath / "keypoints.json";
     nlohmann::json json = nlohmann::json::array();
     for (size_t i = 0; i < keypoints.size(); i++) {
       json[i] = { {"x", keypoints[i][0]}, {"y", keypoints[i][1]}, {"z", keypoints[i][2]} };
     }
-    std::ofstream file("keypoints.json");
+    std::ofstream file(keypointPath.string());
     file << json;
     std::cout << "Saved keypoints to keypoints.json" << std::endl;
   }

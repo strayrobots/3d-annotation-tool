@@ -5,12 +5,11 @@
 #include <bgfx/platform.h>
 #include <3rdparty/json.hpp>
 #include <iostream>
-#include <fstream>
+#include <filesystem>
 #include "3rdparty/cxxopts.h"
 #include "views/mesh_view.h"
 #include "glfw_app.h"
 #include "scene_model.h"
-#include <filesystem>
 
 #if BX_PLATFORM_OSX
 const unsigned int CommandModifier = GLFW_MOD_SUPER;
@@ -30,7 +29,7 @@ private:
 public:
   SceneModel sceneModel;
 
-  LabelStudio(const std::string& scene) : GLFWApp("LabelStudio"), sceneModel(scene) {
+  LabelStudio(const std::string& datasetFolder) : GLFWApp("LabelStudio"), sceneModel(datasetFolder) {
     meshView = std::make_shared<views::MeshView>();
     meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
     meshView->addObject(meshDrawable);
@@ -131,16 +130,16 @@ public:
 
 void validateFlags(const cxxopts::ParseResult& flags) {
   bool valid = true;
-  if (flags.count("scene") == 0) {
-    std::cout << "Scene argument is required." << std::endl;
+  if (flags.count("dataset") == 0) {
+    std::cout << "Dataset argument is required." << std::endl;
     valid = false;
-  } else if (flags.count("scene") > 1) {
-    std::cout << "Only one scene should be provided." << std::endl;
+  } else if (flags.count("dataset") > 1) {
+    std::cout << "Only one dataset should be provided." << std::endl;
     valid = false;
-  } else if (flags.count("scene") == 1) {
-    std::string scene = flags["scene"].as<std::vector<std::string>>()[0];
-    if (!std::filesystem::exists(scene)) {
-      std::cout << "Scene file does not exist." << std::endl;
+  } else if (flags.count("dataset") == 1) {
+    std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
+    if (!std::filesystem::exists(dataset)) {
+      std::cout << "Dataset folder does not exist." << std::endl;
       valid = false;
     }
   }
@@ -151,14 +150,14 @@ void validateFlags(const cxxopts::ParseResult& flags) {
 
 int main(int argc, char* argv[]) {
   cxxopts::Options options("LabelStudio", "Annotate the world in 3D.");
-  options.add_options()("scene", "That path to the scene .ply file to be loaded for annotation.",
+  options.add_options()("dataset", "That path to folder of the dataset to annotate.",
       cxxopts::value<std::vector<std::string>>());
-  options.parse_positional({"scene"});
+  options.parse_positional({"dataset"});
   cxxopts::ParseResult flags = options.parse(argc, argv);
   validateFlags(flags);
-  std::string scene = flags["scene"].as<std::vector<std::string>>()[0];
+  std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
 
-  auto window = std::make_shared<LabelStudio>(scene);
+  auto window = std::make_shared<LabelStudio>(dataset);
 
   while (window->update()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
