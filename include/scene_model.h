@@ -2,6 +2,7 @@
 #define H_SCENE_MODEL
 #include <memory>
 #include <optional>
+#include "3rdparty/nanort.h"
 #include "camera.h"
 #include "geometry/mesh.h"
 

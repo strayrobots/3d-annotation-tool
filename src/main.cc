@@ -6,10 +6,11 @@
 #include <3rdparty/json.hpp>
 #include <iostream>
 #include <fstream>
-#include "3rdparty/nanort.h"
+#include "3rdparty/cxxopts.h"
 #include "views/mesh_view.h"
 #include "glfw_app.h"
 #include "scene_model.h"
+#include <filesystem>
 
 #if BX_PLATFORM_OSX
 const unsigned int CommandModifier = GLFW_MOD_SUPER;
@@ -29,7 +30,7 @@ private:
 public:
   SceneModel sceneModel;
 
-  LabelStudio() : GLFWApp("LabelStudio"), sceneModel("../bunny.ply") {
+  LabelStudio(const std::string& scene) : GLFWApp("LabelStudio"), sceneModel(scene) {
     meshView = std::make_shared<views::MeshView>();
     meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
     meshView->addObject(meshDrawable);
@@ -128,8 +129,36 @@ public:
   }
 };
 
-int main(void) {
-  auto window = std::make_shared<LabelStudio>();
+void validateFlags(const cxxopts::ParseResult& flags) {
+  bool valid = true;
+  if (flags.count("scene") == 0) {
+    std::cout << "Scene argument is required." << std::endl;
+    valid = false;
+  } else if (flags.count("scene") > 1) {
+    std::cout << "Only one scene should be provided." << std::endl;
+    valid = false;
+  } else if (flags.count("scene") == 1) {
+    std::string scene = flags["scene"].as<std::vector<std::string>>()[0];
+    if (!std::filesystem::exists(scene)) {
+      std::cout << "Scene file does not exist." << std::endl;
+      valid = false;
+    }
+  }
+  if (!valid) {
+    exit(1);
+  }
+}
+
+int main(int argc, char* argv[]) {
+  cxxopts::Options options("LabelStudio", "Annotate the world in 3D.");
+  options.add_options()("scene", "That path to the scene .ply file to be loaded for annotation.",
+      cxxopts::value<std::vector<std::string>>());
+  options.parse_positional({"scene"});
+  cxxopts::ParseResult flags = options.parse(argc, argv);
+  validateFlags(flags);
+  std::string scene = flags["scene"].as<std::vector<std::string>>()[0];
+
+  auto window = std::make_shared<LabelStudio>(scene);
 
   while (window->update()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
