@@ -23,28 +23,18 @@ protected:
   Eigen::Matrix<float, Eigen::Dynamic, 6, Eigen::RowMajor> vertexData;
 
   // Uniform data.
-  Vector4f lightDir;
   Vector4f color;
 
   // Rendering.
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
-  bgfx::UniformHandle u_color, u_lightDir;
 public:
-  TriangleMesh(const Matrix4f T = Matrix4f::Identity(), const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0)) : transform(T),
-    lightDir(0.2, 1.0, -1.0, 1.0), color(c) {
+  TriangleMesh(const Matrix4f T = Matrix4f::Identity(), const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0)) : transform(T), color(c) {
     layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
       .end();
-    u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
-    u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
-  }
-
-  ~TriangleMesh() {
-    bgfx::destroy(u_lightDir);
-    bgfx::destroy(u_color);
   }
 
   const Matrix4f& getTransform() const { return transform; }
@@ -57,8 +47,7 @@ public:
     transform = T;
   }
 
-  void render() const {
-    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
+  void render(const bgfx::UniformHandle& u_color) const {
     bgfx::setUniform(u_color, color.data(), 1);
     bgfx::setTransform(transform.data());
     bgfx::setVertexBuffer(0, vertexBuffer);
@@ -232,17 +221,23 @@ protected:
 
 class MeshView : public views::View {
 private:
+  bgfx::UniformHandle u_color, u_lightDir;
   bgfx::ProgramHandle program;
   std::vector<std::shared_ptr<TriangleMesh>> objects;
   float proj[16];
   float view[16];
+  Vector4f lightDir = Vector4f(0.2, 1.0, -1.0, 1.0);
 public:
   MeshView() {
+    u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
+    u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
     program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
   }
 
   ~MeshView() {
     bgfx::destroy(program);
+    bgfx::destroy(u_lightDir);
+    bgfx::destroy(u_color);
   }
 
   void addObject(std::shared_ptr<TriangleMesh> obj) {
@@ -256,16 +251,17 @@ public:
     auto position = camera.getPosition();
     auto cameraUp = camera.getUpVector();
 
-    const bx::Vec3 at  = { 0.0f, 0.0f, 0.0f };
+    const bx::Vec3 at = { 0.0f, 0.0f, 0.0f };
     const bx::Vec3 eye = { position[0], position[1], position[2] };
     const bx::Vec3 up = { cameraUp[0], cameraUp[1], cameraUp[2] };
     bx::mtxProj(proj, camera.fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth);
     bx::mtxLookAt(view, eye, at, up, bx::Handness::Left);
 
     bgfx::setViewTransform(0, view, proj);
+    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
 
     for (const auto& object : objects) {
-      object->render();
+      object->render(u_color);
       bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW);
       bgfx::submit(0, program);
     }
