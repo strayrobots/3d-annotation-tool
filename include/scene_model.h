@@ -76,7 +76,7 @@ public:
     keypoints.push_back(kp);
     Matrix4f T = Matrix4f::Identity();
     T.block(0, 3, 3, 1) = kp;
-    auto sphere = std::make_shared<geometry::Sphere>(T, 0.005);
+    auto sphere = std::make_shared<geometry::Sphere>(T, 0.01);
     objects.push_back(sphere);
     return sphere;
   }
