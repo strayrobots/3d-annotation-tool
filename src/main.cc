@@ -16,6 +16,7 @@ const unsigned int CommandModifier = GLFW_MOD_SUPER;
 #else
 const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 #endif
+const Vector4f KeypointColor(1.0, 0.5, 0.5, 1.0);
 
 class LabelStudio : public GLFWApp {
 private:
@@ -31,8 +32,7 @@ public:
 
   LabelStudio(const std::string& datasetFolder) : GLFWApp("LabelStudio"), sceneModel(datasetFolder) {
     meshView = std::make_shared<views::MeshView>();
-    meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
-    meshView->addObject(meshDrawable);
+    initRenderingState();
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
       double x, y;
@@ -79,7 +79,7 @@ public:
     dragging = false;
     if (!moved && pointingAt.has_value()) {
       auto sphere = sceneModel.addKeypoint(pointingAt.value());
-      auto sphereDrawable = std::make_shared<views::MeshDrawable>(sphere, Vector4f(1.0, 0.5, 0.5, 1.0));
+      auto sphereDrawable = std::make_shared<views::MeshDrawable>(sphere, KeypointColor);
       meshView->addObject(sphereDrawable);
       std::cout << "Added keypoint: " << pointingAt.value().transpose() << std::endl;
     }
@@ -125,6 +125,16 @@ public:
     bgfx::frame();
 
     return !glfwWindowShouldClose(window);
+  }
+private:
+  void initRenderingState() {
+    meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
+    meshView->addObject(meshDrawable);
+    for (const auto& keypoint : sceneModel.getKeypoints()) {
+      auto sphere = sceneModel.addKeypoint(keypoint);
+      auto sphereDrawable = std::make_shared<views::MeshDrawable>(sphere, KeypointColor);
+      meshView->addObject(sphereDrawable);
+    }
   }
 };
 

@@ -28,7 +28,11 @@ private:
 public:
   SceneModel(const std::string& datasetFolder) : camera(Vector3f(0.0, 1.0, 0.0)), datasetPath(datasetFolder) {
     auto scenePath = datasetPath / "scene" / "integrated.ply";
+    auto keypointPath = datasetPath / "keypoints.json";
     mesh = std::make_shared<geometry::Mesh>(scenePath.string());
+    if (std::filesystem::exists(keypointPath)) {
+      loadKeypoints(keypointPath);
+    }
     initRayTracing();
   }
 
@@ -119,6 +123,16 @@ private:
     assert(ret);
     std::cout << "Done building bounding volume hierarchy." << std::endl;
     nanort::BVHBuildStatistics stats = bvh.GetStatistics();
+  }
+
+  void loadKeypoints(std::filesystem::path keypointsJsonPath) {
+    std::ifstream file(keypointsJsonPath.string());
+    nlohmann::json json;
+    file >> json;
+    for (auto& keypoint : json) {
+      auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
+      keypoints.push_back(k);
+    }
   }
 };
 #endif
