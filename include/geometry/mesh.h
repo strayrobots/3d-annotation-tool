@@ -47,8 +47,6 @@ class Mesh : public TriangleMesh {
 public:
   Mesh(const std::string& meshFile);
   ~Mesh();
-protected:
-  void subtractMean();
 };
 }
 #endif

@@ -1,13 +1,10 @@
 #ifndef H_CAMERA
 #define H_CAMERA
 #include <eigen3/Eigen/Dense>
-#include <bx/math.h>
-#include <bgfx/bgfx.h>
 
 using namespace Eigen;
 
 class Camera {
-
 private:
   Vector3f position;
 public:
@@ -28,7 +25,7 @@ public:
 
   Quaternionf getOrientation() const {
     // Assumes that the camera points to the origin.
-    // Returns rotation that rotates the default camera position vector {0, 0, -1}
+    // Returns rotation that rotates the default camera position vector
     // to the current position.
     const Vector3f defaultPosition(0.0, 0.0, -1.0);
     return Quaternionf::FromTwoVectors(defaultPosition, position.normalized()).normalized();

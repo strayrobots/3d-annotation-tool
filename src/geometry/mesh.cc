@@ -134,18 +134,10 @@ Mesh::Mesh(const std::string& meshFile) : TriangleMesh() {
       F(i, j) = faces[i][j];
     }
   }
-  subtractMean();
   computeNormals();
 }
 
 Mesh::~Mesh() {
-}
-
-void Mesh::subtractMean() {
-  Eigen::RowVector3f mean = V.colwise().mean();
-  for (int i=0; i < V.rows(); i++) {
-    V.row(i) -= mean; // Center.
-  }
 }
 
 }
