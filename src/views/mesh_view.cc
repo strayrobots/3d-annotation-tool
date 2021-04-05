@@ -1,3 +1,4 @@
+#include <omp.h>
 #include <3rdparty/happly.h>
 #include <eigen3/Eigen/Dense>
 #include <bx/math.h>
@@ -40,6 +41,7 @@ void MeshDrawable::packVertexData() {
   const auto& N = mesh->getVertexNormals();
 
   vertexData.resize(V.rows(), 6);
+  #pragma omp parallel for
   for (int i=0; i < V.rows(); i++) {
     auto vertex = V.row(i);
     vertexData.block<1, 3>(i, 0) = V.row(i);

@@ -1,6 +1,7 @@
 
 #include <3rdparty/happly.h>
 #include <eigen3/Eigen/Dense>
+#include <omp.h>
 #include "views/view.h"
 #include "shader_utils.h"
 #include "views/mesh_view.h"
@@ -21,6 +22,7 @@ void TriangleMesh::setTransform(const Matrix4f& T) {
 
 void TriangleMesh::computeNormals() {
   RowMatrixf faceNormals = RowMatrixf::Zero(F.rows(), 3);
+  #pragma omp parallel for
   for (int i=0; i < F.rows(); i++) {
     auto vertex_indices = F.row(i);
     auto vertex1 = V.row(vertex_indices[0]);
@@ -40,6 +42,7 @@ void TriangleMesh::computeNormals() {
     vertexNormals.row(vertex_indices[2]) += normal;
   }
 
+  #pragma omp parallel for
   for (int i=0; i < vertexNormals.rows(); i++) {
     vertexNormals.row(i) = vertexNormals.row(i).normalized();
   }
