@@ -1,5 +1,6 @@
 #include <3rdparty/happly.h>
 #include <eigen3/Eigen/Dense>
+#include <bx/math.h>
 #include "views/view.h"
 #include "shader_utils.h"
 #include "views/mesh_view.h"
@@ -13,7 +14,6 @@ using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
 MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c) : mesh(m), color(c) {
-
   layout.begin()
     .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
     .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
@@ -70,7 +70,10 @@ void MeshView::addObject(std::shared_ptr<MeshDrawable> obj) {
   objects.push_back(obj);
 }
 
-void MeshView::render(const Camera& camera) {
+void MeshView::render(const Camera& camera) const {
+  float proj[16];
+  float view[16];
+
   bgfx::touch(0);
 
   auto position = camera.getPosition();

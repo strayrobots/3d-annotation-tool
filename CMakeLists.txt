@@ -20,3 +20,7 @@ target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES})
 
 add_shaders(main SHADERS mesh/vs_mesh.sc mesh/fs_mesh.sc)
 
+enable_testing()
+add_subdirectory(test EXCLUDE_FROM_ALL)
+
+
