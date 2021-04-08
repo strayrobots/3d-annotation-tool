@@ -4,13 +4,12 @@
 #include "commands/keypoints.h"
 #include <bgfx/bgfx.h>
 
-std::string datasetPath = "/Users/kennethblomqvist/Hack/LabelStudio/test/fixtures/dataset";
+std::string datasetPath;
 
 using namespace commands;
 
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
-  ASSERT_EQ(1, 1);
   StudioView view(sceneModel);
   AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
   ASSERT_EQ(view.meshView->getObjects().size(), 1);

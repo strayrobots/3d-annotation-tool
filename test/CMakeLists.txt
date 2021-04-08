@@ -11,6 +11,7 @@ add_library(shared_lib ${LIB_FILES})
 target_link_libraries(shared_lib bgfx bx bimg glfw ${eigen3_LIBRARIES})
 
 add_custom_target(build_tests)
+add_dependencies(build_tests shaders)
 
 foreach(_test_file ${TEST_FILES})
   get_filename_component(_test_name ${_test_file} NAME_WE)

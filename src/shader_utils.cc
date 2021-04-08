@@ -1,4 +1,6 @@
+#include <filesystem>
 #include "shader_utils.h"
+#include <iostream>
 
 namespace shader_utils {
 
@@ -32,6 +34,10 @@ bgfx::ShaderHandle loadShader(bx::FileReader *reader, const char* _name) {
   bx::strCat(filePath, BX_COUNTOF(filePath), _name);
   bx::strCat(filePath, BX_COUNTOF(filePath), ".bin");
 
+  if (!std::filesystem::exists(filePath)) {
+    std::cout << "Can't find shader: " << filePath << std::endl;
+    exit(EXIT_FAILURE);
+  }
   bgfx::ShaderHandle handle = bgfx::createShader(loadMemory(reader, filePath) );
   bgfx::setName(handle, _name);
 
