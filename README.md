@@ -2,6 +2,13 @@
 
 ## Installation
 
+System package dependecies are:
+- glfw3
+- eigen3
+- OpenMP
+
+On Ubuntu these can be installed with `sudo apt-get libeigen3-dev libglfw3-dev libomp-dev`.
+
 Initialize submodules with `git submodule update --init --recursive`. Initialize git large file storage using `git lfs install`.
 
 Create build folder `mkdir -p build && cd build`. Build and run with `cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4 main && ./main`.

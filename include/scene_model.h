@@ -3,7 +3,9 @@
 #include <memory>
 #include <optional>
 #include <filesystem>
+#include <omp.h>
 #include "3rdparty/json.hpp"
+#define NANORT_ENABLE_PARALLEL_BUILD 1
 #include "3rdparty/nanort.h"
 #include "camera.h"
 #include "geometry/mesh.h"
