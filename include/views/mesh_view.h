@@ -1,6 +1,9 @@
 #ifndef H_MESH_VIEW
 #define H_MESH_VIEW
 #include <eigen3/Eigen/Dense>
+#include <bgfx/bgfx.h>
+#include <vector>
+#include <memory>
 #include "views/view.h"
 #include "geometry/mesh.h"
 
@@ -34,18 +37,16 @@ private:
   bgfx::UniformHandle u_color, u_lightDir;
   bgfx::ProgramHandle program;
   std::vector<std::shared_ptr<views::MeshDrawable>> objects;
-  float proj[16];
-  float view[16];
-
   Vector4f lightDir;
 public:
   MeshView();
   ~MeshView();
+  const std::vector<std::shared_ptr<views::MeshDrawable>>& getObjects() const { return objects; };
 
   void addObject(std::shared_ptr<MeshDrawable> obj);
   void popObject() { objects.pop_back(); }
 
-  virtual void render(const Camera& camera) override;
+  virtual void render(const Camera& camera) const override;
 };
 
 }

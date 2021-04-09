@@ -12,3 +12,13 @@ Run `./main <dataset-folder>`. The dataset folder is the one containing a `scene
 
 Keypoints are saved at `<dataset-folder>/keypoints.json` as a list of objects with attributes `x`, `y` and `z` which correspond to coordinates in the local coordinate system of the `integrated.ply` mesh.
 
+
+## Running tests
+
+In your build directory, run:
+```
+cmake .. &&
+make build_tests &&  # or ninja build_tests if using ninja.
+ctest
+```
+
