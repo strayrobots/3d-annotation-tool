@@ -7,13 +7,12 @@
 #include <bgfx/platform.h>
 #include <iostream>
 #include <filesystem>
-#include <list>
 #include <fstream>
 #include "3rdparty/json.hpp"
 #include "3rdparty/cxxopts.h"
 #include "glfw_app.h"
 #include "scene_model.h"
-#include "studio_view.h"
+#include "controllers/studio_view_controller.h"
 #include "commands/command.h"
 #include "commands/keypoints.h"
 
@@ -26,19 +25,13 @@ const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 using namespace commands;
 class LabelStudio : public GLFWApp {
 private:
-  std::list<std::unique_ptr<Command>> commandStack;
-
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
-  std::optional<Vector3f> pointingAt;
   const std::filesystem::path datasetFolder;
 public:
   SceneModel sceneModel;
-  StudioView studioView;
+  StudioViewController studioViewController;
 
-  LabelStudio(const std::string& folder) : GLFWApp("LabelStudio"), sceneModel(folder),
-    studioView(sceneModel), datasetFolder(folder)
+  LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
+    studioViewController(sceneModel), datasetFolder(folder)
   {
     loadState();
 
@@ -70,44 +63,22 @@ public:
           LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
           w->sceneModel.save();
         } else if ((CommandModifier == mods) && (GLFW_KEY_Z == key)) {
-          w->undo();
+          w->studioViewController.undo();
         }
       }
     });
   }
 
   void leftButtonDown(double x, double y) {
-    dragging = true;
-    moved = false;
-    prevX = x;
-    prevY = y;
+    studioViewController.leftButtonDown(x, y);
   }
 
   void leftButtonUp(double x, double y) {
-    dragging = false;
-    if (!moved && pointingAt.has_value()) {
-      std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(pointingAt.value());
-      command->execute(studioView, sceneModel);
-      commandStack.push_back(std::move(command));
-      std::cout << "Added keypoint: " << pointingAt.value().transpose() << std::endl;
-    }
+    studioViewController.leftButtonUp(x, y);
   }
 
   void mouseMoved(double x, double y) {
-    moved = true;
-    if (dragging) {
-      float diffX = (x - prevX) * M_PI / 1000.0;
-      float diffY = (y - prevY) * M_PI / 1000.0;
-      Quaternionf rotationX, rotationY;
-      const auto& camera = sceneModel.getCamera();
-      rotationY = AngleAxis(diffY, camera.getOrientation() * Vector3f::UnitX());
-      rotationX = AngleAxis(diffX, camera.getOrientation() * Vector3f::UnitY());
-      sceneModel.setCameraOrientation(rotationX * rotationY * camera.getOrientation());
-
-      prevX = x;
-      prevY = y;
-    }
-    pointingAt = sceneModel.traceRay(x, y);
+    studioViewController.mouseMoved(x, y);
   }
 
   void scroll(double xoffset, double yoffset) {
@@ -118,16 +89,10 @@ public:
     sceneModel.setCameraPosition(newNorm * cameraPosition.normalized());
   }
 
-  void undo() {
-    if (commandStack.empty()) return;
-    commandStack.back()->undo(studioView, sceneModel);
-    commandStack.pop_back();
-  }
-
   bool update() const override {
     bgfx::setViewRect(0, 0, 0, uint16_t(Width), uint16_t(Height));
     glfwWaitEventsTimeout(0.02);
-    studioView.render(sceneModel.getCamera());
+    studioViewController.render(sceneModel.getCamera());
 
     bgfx::frame();
 
@@ -143,8 +108,8 @@ protected:
     for (auto& keypoint : json) {
       auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
       std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(k);
-      command->execute(studioView, sceneModel);
-      commandStack.push_back(std::move(command));
+      command->execute(studioViewController, sceneModel);
+      studioViewController.pushCommand(std::move(command));
     }
   }
 };

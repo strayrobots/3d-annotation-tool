@@ -1,8 +1,7 @@
-#ifndef H_COMMAND
-#define H_COMMAND
-#include "studio_view.h"
+#pragma once
 #include "scene_model.h"
 
+class StudioViewController;
 namespace commands {
 
 class Command {
@@ -13,8 +12,7 @@ class Command {
    **/
 public:
   virtual ~Command() {};
-  virtual void execute(StudioView& studio, SceneModel& sceneModel) = 0;
-  virtual void undo(StudioView& studio, SceneModel& sceneModel) = 0;
+  virtual void execute(StudioViewController& studio, SceneModel& sceneModel) = 0;
+  virtual void undo(StudioViewController& studio, SceneModel& sceneModel) = 0;
 };
 }
-#endif

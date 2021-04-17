@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "scene_model.h"
-#include "studio_view.h"
+#include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
 #include <bgfx/bgfx.h>
 
@@ -10,7 +10,7 @@ using namespace commands;
 
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
-  StudioView view(sceneModel);
+  StudioViewController view(sceneModel);
   AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
   command.execute(view, sceneModel);
