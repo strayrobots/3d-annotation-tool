@@ -1,10 +1,15 @@
 #include <iostream>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
+#include "tools/add_keypoint_tool.h"
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model) {
+StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), tools() {
+  tools.resize(1);
+  currentTool = std::make_shared<AddKeypointTool>(model);
+  tools[0] = currentTool;
+
   meshView = std::make_shared<views::MeshView>();
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
   meshView->addObject(meshDrawable);
@@ -24,11 +29,12 @@ void StudioViewController::leftButtonDown(double x, double y) {
 
 void StudioViewController::leftButtonUp(double x, double y) {
   dragging = false;
-  if (!moved && pointingAt.has_value()) {
-    std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(pointingAt.value());
-    command->execute(*this, sceneModel);
-    commandStack.push_back(std::move(command));
-    std::cout << "Added keypoint: " << pointingAt.value().transpose() << std::endl;
+  if (!moved) {
+    auto optionalCommand = currentTool->leftClick(pointingAt);
+    if (optionalCommand.has_value()) {
+      optionalCommand.value()->execute(*this, sceneModel);
+      commandStack.push_back(std::move(optionalCommand.value()));
+    }
   }
 }
 

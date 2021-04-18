@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include <list>
+#include <vector>
+#include "tools/tool.h"
 #include "views/mesh_view.h"
 #include "views/view.h"
 #include "scene_model.h"
@@ -16,6 +18,10 @@ private:
   // Changing view point.
   double prevX, prevY;
   bool dragging = false, moved = false;
+
+  // Tools.
+  std::vector<std::shared_ptr<tools::Tool>> tools;
+  std::shared_ptr<tools::Tool> currentTool;
 public:
   std::shared_ptr<views::MeshView> meshView;
 
