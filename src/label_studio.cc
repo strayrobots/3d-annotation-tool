@@ -41,7 +41,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
         w->studioViewController.undo();
       } else {
         char characterPressed = key;
-        //w->studioViewController.keypress(characterPressed);
+        w->studioViewController.keypress(characterPressed);
       }
     }
   });

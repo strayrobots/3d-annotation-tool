@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <list>
-#include <vector>
 #include "tools/tool.h"
+#include "tools/add_keypoint_tool.h"
 #include "views/mesh_view.h"
 #include "views/view.h"
 #include "scene_model.h"
@@ -20,7 +20,7 @@ private:
   bool dragging = false, moved = false;
 
   // Tools.
-  std::vector<std::shared_ptr<tools::Tool>> tools;
+  std::shared_ptr<tools::AddKeypointTool> addKeypointTool;
   std::shared_ptr<tools::Tool> currentTool;
 public:
   std::shared_ptr<views::MeshView> meshView;
@@ -30,6 +30,7 @@ public:
   void leftButtonDown(double x, double y);
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
+  void keypress(char character);
   // Commands.
   void undo();
   void pushCommand(std::unique_ptr<commands::Command>);

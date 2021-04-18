@@ -26,7 +26,6 @@ private:
 
   // Keypoints.
   std::vector<Eigen::Vector3f> keypoints;
-  std::vector<std::shared_ptr<geometry::TriangleMesh>> objects;
 public:
   SceneModel(const std::string& datasetFolder);
 

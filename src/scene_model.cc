@@ -51,7 +51,6 @@ std::optional<Vector3f> SceneModel::traceRay(double x, double y) {
 void SceneModel::popKeypoint() {
   if (keypoints.empty()) return;
   keypoints.pop_back();
-  objects.pop_back();
 }
 
 void SceneModel::setCameraOrientation(const Quaternionf& rotation) {

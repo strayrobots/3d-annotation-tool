@@ -1,5 +1,6 @@
 #include "commands/keypoints.h"
 #include "geometry/mesh.h"
+#include "controllers/studio_view_controller.h"
 
 namespace commands {
 

@@ -2,8 +2,9 @@
 #define H_KEYPOINT_COMMAND
 #include <eigen3/Eigen/Dense>
 #include "commands/command.h"
-#include "controllers/studio_view_controller.h"
 #include "scene_model.h"
+
+class StudioViewController;
 
 namespace commands {
 

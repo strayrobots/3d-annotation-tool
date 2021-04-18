@@ -1,14 +1,12 @@
 #include <iostream>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
-#include "tools/add_keypoint_tool.h"
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), tools() {
-  tools.resize(1);
-  currentTool = std::make_shared<AddKeypointTool>(model);
-  tools[0] = currentTool;
+StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model) {
+  addKeypointTool = std::make_shared<AddKeypointTool>(model);
+  currentTool = addKeypointTool;
 
   meshView = std::make_shared<views::MeshView>();
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
@@ -53,6 +51,12 @@ void StudioViewController::mouseMoved(double x, double y) {
     prevY = y;
   }
   pointingAt = sceneModel.traceRay(x, y);
+}
+
+void StudioViewController::keypress(char character) {
+  if (character == 'K') {
+    currentTool = addKeypointTool;
+  }
 }
 
 // Commands.
