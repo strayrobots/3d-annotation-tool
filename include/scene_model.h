@@ -22,7 +22,7 @@ private:
   std::unique_ptr<nanort::TriangleSAHPred<float>> triangle_pred;
   nanort::BVHAccel<float> bvh;
 
-  Camera camera;
+  std::shared_ptr<Camera> camera;
 
   // Keypoints.
   std::vector<Eigen::Vector3f> keypoints;
@@ -31,14 +31,14 @@ public:
   SceneModel(const std::string& datasetFolder);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
-  const Camera& getCamera() const;
+  std::shared_ptr<Camera> getCamera() const;
   std::optional<Vector3f> traceRay(double x, double y);
 
   const std::vector<Vector3f>& getKeypoints() const { return keypoints; };
   void setKeypoints(std::vector<Vector3f>& points) { keypoints = points; };
   void popKeypoint();
-  void setCameraOrientation(const Quaternionf& rotation);
-  void setCameraPosition(const Vector3f& position);
+  void rotateCamera(const Quaternionf& rotation);
+  void zoomCamera(float diff);
   void save() const;
 private:
   void initRayTracing();

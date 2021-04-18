@@ -29,6 +29,7 @@ public:
   const RowMatrixf& vertices() const { return V; }
   const RowMatrixi& faces() const { return F; }
   const RowMatrixf& getVertexNormals() const { return vertexNormals; }
+  Eigen::RowVector3f getMeshMean() const;
 protected:
   void computeNormals();
 };

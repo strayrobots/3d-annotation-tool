@@ -46,7 +46,7 @@ public:
   void addObject(std::shared_ptr<MeshDrawable> obj);
   void popObject() { objects.pop_back(); }
 
-  virtual void render(const Camera& camera) const override;
+  virtual void render(std::shared_ptr<Camera> camera) const override;
 };
 
 }

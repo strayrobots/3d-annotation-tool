@@ -2,35 +2,31 @@
 #include <iostream>
 #include "scene_model.h"
 
-SceneModel::SceneModel(const std::string& datasetFolder) : camera(Vector3f(0.0, 1.0, 0.0)), datasetPath(datasetFolder) {
+SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder) {
   auto scenePath = datasetPath / "scene" / "integrated.ply";
   mesh = std::make_shared<geometry::Mesh>(scenePath.string());
+  auto meshMean = mesh->getMeshMean();
+  camera = std::make_shared<Camera>(meshMean, -2.0);
   initRayTracing();
 }
 
 std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
-const Camera& SceneModel::getCamera() const { return camera; }
+std::shared_ptr<Camera> SceneModel::getCamera() const { return camera; }
 
 std::optional<Vector3f> SceneModel::traceRay(double x, double y) {
   nanort::Ray<float> ray;
   ray.min_t = 0.0;
   ray.max_t = 1e9f;
+  Vector3f ray_W(camera->getRay_W(float(Width), float(Height), x, y));
+  Vector3f rayOrigin = camera->getPosition();
 
-  float aspectRatio = float(Width) / float(Height);
-  float fov = camera.fov;
-  float pX = (2.0f * (x / Width) - 1.0f) * std::tan(fov / 2.0f * M_PI / 180) * aspectRatio;
-  float pY = (1.0f - 2.0f * (y / Height)) * std::tan(fov / 2.0f * M_PI / 180);
-  Vector3f cameraRay(pX, pY, 1.0f);
-  cameraRay = camera.getOrientation() * cameraRay.normalized();
-
-  Vector3f rayOrigin = camera.getPosition();
   ray.org[0] = rayOrigin[0];
   ray.org[1] = rayOrigin[1];
   ray.org[2] = rayOrigin[2];
 
-  ray.dir[0] = cameraRay[0];
-  ray.dir[1] = cameraRay[1];
-  ray.dir[2] = cameraRay[2];
+  ray.dir[0] = ray_W[0];
+  ray.dir[1] = ray_W[1];
+  ray.dir[2] = ray_W[2];
   const auto& faces = mesh->faces();
   nanort::TriangleIntersector<float, nanort::TriangleIntersection<float>> triangleIntersector(mesh->vertices().data(), faces.data(), sizeof(float) * 3);
   nanort::TriangleIntersection<float> isect;
@@ -54,11 +50,11 @@ void SceneModel::popKeypoint() {
   objects.pop_back();
 }
 
-void SceneModel::setCameraOrientation(const Quaternionf& rotation) {
-  camera.setOrientation(rotation);
+void SceneModel::rotateCamera(const Quaternionf& rotation) {
+  camera->rotateAroundTarget(rotation);
 }
-void SceneModel::setCameraPosition(const Vector3f& position) {
-  camera.setPosition(position);
+void SceneModel::zoomCamera(float diff) {
+  camera->zoom(diff);
 }
 
 void SceneModel::save() const {

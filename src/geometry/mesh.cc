@@ -48,6 +48,11 @@ void TriangleMesh::computeNormals() {
   }
 }
 
+Eigen::RowVector3f TriangleMesh::getMeshMean() const {
+  Eigen::RowVector3f mean = V.colwise().mean();
+  return mean;
+}
+
 Sphere::Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius) {
   createSphere();
 }
@@ -59,9 +64,9 @@ void Sphere::createSphere() {
   const double X = 0.5;
   const double Z = 1.0;
   const Vector3d vdata[12] = {
-      { -X, 0.0, Z}, { X, 0.0, Z }, { -X, 0.0, -Z }, { X, 0.0, -Z },
-      { 0.0, Z, X }, { 0.0, Z, -X }, { 0.0, -Z, X }, { 0.0, -Z, -X },
-      { Z, X, 0.0 }, { -Z, X, 0.0 }, { Z, -X, 0.0 }, { -Z, -X, 0.0 }
+      { -X, Z, 0.0}, { X, Z, 0.0 }, { -X, -Z, 0.0 }, { X, -Z, 0.0 },
+      { 0.0, X, Z }, { 0.0, -X, Z }, { 0.0, X, -Z }, { 0.0, -X, -Z },
+      { Z, 0.0, X }, { -Z, 0.0, X }, { Z, 0.0, -X }, { -Z, 0.0, -X }
   };
   uint32_t faceIndices[20][3] = {
       { 0, 4, 1}, { 0, 9, 4 }, { 9, 5, 4 }, { 4, 5, 8 }, { 4, 8, 1 },
@@ -127,8 +132,8 @@ Mesh::Mesh(const std::string& meshFile) : TriangleMesh() {
   V.resize(vertices.size(), 3);
   for (int i=0; i < vertices.size(); i++) {
     V(i, 0) = float(vertices[i][0]);
-    V(i, 2) = float(vertices[i][1]);
-    V(i, 1) = float(vertices[i][2]);
+    V(i, 1) = float(vertices[i][1]);
+    V(i, 2) = float(vertices[i][2]);
   }
   auto faces = plyIn.getFaceIndices<size_t>();
   F.resize(faces.size(), 3);

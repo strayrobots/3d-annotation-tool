@@ -6,7 +6,7 @@ StudioView::StudioView(const SceneModel& model) : sceneModel(model) {
   meshView->addObject(meshDrawable);
 }
 
-void StudioView::render(const Camera& camera) const {
+void StudioView::render(std::shared_ptr<Camera> camera) const {
   meshView->render(camera);
 }
 

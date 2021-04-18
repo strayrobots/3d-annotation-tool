@@ -95,27 +95,27 @@ public:
 
   void mouseMoved(double x, double y) {
     moved = true;
+    
     if (dragging) {
-      float diffX = (x - prevX) * M_PI / 1000.0;
-      float diffY = (y - prevY) * M_PI / 1000.0;
-      Quaternionf rotationX, rotationY;
-      const auto& camera = sceneModel.getCamera();
-      rotationY = AngleAxis(diffY, camera.getOrientation() * Vector3f::UnitX());
-      rotationX = AngleAxis(diffX, camera.getOrientation() * Vector3f::UnitY());
-      sceneModel.setCameraOrientation(rotationX * rotationY * camera.getOrientation());
+      float diffX = (x - prevX);
+      float diffY = (y - prevY);
+      Quaternionf q = AngleAxisf( diffX*M_PI/2000, Vector3f::UnitY())
+                            * AngleAxisf(diffY*M_PI/2000, Vector3f::UnitX());
+      sceneModel.rotateCamera(q);
 
       prevX = x;
       prevY = y;
+      
     }
     pointingAt = sceneModel.traceRay(x, y);
+  
+    
   }
 
   void scroll(double xoffset, double yoffset) {
     (void)xoffset;
-    double diff = yoffset * 0.05;
-    const auto& cameraPosition = sceneModel.getCamera().getPosition();
-    double newNorm = std::max(cameraPosition.norm() + diff, 0.1);
-    sceneModel.setCameraPosition(newNorm * cameraPosition.normalized());
+    float diff = yoffset * 0.05;
+    sceneModel.zoomCamera(diff);
   }
 
   void undo() {
