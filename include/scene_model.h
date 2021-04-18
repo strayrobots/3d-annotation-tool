@@ -31,7 +31,7 @@ public:
   SceneModel(const std::string& datasetFolder);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
-  std::shared_ptr<Camera> getCamera() const;
+  const Camera& getCamera() const;
   std::optional<Vector3f> traceRay(double x, double y);
 
   const std::vector<Vector3f>& getKeypoints() const { return keypoints; };

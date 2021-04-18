@@ -11,13 +11,13 @@ SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFo
 }
 
 std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
-std::shared_ptr<Camera> SceneModel::getCamera() const { return camera; }
+const Camera& SceneModel::getCamera() const { return *camera.get(); }
 
 std::optional<Vector3f> SceneModel::traceRay(double x, double y) {
   nanort::Ray<float> ray;
   ray.min_t = 0.0;
   ray.max_t = 1e9f;
-  Vector3f ray_W(camera->getRay_W(float(Width), float(Height), x, y));
+  Vector3f ray_W(camera->computeRayWorld(float(Width), float(Height), x, y));
   Vector3f rayOrigin = camera->getPosition();
 
   ray.org[0] = rayOrigin[0];

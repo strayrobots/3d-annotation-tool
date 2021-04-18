@@ -95,7 +95,7 @@ public:
 
   void mouseMoved(double x, double y) {
     moved = true;
-    
+
     if (dragging) {
       float diffX = (x - prevX);
       float diffY = (y - prevY);
@@ -105,11 +105,11 @@ public:
 
       prevX = x;
       prevY = y;
-      
+
     }
     pointingAt = sceneModel.traceRay(x, y);
-  
-    
+
+
   }
 
   void scroll(double xoffset, double yoffset) {

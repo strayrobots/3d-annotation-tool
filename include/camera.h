@@ -33,7 +33,7 @@ public:
   Vector3f getForwardVector(void) const;
   Vector3f getUpVector(void) const;
   Vector3f getRightVector(void) const;
-  Vector3f getRay_W(float width, float height, double x, double y) const;
+  Vector3f computeRayWorld(float width, float height, double x, double y) const;
 
   void updatePosition(const Vector3f& p);
   void updateLookat(const Vector3f& newLookat);

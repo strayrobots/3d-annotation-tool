@@ -12,7 +12,7 @@ public:
   std::shared_ptr<views::MeshView> meshView;
 
   StudioView(const SceneModel& model);
-  void render(std::shared_ptr<Camera> camera) const override;
+  void render(const Camera& camera) const override;
 };
 
 #endif
