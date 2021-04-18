@@ -10,9 +10,6 @@
 #include "camera.h"
 #include "geometry/mesh.h"
 
-const int Width = 800;
-const int Height = 600;
-
 class SceneModel {
 private:
   std::filesystem::path datasetPath;

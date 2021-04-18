@@ -30,12 +30,15 @@ public:
   std::shared_ptr<views::MeshView> meshView;
 
   StudioViewController(SceneModel& model);
+  void viewWillAppear(int width, int height);
+
   void render() const;
   void leftButtonDown(double x, double y);
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
   void scroll(double xoffset, double yoffset);
   void keypress(char character);
+  void resize(int width, int height);
   // Commands.
   void undo();
   void pushCommand(std::unique_ptr<commands::Command>);

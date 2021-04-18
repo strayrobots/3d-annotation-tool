@@ -11,6 +11,7 @@ using namespace commands;
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
   StudioViewController view(sceneModel);
+  view.viewWillAppear(500, 500);
   AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
   command.execute(view, sceneModel);
