@@ -4,7 +4,7 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 1.0, 0.0), 2.0), viewContext(camera) {
+StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera) {
   addKeypointTool = std::make_shared<AddKeypointTool>(model);
   currentTool = addKeypointTool;
 
@@ -53,8 +53,6 @@ void StudioViewController::mouseMoved(double x, double y) {
 
   const Vector3f& rayDirection = camera.computeRayWorld(viewContext.width, viewContext.height, x, y);
   pointingAt = sceneModel.traceRay(camera.getPosition(), rayDirection);
-  if (pointingAt.has_value())
-    std::cout << "pointingAt: " << pointingAt.value() << std::endl;
 }
 
 void StudioViewController::scroll(double xoffset, double yoffset) {
