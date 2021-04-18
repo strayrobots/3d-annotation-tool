@@ -7,7 +7,7 @@ namespace views {
 using namespace Eigen;
 class View {
 public:
-  virtual void render(const Camera&) const = 0;
+  virtual void render(const Camera& camera) const = 0;
 };
 
 }

@@ -5,6 +5,7 @@
 SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder) {
   auto scenePath = datasetPath / "scene" / "integrated.ply";
   mesh = std::make_shared<geometry::Mesh>(scenePath.string());
+  auto meshMean = mesh->getMeshMean();
   initRayTracing();
 }
 

@@ -4,7 +4,7 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 1.0, 0.0)), viewContext(camera) {
+StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 1.0, 0.0), 2.0), viewContext(camera) {
   addKeypointTool = std::make_shared<AddKeypointTool>(model);
   currentTool = addKeypointTool;
 
@@ -41,26 +41,25 @@ void StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (dragging) {
-    float diffX = (x - prevX) * M_PI / 1000.0;
-    float diffY = (y - prevY) * M_PI / 1000.0;
-    Quaternionf rotationX, rotationY;
-    rotationY = AngleAxis(diffY, camera.getOrientation() * Vector3f::UnitX());
-    rotationX = AngleAxis(diffX, camera.getOrientation() * Vector3f::UnitY());
-    camera.setOrientation(rotationX * rotationY * camera.getOrientation());
+    float diffX = (x - prevX);
+    float diffY = (y - prevY);
+    Quaternionf q = AngleAxisf( diffX*M_PI/2000, Vector3f::UnitY())
+                          * AngleAxisf(diffY*M_PI/2000, Vector3f::UnitX());
+    camera.rotateAroundTarget(q);
 
     prevX = x;
     prevY = y;
   }
 
-  const Vector3f& rayDirection = camera.computeRay(viewContext.width, viewContext.height, x, y);
+  const Vector3f& rayDirection = camera.computeRayWorld(viewContext.width, viewContext.height, x, y);
   pointingAt = sceneModel.traceRay(camera.getPosition(), rayDirection);
+  if (pointingAt.has_value())
+    std::cout << "pointingAt: " << pointingAt.value() << std::endl;
 }
 
 void StudioViewController::scroll(double xoffset, double yoffset) {
-  double diff = yoffset * 0.05;
-  const auto& cameraPosition = camera.getPosition();
-  double newNorm = std::max(cameraPosition.norm() + diff, 0.1);
-  camera.setPosition(newNorm * cameraPosition.normalized());
+  float diff = yoffset * 0.05;
+  camera.zoom(diff);
 }
 
 void StudioViewController::keypress(char character) {
