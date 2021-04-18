@@ -1,5 +1,4 @@
-#ifndef H_CAMERA
-#define H_CAMERA
+#pragma once
 #include <eigen3/Eigen/Dense>
 
 using namespace Eigen;
@@ -36,6 +35,13 @@ public:
     auto newPosition = distance * (orn * -Vector3f::UnitZ());
     setPosition(newPosition);
   }
+
+  Vector3f computeRay(double width, double height, double x, double y) {
+    double aspectRatio = width / height;
+    double pX = (2.0 * (x / width) - 1.0) * std::tan(fov / 2.0 * M_PI / 180) * aspectRatio;
+    double pY = (1.0 - 2.0 * (y / height)) * std::tan(fov / 2.0 * M_PI / 180);
+    Vector3f cameraRay(pX, pY, 1.0);
+    return getOrientation() * cameraRay.normalized();
+  }
 };
 
-#endif

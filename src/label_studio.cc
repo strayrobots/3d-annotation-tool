@@ -60,17 +60,13 @@ void LabelStudio::mouseMoved(double x, double y) {
 }
 
 void LabelStudio::scroll(double xoffset, double yoffset) {
-  (void)xoffset;
-  double diff = yoffset * 0.05;
-  const auto& cameraPosition = sceneModel.getCamera().getPosition();
-  double newNorm = std::max(cameraPosition.norm() + diff, 0.1);
-  sceneModel.setCameraPosition(newNorm * cameraPosition.normalized());
+  studioViewController.scroll(xoffset, yoffset);
 }
 
 bool LabelStudio::update() const {
   bgfx::setViewRect(0, 0, 0, uint16_t(Width), uint16_t(Height));
   glfwWaitEventsTimeout(0.02);
-  studioViewController.render(sceneModel.getCamera());
+  studioViewController.render();
 
   bgfx::frame();
 

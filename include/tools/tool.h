@@ -11,5 +11,6 @@ public:
   Tool(const SceneModel& sceneModel);
   virtual ~Tool() {};
   virtual std::optional<std::unique_ptr<commands::Command>> leftClick(const std::optional<Vector3f>& pointingAt) = 0;
+  void mouseMove();
 };
 }

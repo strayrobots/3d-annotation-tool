@@ -6,9 +6,10 @@
 #include "views/mesh_view.h"
 #include "views/view.h"
 #include "scene_model.h"
+#include "view_context_3d.h"
 #include "commands/command.h"
 
-class StudioViewController : public views::View {
+class StudioViewController {
 private:
   SceneModel& sceneModel;
   std::shared_ptr<views::MeshDrawable> meshDrawable;
@@ -22,14 +23,18 @@ private:
   // Tools.
   std::shared_ptr<tools::AddKeypointTool> addKeypointTool;
   std::shared_ptr<tools::Tool> currentTool;
+
+  Camera camera;
+  ViewContext3D viewContext;
 public:
   std::shared_ptr<views::MeshView> meshView;
 
   StudioViewController(SceneModel& model);
-  void render(const Camera& camera) const override;
+  void render() const;
   void leftButtonDown(double x, double y);
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
+  void scroll(double xoffset, double yoffset);
   void keypress(char character);
   // Commands.
   void undo();
