@@ -8,11 +8,13 @@ using namespace commands;
 StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera) {
   addKeypointTool = std::make_shared<AddKeypointTool>(model);
   currentTool = addKeypointTool;
+  annotationController = std::make_shared<controllers::AnnotationController>();
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.width = width;
   viewContext.height = height;
+  annotationController->viewWillAppear(width, height);
   meshView = std::make_shared<views::MeshView>(width, height);
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
   meshView->addObject(meshDrawable);
@@ -22,6 +24,7 @@ void StudioViewController::render() const {
   assert(meshView != nullptr && "Rendering not initialized");
 
   meshView->render(camera);
+  annotationController->render(camera);
 }
 
 // Input handling.
