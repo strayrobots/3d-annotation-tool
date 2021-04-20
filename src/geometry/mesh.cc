@@ -126,14 +126,14 @@ void Sphere::subdivide() {
   V = newVertices;
 }
 
-Mesh::Mesh(const std::string& meshFile) : TriangleMesh() {
+Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : TriangleMesh(T) {
   happly::PLYData plyIn(meshFile);
   const auto& vertices = plyIn.getVertexPositions();
   V.resize(vertices.size(), 3);
   for (int i=0; i < vertices.size(); i++) {
-    V(i, 0) = float(vertices[i][0]);
-    V(i, 1) = float(vertices[i][1]);
-    V(i, 2) = float(vertices[i][2]);
+    V(i, 0) = float(vertices[i][0]) * scale;
+    V(i, 1) = float(vertices[i][1]) * scale;
+    V(i, 2) = float(vertices[i][2]) * scale;
   }
   auto faces = plyIn.getFaceIndices<size_t>();
   F.resize(faces.size(), 3);

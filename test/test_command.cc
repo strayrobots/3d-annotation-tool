@@ -17,12 +17,12 @@ TEST(TestAddKeypointApplyUndo, BasicCases) {
   command.execute(view, sceneModel);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
-  ASSERT_EQ(view.annotationController->meshView->getObjects().size(), 1);
+  ASSERT_EQ(view.annotationController->meshView->getObjects().size(), 4);
 
   command.undo(view, sceneModel);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 0);
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
-  ASSERT_EQ(view.annotationController->meshView->getObjects().size(), 0);
+  ASSERT_EQ(view.annotationController->meshView->getObjects().size(), 3);
 }
 
 int main(int argc, char **argv) {
