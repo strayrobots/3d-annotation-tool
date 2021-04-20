@@ -10,6 +10,8 @@ private:
 public:
   Tool(const SceneModel& sceneModel);
   virtual ~Tool() {};
+  virtual void activate() {};
+  virtual void deactivate() {};
   virtual std::optional<std::unique_ptr<commands::Command>> leftClick(const std::optional<Vector3f>& pointingAt) = 0;
   void mouseMove();
 };

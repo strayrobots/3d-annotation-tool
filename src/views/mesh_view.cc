@@ -56,6 +56,10 @@ void MeshDrawable::setDrawingGeometry(const bgfx::UniformHandle& u_color) const 
   bgfx::setIndexBuffer(indexBuffer);
 }
 
+void MeshDrawable::setAlpha(float value) {
+  color[3] = value;
+}
+
 MeshView::MeshView(int width, int height) : View(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
@@ -70,6 +74,12 @@ MeshView::~MeshView() {
 
 void MeshView::addObject(std::shared_ptr<MeshDrawable> obj) {
   objects.push_back(obj);
+}
+
+void MeshView::setAlpha(float value) {
+  for (auto& object : objects) {
+    object->setAlpha(value);
+  }
 }
 
 void MeshView::render(const Camera& camera) const {
@@ -93,7 +103,11 @@ void MeshView::render(const Camera& camera) const {
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   for (const auto& object : objects) {
     object->setDrawingGeometry(u_color);
-    bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW);
+    bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
+        | BGFX_STATE_MSAA
+        | BGFX_STATE_WRITE_A
+        | BGFX_STATE_WRITE_RGB
+        | BGFX_STATE_BLEND_ALPHA);
     bgfx::submit(0, program);
   }
 }

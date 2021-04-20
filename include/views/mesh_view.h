@@ -30,6 +30,7 @@ public:
   void setDrawingGeometry(const bgfx::UniformHandle& color) const;
   void packVertexData();
   void createBuffers();
+  void setAlpha(float value);
 };
 
 class MeshView : public views::View {
@@ -45,6 +46,7 @@ public:
 
   void addObject(std::shared_ptr<MeshDrawable> obj);
   void popObject() { objects.pop_back(); }
+  void setAlpha(float value);
 
   virtual void render(const Camera& camera) const override;
 };
