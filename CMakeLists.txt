@@ -16,7 +16,7 @@ add_subdirectory(submodules/bgfx)
 include(cmake/shaders.cmake)
 
 file(GLOB SOURCE_FILES src/**/*.cc src/*.cc)
-add_executable(main ${SOURCE_FILES})
+add_executable(main ${SOURCE_FILES} apps/desktop.cc)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
 add_shaders(main SHADERS mesh/vs_mesh.sc mesh/fs_mesh.sc)

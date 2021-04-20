@@ -1,5 +1,4 @@
-#ifndef H_CAMERA
-#define H_CAMERA
+#pragma once
 #include <eigen3/Eigen/Dense>
 
 using namespace Eigen;
@@ -41,4 +40,3 @@ public:
   void zoom(float d);
 };
 
-#endif

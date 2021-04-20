@@ -2,8 +2,9 @@
 #define H_KEYPOINT_COMMAND
 #include <eigen3/Eigen/Dense>
 #include "commands/command.h"
-#include "studio_view.h"
 #include "scene_model.h"
+
+class StudioViewController;
 
 namespace commands {
 
@@ -18,8 +19,8 @@ public:
   AddKeypointCommand(const Vector3f& k);
   ~AddKeypointCommand() override;
 
-  void execute(StudioView& view, SceneModel& sceneModel) override;
-  void undo(StudioView& view, SceneModel& sceneModel) override;
+  void execute(StudioViewController& view, SceneModel& sceneModel) override;
+  void undo(StudioViewController& view, SceneModel& sceneModel) override;
 };
 }
 #endif
