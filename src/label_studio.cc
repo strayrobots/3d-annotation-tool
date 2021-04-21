@@ -9,7 +9,6 @@
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
   studioViewController(sceneModel), datasetFolder(folder)
 {
-  loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
     double x, y;
@@ -53,6 +52,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
 
   glfwGetWindowSize(window, &width, &height);
   studioViewController.viewWillAppear(width, height);
+  loadState();
 }
 
 void LabelStudio::leftButtonDown(double x, double y) {
