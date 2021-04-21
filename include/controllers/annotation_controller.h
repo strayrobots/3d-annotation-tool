@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <algorithm>
 #include "controllers/controller.h"
 #include "views/mesh_view.h"
 #include "views/controls/translate.h"
@@ -6,15 +8,27 @@
 namespace controllers {
 class AnnotationController : public Controller {
 private:
-  views::controls::TranslateControl translateControl;
+  std::vector<std::shared_ptr<views::controls::Control>> controls;
 public:
   std::shared_ptr<views::MeshView> meshView;
 
-  AnnotationController() : translateControl() {
+  AnnotationController() : controls() {
   }
 
   void viewWillAppear(int width, int height) override {
     meshView = std::make_shared<views::MeshView>(width, height);
+  }
+
+  void addControl(std::shared_ptr<views::controls::Control> control) {
+    controls.push_back(control);
+  }
+
+  void removeControl(std::shared_ptr<views::controls::Control> control) {
+    auto item = std::find(std::begin(controls), std::end(controls), control);
+    if (item == std::end(controls)) {
+      std::cout << "Can't find control. This should not happen. Please file a bug report." << std::endl;
+    }
+    controls.erase(item);
   }
 
   void addKeypoint(const Vector3f& position) {
@@ -31,7 +45,9 @@ public:
 
   void render(const Camera& camera) const {
     meshView->render(camera);
-    translateControl.render(camera);
+    for (auto& control : controls) {
+      control->render(camera);
+    }
   }
 };
 }

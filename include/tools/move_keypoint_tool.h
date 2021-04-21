@@ -17,20 +17,24 @@ namespace tools {
 class MoveKeypointTool : public Tool {
 private:
   std::shared_ptr<views::MeshView> meshView;
-  std::shared_ptr<controllers::AnnotationController> annotationController;
+  controllers::AnnotationController& annotationController;
+  std::shared_ptr<views::controls::TranslateControl> translateControl;
 public:
   MoveKeypointTool(const SceneModel& model, std::shared_ptr<views::MeshView> mesh,
-      std::shared_ptr<controllers::AnnotationController> annotation) : Tool(model) {
+      controllers::AnnotationController& annotation) : Tool(model),
+      annotationController(annotation) {
     meshView = mesh;
-    annotationController = annotation;
+    translateControl = std::make_shared<views::controls::TranslateControl>();
   }
 
   void activate() override {
     meshView->setAlpha(0.35);
+    annotationController.addControl(translateControl);
   }
 
   void deactivate() override {
     meshView->setAlpha(1.0);
+    annotationController.removeControl(translateControl);
   }
 
   std::optional<std::unique_ptr<Command>> leftClick(const std::optional<Vector3f>& pointingAt) override {

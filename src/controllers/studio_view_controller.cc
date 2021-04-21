@@ -5,7 +5,7 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera) {
+StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera), annotationController() {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
@@ -16,17 +16,16 @@ void StudioViewController::viewWillAppear(int width, int height) {
   addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel);
   moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, meshView, annotationController);
   currentTool = addKeypointTool;
-  annotationController = std::make_shared<controllers::AnnotationController>();
 
   viewContext.width = width;
   viewContext.height = height;
-  annotationController->viewWillAppear(width, height);
+  annotationController.viewWillAppear(width, height);
 }
 
 void StudioViewController::render() const {
   assert(meshView != nullptr && "Rendering not initialized");
 
-  annotationController->render(camera);
+  annotationController.render(camera);
   meshView->render(camera);
 }
 

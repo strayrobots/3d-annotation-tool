@@ -84,8 +84,6 @@ void MeshView::render(const Camera& camera) const {
   float proj[16];
   float view[16];
 
-  bgfx::touch(0);
-
   auto position = camera.getPosition();
   auto lookat = camera.getLookat();
   auto cameraUp = camera.getUpVector();
@@ -98,8 +96,8 @@ void MeshView::render(const Camera& camera) const {
 
   bgfx::setViewTransform(0, view, proj);
 
-  bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   for (const auto& object : objects) {
+    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
     bgfx::setUniform(u_color, object->getColor().data(), 1);
     bgfx::setTransform(object->getTransform().data());
     object->setDrawingGeometry();

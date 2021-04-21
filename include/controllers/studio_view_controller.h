@@ -32,7 +32,7 @@ private:
   ViewContext3D viewContext;
 public:
   // Subcontrollers
-  std::shared_ptr<controllers::AnnotationController> annotationController;
+  controllers::AnnotationController annotationController;
   std::shared_ptr<views::MeshView> meshView;
 
   StudioViewController(SceneModel& model);

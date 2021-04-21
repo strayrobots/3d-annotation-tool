@@ -12,13 +12,13 @@ void AddKeypointCommand::execute(StudioViewController& view, SceneModel& sceneMo
   auto keypoints = sceneModel.getKeypoints();
   keypoints.push_back(keypoint);
   sceneModel.setKeypoints(keypoints);
-  view.annotationController->addKeypoint(keypoint);
+  view.annotationController.addKeypoint(keypoint);
 }
 
 void AddKeypointCommand::undo(StudioViewController& view, SceneModel& sceneModel) {
   auto keypoints = sceneModel.getKeypoints();
   keypoints.pop_back();
   sceneModel.setKeypoints(keypoints);
-  view.annotationController->removeKeypoint(keypoint);
+  view.annotationController.removeKeypoint(keypoint);
 }
 }

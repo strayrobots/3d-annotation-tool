@@ -48,6 +48,12 @@ public:
     program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
   }
 
+  ~TranslateControl() {
+    bgfx::destroy(program);
+    bgfx::destroy(u_lightDir);
+    bgfx::destroy(u_color);
+  }
+
   void setCallback(std::function<void(double, const Vector3f&)> cb) { callback = cb; }
 
   bool hitTest(const ViewContext3D& viewContext) const override {
@@ -67,17 +73,18 @@ public:
 
   void render(const Camera& camera) const override {
     bgfx::setUniform(u_lightDir, lightDir.data(), 1);
-
     bgfx::setUniform(u_color, xAxisColor.data(), 1);
     bgfx::setTransform(xAxisDrawable->getTransform().data(), 1);
     xAxisDrawable->setDrawingGeometry();
     bgfx::submit(0, program);
 
+    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
     bgfx::setUniform(u_color, yAxisColor.data(), 1);
     bgfx::setTransform(yTransform.data(), 1);
     xAxisDrawable->setDrawingGeometry();
     bgfx::submit(0, program);
 
+    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
     bgfx::setUniform(u_color, zAxisColor.data(), 1);
     bgfx::setTransform(zTransform.data(), 1);
     xAxisDrawable->setDrawingGeometry();
