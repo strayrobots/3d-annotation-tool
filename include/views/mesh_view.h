@@ -39,7 +39,7 @@ private:
   std::vector<std::shared_ptr<views::MeshDrawable>> objects;
   Vector4f lightDir;
 public:
-  MeshView();
+  MeshView(int width, int height);
   ~MeshView();
   const std::vector<std::shared_ptr<views::MeshDrawable>>& getObjects() const { return objects; };
 

@@ -25,8 +25,8 @@ public:
   void leftButtonDown(double x, double y);
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
-
   void scroll(double xoffset, double yoffset);
+  void resize(int newWidth, int newHeight);
   bool update() const override;
 protected:
   void loadState();

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
 
@@ -7,13 +8,19 @@ using namespace commands;
 StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera) {
   addKeypointTool = std::make_shared<AddKeypointTool>(model);
   currentTool = addKeypointTool;
+}
 
-  meshView = std::make_shared<views::MeshView>();
+void StudioViewController::viewWillAppear(int width, int height) {
+  viewContext.width = width;
+  viewContext.height = height;
+  meshView = std::make_shared<views::MeshView>(width, height);
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
   meshView->addObject(meshDrawable);
 }
 
 void StudioViewController::render() const {
+  assert(meshView != nullptr && "Rendering not initialized");
+
   meshView->render(camera);
 }
 
@@ -43,7 +50,7 @@ void StudioViewController::mouseMoved(double x, double y) {
   if (dragging) {
     float diffX = (x - prevX);
     float diffY = (y - prevY);
-    Quaternionf q = AngleAxisf( diffX*M_PI/2000, Vector3f::UnitY())
+    Quaternionf q = AngleAxisf(diffX*M_PI/2000, Vector3f::UnitY())
                           * AngleAxisf(diffY*M_PI/2000, Vector3f::UnitX());
     camera.rotateAroundTarget(q);
 
@@ -58,6 +65,12 @@ void StudioViewController::mouseMoved(double x, double y) {
 void StudioViewController::scroll(double xoffset, double yoffset) {
   float diff = yoffset * 0.05;
   camera.zoom(diff);
+}
+
+void StudioViewController::resize(int width, int height) {
+  viewContext.width = width;
+  viewContext.height = height;
+  meshView->resize(width, height);
 }
 
 void StudioViewController::keypress(char character) {

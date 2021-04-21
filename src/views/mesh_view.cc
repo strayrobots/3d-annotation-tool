@@ -56,7 +56,7 @@ void MeshDrawable::setDrawingGeometry(const bgfx::UniformHandle& u_color) const 
   bgfx::setIndexBuffer(indexBuffer);
 }
 
-MeshView::MeshView() : lightDir(0.0, 1.0, -1.0, 1.0) {
+MeshView::MeshView(int width, int height) : View(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
   program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
@@ -85,7 +85,7 @@ void MeshView::render(const Camera& camera) const {
   const bx::Vec3 at  = { lookat[0], lookat[1], lookat[2] };
   const bx::Vec3 eye = { position[0], position[1], position[2] };
   const bx::Vec3 up = { cameraUp[0], cameraUp[1], cameraUp[2] };
-  bx::mtxProj(proj, camera.fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
+  bx::mtxProj(proj, camera.fov, float(width)/float(height), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
   bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
 
   bgfx::setViewTransform(0, view, proj);

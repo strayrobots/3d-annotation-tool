@@ -9,7 +9,6 @@
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
   studioViewController(sceneModel), datasetFolder(folder)
 {
-  loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
     double x, y;
@@ -31,6 +30,11 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
     w->scroll(xoffset, yoffset);
   });
+  glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
+    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    std::cout << "window resized: " << width << " " << height << std::endl;
+    w->resize(width, height);
+  });
 
   glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
@@ -45,6 +49,10 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
       }
     }
   });
+
+  glfwGetWindowSize(window, &width, &height);
+  studioViewController.viewWillAppear(width, height);
+  loadState();
 }
 
 void LabelStudio::leftButtonDown(double x, double y) {
@@ -63,12 +71,18 @@ void LabelStudio::scroll(double xoffset, double yoffset) {
   studioViewController.scroll(xoffset, yoffset);
 }
 
+void LabelStudio::resize(int newWidth, int newHeight) {
+  GLFWApp::resize(newWidth, newHeight);
+  studioViewController.resize(newWidth, newHeight);
+}
+
 bool LabelStudio::update() const {
-  bgfx::setViewRect(0, 0, 0, uint16_t(Width), uint16_t(Height));
-  glfwWaitEventsTimeout(0.02);
+  bgfx::setViewRect(0, 0, 0, width, height);
   studioViewController.render();
 
   bgfx::frame();
+
+  glfwWaitEventsTimeout(0.16);
 
   return !glfwWindowShouldClose(window);
 }
