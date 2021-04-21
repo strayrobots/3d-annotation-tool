@@ -14,14 +14,15 @@ namespace views::controls {
 
 class TranslateControl : public views::controls::Control {
 private:
-  std::shared_ptr<views::MeshDrawable> xAxisControl;
-  std::shared_ptr<views::MeshDrawable> yAxisControl;
-  std::shared_ptr<views::MeshDrawable> zAxisControl;
+  std::shared_ptr<views::MeshDrawable> xAxisDrawable;
   Vector3f position = Vector3f::Zero();
   std::optional<std::function<void(double, const Vector3f&)>> callback;
 
   std::unique_ptr<geometry::RayTraceMesh> rtAxisMesh;
 
+  Vector4f xAxisColor = Vector4f(1.0, 0.2, 0.2, 1.0);
+  Vector4f yAxisColor = Vector4f(0.2, 1.0, 0.2, 1.0);
+  Vector4f zAxisColor = Vector4f(0.2, 0.2, 1.0, 1.0);
   Matrix4f yTransform;
   Matrix4f zTransform;
 
@@ -39,11 +40,7 @@ public:
     zTransform = z.matrix();
 
     auto xAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", Matrix4f::Identity(), 0.5);
-    auto yAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", yTransform, 0.5);
-    auto zAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", zTransform, 0.5);
-    xAxisControl = std::make_shared<views::MeshDrawable>(xAxisMesh, Vector4f(1.0, 0.2, 0.2, 1.0));
-    yAxisControl = std::make_shared<views::MeshDrawable>(yAxisMesh, Vector4f(0.2, 1.0, 0.2, 1.0));
-    zAxisControl = std::make_shared<views::MeshDrawable>(zAxisMesh, Vector4f(0.2, 0.2, 1.0, 1.0));
+    xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh, xAxisColor);
     rtAxisMesh = std::make_unique<geometry::RayTraceMesh>(*xAxisMesh);
 
     u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
@@ -69,26 +66,21 @@ public:
   }
 
   void render(const Camera& camera) const override {
-    auto position = camera.getPosition();
-    auto lookat = camera.getLookat();
-    auto cameraUp = camera.getUpVector();
-
-    float proj[16];
-    float view[16];
-    const bx::Vec3 at  = { lookat[0], lookat[1], lookat[2] };
-    const bx::Vec3 eye = { position[0], position[1], position[2] };
-    const bx::Vec3 up = { cameraUp[0], cameraUp[1], cameraUp[2] };
-    bx::mtxProj(proj, camera.fov, float(800)/float(600), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
-    bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
-
-    bgfx::setViewTransform(0, view, proj);
-
     bgfx::setUniform(u_lightDir, lightDir.data(), 1);
-    xAxisControl->setDrawingGeometry(u_color);
+
+    bgfx::setUniform(u_color, xAxisColor.data(), 1);
+    bgfx::setTransform(xAxisDrawable->getTransform().data(), 1);
+    xAxisDrawable->setDrawingGeometry();
     bgfx::submit(0, program);
-    yAxisControl->setDrawingGeometry(u_color);
+
+    bgfx::setUniform(u_color, yAxisColor.data(), 1);
+    bgfx::setTransform(yTransform.data(), 1);
+    xAxisDrawable->setDrawingGeometry();
     bgfx::submit(0, program);
-    zAxisControl->setDrawingGeometry(u_color);
+
+    bgfx::setUniform(u_color, zAxisColor.data(), 1);
+    bgfx::setTransform(zTransform.data(), 1);
+    xAxisDrawable->setDrawingGeometry();
     bgfx::submit(0, program);
   }
 };

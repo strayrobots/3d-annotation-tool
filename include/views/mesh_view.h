@@ -27,9 +27,11 @@ public:
   MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0));
   ~MeshDrawable();
 
-  void setDrawingGeometry(const bgfx::UniformHandle& color) const;
+  void setDrawingGeometry() const;
   void packVertexData();
   void createBuffers();
+  const Vector4f& getColor() { return color; };
+  const Matrix4f& getTransform() { return mesh->getTransform(); };
   void setAlpha(float value);
 };
 

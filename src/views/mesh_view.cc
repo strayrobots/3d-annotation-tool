@@ -49,9 +49,7 @@ void MeshDrawable::packVertexData() {
   }
 }
 
-void MeshDrawable::setDrawingGeometry(const bgfx::UniformHandle& u_color) const {
-  bgfx::setUniform(u_color, color.data(), 1);
-  bgfx::setTransform(mesh->getTransform().data());
+void MeshDrawable::setDrawingGeometry() const {
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
 }
@@ -102,7 +100,9 @@ void MeshView::render(const Camera& camera) const {
 
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   for (const auto& object : objects) {
-    object->setDrawingGeometry(u_color);
+    bgfx::setUniform(u_color, object->getColor().data(), 1);
+    bgfx::setTransform(object->getTransform().data());
+    object->setDrawingGeometry();
     bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
         | BGFX_STATE_MSAA
         | BGFX_STATE_WRITE_A
