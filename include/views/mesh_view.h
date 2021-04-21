@@ -33,7 +33,7 @@ public:
   void setAlpha(float value);
 };
 
-class MeshView : public views::View {
+class MeshView : public views::SizedView {
 private:
   bgfx::UniformHandle u_color, u_lightDir;
   bgfx::ProgramHandle program;

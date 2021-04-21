@@ -60,7 +60,7 @@ void MeshDrawable::setAlpha(float value) {
   color[3] = value;
 }
 
-MeshView::MeshView(int width, int height) : View(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
+MeshView::MeshView(int width, int height) : SizedView(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
   program = shader_utils::loadProgram("vs_mesh", "fs_mesh");

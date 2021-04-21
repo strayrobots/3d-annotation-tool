@@ -7,10 +7,8 @@ RayTraceMesh::RayTraceMesh(const geometry::TriangleMesh& mesh) :
     nanoMesh(mesh.vertices().data(), mesh.faces().data(), sizeof(float) * 3) {
   nanort::TriangleSAHPred<float> trianglePred(mesh.vertices().data(), mesh.faces().data(), sizeof(float) * 3);
   nanort::BVHBuildOptions<float> build_options;
-  std::cout << "Building bounding volume hierarchy.\r" << std::flush;
   auto ret = bvh.Build(mesh.faces().rows(), nanoMesh, trianglePred, build_options);
   assert(ret && "Can't build bounding volume hierarchy.");
-  std::cout << "Done building bounding volume hierarchy." << std::endl;
   nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }
 
