@@ -1,6 +1,7 @@
-#ifndef H_MESH
-#define H_MESH
+#pragma once
 #include <eigen3/Eigen/Dense>
+
+using namespace Eigen;
 
 using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
@@ -50,4 +51,3 @@ public:
   ~Mesh();
 };
 }
-#endif
