@@ -10,6 +10,7 @@
 #include "scene_model.h"
 #include "view_context_3d.h"
 #include "commands/command.h"
+#include "controllers/controller.h"
 
 class StudioViewController {
 private:
@@ -27,7 +28,6 @@ private:
   std::shared_ptr<tools::MoveKeypointTool> moveKeypointTool;
   std::shared_ptr<tools::Tool> currentTool;
 
-
   Camera camera;
   ViewContext3D viewContext;
 public:
@@ -39,12 +39,14 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
-  void leftButtonDown(double x, double y);
-  void leftButtonUp(double x, double y);
-  void mouseMoved(double x, double y);
-  void scroll(double xoffset, double yoffset);
-  void keypress(char character);
-  void resize(int width, int height);
+
+  bool leftButtonDown(double x, double y) ;
+  bool leftButtonUp(double x, double y) ;
+  bool mouseMoved(double x, double y) ;
+  bool scroll(double xoffset, double yoffset) ;
+  bool keypress(char character) ;
+
+  void resize(int width, int height) ;
   // Commands.
   void undo();
   void pushCommand(std::unique_ptr<commands::Command>);

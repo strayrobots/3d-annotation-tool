@@ -34,6 +34,8 @@ public:
   Vector3f getRightVector(void) const;
   Vector3f computeRayWorld(float width, float height, double x, double y) const;
 
+  Vector2f projectPoint(const Vector3f& point) const;
+
   void updatePosition(const Vector3f& p);
   void updateLookat(const Vector3f& newLookat);
   void rotateAroundTarget(const Quaternionf& q);

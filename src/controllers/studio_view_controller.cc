@@ -30,28 +30,41 @@ void StudioViewController::render() const {
 }
 
 // Input handling.
-void StudioViewController::leftButtonDown(double x, double y) {
+bool StudioViewController::leftButtonDown(double x, double y) {
+  viewContext.mousePositionX = x;
+  viewContext.mousePositionY = y;
+  if (annotationController.leftButtonDown(viewContext)) {
+    return true;
+  }
   dragging = true;
   moved = false;
   prevX = x;
   prevY = y;
+  return true;
 }
 
-void StudioViewController::leftButtonUp(double x, double y) {
+bool StudioViewController::leftButtonUp(double x, double y) {
+  if (annotationController.leftButtonUp(viewContext)) return true;
   dragging = false;
   if (!moved) {
     auto optionalCommand = currentTool->leftClick(pointingAt);
     if (optionalCommand.has_value()) {
       optionalCommand.value()->execute(*this, sceneModel);
       commandStack.push_back(std::move(optionalCommand.value()));
+      return true;
     }
   }
+  return false;
 }
 
-void StudioViewController::mouseMoved(double x, double y) {
-  moved = true;
+bool StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+  if (annotationController.mouseMoved(viewContext)) {
+    return true;
+  }
+
+  moved = true;
   if (dragging) {
     float diffX = (x - prevX);
     float diffY = (y - prevY);
@@ -65,11 +78,13 @@ void StudioViewController::mouseMoved(double x, double y) {
 
   const Vector3f& rayDirection = camera.computeRayWorld(viewContext.width, viewContext.height, x, y);
   pointingAt = sceneModel.traceRay(camera.getPosition(), rayDirection);
+  return true;
 }
 
-void StudioViewController::scroll(double xoffset, double yoffset) {
+bool StudioViewController::scroll(double xoffset, double yoffset) {
   float diff = yoffset * 0.05;
   camera.zoom(diff);
+  return true;
 }
 
 void StudioViewController::resize(int width, int height) {
@@ -78,16 +93,19 @@ void StudioViewController::resize(int width, int height) {
   meshView->resize(width, height);
 }
 
-void StudioViewController::keypress(char character) {
+bool StudioViewController::keypress(char character) {
   if (character == 'K') {
     currentTool->deactivate();
     currentTool = addKeypointTool;
     currentTool->activate();
+    return true;
   } else if (character == 'V') {
     currentTool->deactivate();
     currentTool = moveKeypointTool;
     currentTool->activate();
+    return true;
   }
+  return false;
 }
 
 // Commands.

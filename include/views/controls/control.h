@@ -4,7 +4,10 @@
 
 namespace views::controls {
 class Control : public View {
-  virtual bool hitTest(const ViewContext3D& viewContext) const = 0;
+public:
+  virtual bool leftButtonDown(const ViewContext3D& viewContext) { return false; };
+  virtual bool leftButtonUp(const ViewContext3D& viewContext) { return false; };
+  virtual bool mouseMoved(const ViewContext3D& viewContext) { return false; };
 };
 }
 

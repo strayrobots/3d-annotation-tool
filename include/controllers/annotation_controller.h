@@ -31,6 +31,33 @@ public:
     controls.erase(item);
   }
 
+  // Mouse events.
+  bool leftButtonDown(const ViewContext3D& viewContext) override {
+    bool hitControl = false;
+    for (auto& control : controls) {
+      hitControl = control->leftButtonDown(viewContext);
+    }
+
+    return hitControl;
+  }
+
+  bool leftButtonUp(const ViewContext3D& viewContext) override {
+    bool hitControl = false;
+    for (auto& control : controls) {
+      hitControl = control->leftButtonUp(viewContext);
+    }
+
+    return hitControl;
+  }
+
+  bool mouseMoved(const ViewContext3D& viewContext) override {
+    bool hitControl = false;
+    for (auto& control : controls) {
+      hitControl = control->mouseMoved(viewContext);
+    }
+    return hitControl;
+  }
+
   void addKeypoint(const Vector3f& position) {
     Matrix4f T = Matrix4f::Identity();
     T.block(0, 3, 3, 1) = position;

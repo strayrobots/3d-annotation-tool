@@ -40,6 +40,11 @@ Vector3f Camera::computeRayWorld(float width, float height, double x, double y) 
     return orientation * ray_C.normalized();
 }
 
+Vector2f Camera::projectPoint(const Vector3f& point) const {
+    Vector3f viewVector = viewMatrix * point;
+    return (viewVector / viewVector[2]).head<2>();
+}
+
 void Camera::updatePosition(const Vector3f& p) {
     setPosition(p);
 }
