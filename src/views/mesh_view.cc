@@ -80,7 +80,7 @@ void MeshView::setAlpha(float value) {
   }
 }
 
-void MeshView::render(const Camera& camera) const {
+void MeshView::setCameraTransform(const Camera& camera) const {
   float proj[16];
   float view[16];
 
@@ -95,18 +95,25 @@ void MeshView::render(const Camera& camera) const {
   bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
 
   bgfx::setViewTransform(0, view, proj);
+}
 
+void MeshView::renderObject(const std::shared_ptr<views::MeshDrawable>& object) const {
+  bgfx::setUniform(u_lightDir, lightDir.data(), 1);
+  bgfx::setUniform(u_color, object->getColor().data(), 1);
+  bgfx::setTransform(object->getTransform().data());
+  object->setDrawingGeometry();
+  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
+      | BGFX_STATE_MSAA
+      | BGFX_STATE_WRITE_A
+      | BGFX_STATE_WRITE_RGB
+      | BGFX_STATE_BLEND_ALPHA);
+  bgfx::submit(0, program);
+}
+
+void MeshView::render(const Camera& camera) const {
+  setCameraTransform(camera);
   for (const auto& object : objects) {
-    bgfx::setUniform(u_lightDir, lightDir.data(), 1);
-    bgfx::setUniform(u_color, object->getColor().data(), 1);
-    bgfx::setTransform(object->getTransform().data());
-    object->setDrawingGeometry();
-    bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
-        | BGFX_STATE_MSAA
-        | BGFX_STATE_WRITE_A
-        | BGFX_STATE_WRITE_RGB
-        | BGFX_STATE_BLEND_ALPHA);
-    bgfx::submit(0, program);
+    renderObject(object);
   }
 }
 

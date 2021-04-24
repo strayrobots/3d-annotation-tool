@@ -2,22 +2,21 @@
 #include <eigen3/Eigen/Dense>
 #include "commands/command.h"
 #include "scene_model.h"
+#include "views/controls/translate.h"
 
 class StudioViewController;
 
 namespace commands {
 
 using namespace Eigen;
-class AddKeypointCommand : public Command {
+class MoveKeypointCommand : public Command {
 private:
-  const Vector3f& position;
-  Keypoint keypoint = {-1, Vector3f(0, 0, 0)};
+  Keypoint oldKeypoint;
+  Keypoint newKeypoint;
 public:
-  AddKeypointCommand(const Vector3f& k);
-  ~AddKeypointCommand() override;
+  MoveKeypointCommand(Keypoint kp, const Vector3f& newPosition);
 
   void execute(StudioViewController& view, SceneModel& sceneModel) override;
   void undo(StudioViewController& view, SceneModel& sceneModel) override;
 };
 }
-

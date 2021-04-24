@@ -9,16 +9,14 @@
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
-#include "commands/command.h"
 #include "controllers/controller.h"
 
 class StudioViewController {
 private:
   SceneModel& sceneModel;
   std::shared_ptr<views::MeshDrawable> meshDrawable;
-  std::list<std::unique_ptr<commands::Command>> commandStack;
+  CommandStack& commandStack;
 
-  std::optional<Vector3f> pointingAt;
   // Changing view point.
   double prevX, prevY;
   bool dragging = false, moved = false;
@@ -35,7 +33,7 @@ public:
   controllers::AnnotationController annotationController;
   std::shared_ptr<views::MeshView> meshView;
 
-  StudioViewController(SceneModel& model);
+  StudioViewController(SceneModel& model, CommandStack& stack);
   void viewWillAppear(int width, int height);
 
   void render() const;
@@ -47,8 +45,5 @@ public:
   bool keypress(char character) ;
 
   void resize(int width, int height) ;
-  // Commands.
-  void undo();
-  void pushCommand(std::unique_ptr<commands::Command>);
 };
 

@@ -10,19 +10,18 @@ using namespace commands;
 
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
-  StudioViewController view(sceneModel);
+  CommandStack stack;
+  StudioViewController view(sceneModel, stack);
   view.viewWillAppear(500, 500);
   AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
   command.execute(view, sceneModel);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
-  ASSERT_EQ(view.annotationController.meshView->getObjects().size(), 1);
 
   command.undo(view, sceneModel);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 0);
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
-  ASSERT_EQ(view.annotationController.meshView->getObjects().size(), 0);
 }
 
 int main(int argc, char **argv) {

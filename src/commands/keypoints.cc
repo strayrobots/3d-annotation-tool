@@ -4,21 +4,17 @@
 
 namespace commands {
 
-AddKeypointCommand::AddKeypointCommand(const Vector3f& k) : keypoint(k) {
+AddKeypointCommand::AddKeypointCommand(const Vector3f& p) : position(p) {
 }
 AddKeypointCommand::~AddKeypointCommand() {}
 
 void AddKeypointCommand::execute(StudioViewController& view, SceneModel& sceneModel) {
-  auto keypoints = sceneModel.getKeypoints();
-  keypoints.push_back(keypoint);
-  sceneModel.setKeypoints(keypoints);
+  keypoint = sceneModel.addKeypoint(position);
   view.annotationController.addKeypoint(keypoint);
 }
 
 void AddKeypointCommand::undo(StudioViewController& view, SceneModel& sceneModel) {
-  auto keypoints = sceneModel.getKeypoints();
-  keypoints.pop_back();
-  sceneModel.setKeypoints(keypoints);
+  sceneModel.removeKeypoint(keypoint);
   view.annotationController.removeKeypoint(keypoint);
 }
 }

@@ -12,6 +12,10 @@ TriangleMesh::TriangleMesh(const Matrix4f T) : transform(T) {}
 
 const Matrix4f& TriangleMesh::getTransform() const { return transform; }
 
+void TriangleMesh::setTranslation(const Vector3f& t) {
+  transform.block<3, 1>(0, 3) = t;
+}
+
 void TriangleMesh::setRotation(const Matrix3f& rotation) {
   transform.block<3, 3>(0, 0) = rotation;
 }

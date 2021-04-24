@@ -32,6 +32,7 @@ public:
   void createBuffers();
   const Vector4f& getColor() { return color; };
   const Matrix4f& getTransform() { return mesh->getTransform(); };
+  void setPosition(const Vector3f& p) { mesh->setTranslation(p); };
   void setAlpha(float value);
 };
 
@@ -50,6 +51,8 @@ public:
   void popObject() { objects.pop_back(); }
   void setAlpha(float value);
 
+  void setCameraTransform(const Camera& camera) const;
+  void renderObject(const std::shared_ptr<views::MeshDrawable>& object) const;
   virtual void render(const Camera& camera) const override;
 };
 

@@ -22,10 +22,9 @@ public:
   TriangleMesh(const Matrix4f T = Matrix4f::Identity());
 
   const Matrix4f& getTransform() const;
-
+  void setTranslation(const Vector3f& t);
   void setRotation(const Matrix3f& rotation);
   void setTransform(const Matrix4f& T);
-  const Eigen::Matrix4f& getTransform() { return transform; };
 
   const RowMatrixf& vertices() const { return V; }
   const RowMatrixi& faces() const { return F; }

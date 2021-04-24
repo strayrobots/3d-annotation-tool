@@ -5,7 +5,9 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model) : sceneModel(model), camera(Vector3f(0.0, 0.0, 1.0), -2.0), viewContext(camera), annotationController() {
+StudioViewController::StudioViewController(SceneModel& model, CommandStack& stack) :
+    sceneModel(model), commandStack(stack), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
+    viewContext(camera), annotationController(model) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
@@ -13,8 +15,8 @@ void StudioViewController::viewWillAppear(int width, int height) {
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
   meshView->addObject(meshDrawable);
 
-  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel);
-  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, meshView, annotationController);
+  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, *this, commandStack);
+  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, *this, annotationController, commandStack);
   currentTool = addKeypointTool;
 
   viewContext.width = width;
@@ -33,6 +35,9 @@ void StudioViewController::render() const {
 bool StudioViewController::leftButtonDown(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+  if (currentTool->leftButtonDown(viewContext)) {
+    return true;
+  }
   if (annotationController.leftButtonDown(viewContext)) {
     return true;
   }
@@ -44,28 +49,34 @@ bool StudioViewController::leftButtonDown(double x, double y) {
 }
 
 bool StudioViewController::leftButtonUp(double x, double y) {
-  if (annotationController.leftButtonUp(viewContext)) return true;
-  dragging = false;
+  viewContext.mousePositionX = x;
+  viewContext.mousePositionY = y;
   if (!moved) {
-    auto optionalCommand = currentTool->leftClick(pointingAt);
-    if (optionalCommand.has_value()) {
-      optionalCommand.value()->execute(*this, sceneModel);
-      commandStack.push_back(std::move(optionalCommand.value()));
+    if (currentTool->leftButtonUp(viewContext)) {
+      dragging = false;
+      moved = false;
       return true;
     }
+  } else {
+    moved = false;
   }
+  dragging = false;
+  //if (annotationController.leftButtonUp(viewContext)) return true;
   return false;
 }
 
 bool StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+  if (currentTool->mouseMoved(viewContext)) {
+    return true;
+  }
   if (annotationController.mouseMoved(viewContext)) {
     return true;
   }
 
-  moved = true;
   if (dragging) {
+    moved = true;
     float diffX = (x - prevX);
     float diffY = (y - prevY);
     Quaternionf q = AngleAxisf(diffX*M_PI/2000, Vector3f::UnitY())
@@ -76,8 +87,6 @@ bool StudioViewController::mouseMoved(double x, double y) {
     prevY = y;
   }
 
-  const Vector3f& rayDirection = camera.computeRayWorld(viewContext.width, viewContext.height, x, y);
-  pointingAt = sceneModel.traceRay(camera.getPosition(), rayDirection);
   return true;
 }
 
@@ -107,16 +116,3 @@ bool StudioViewController::keypress(char character) {
   }
   return false;
 }
-
-// Commands.
-void StudioViewController::undo() {
-  if (commandStack.empty()) return;
-  commandStack.back()->undo(*this, sceneModel);
-  commandStack.pop_back();
-}
-
-void StudioViewController::pushCommand(std::unique_ptr<Command> command) {
-  commandStack.push_back(std::move(command));
-}
-
-

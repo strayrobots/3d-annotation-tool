@@ -1,6 +1,6 @@
 #include "tools/tool.h"
 
 namespace tools {
-Tool::Tool(const SceneModel& model) : sceneModel(model) {}
+Tool::Tool(SceneModel& model, CommandStack& stack) : sceneModel(model), commandStack(stack) {}
 
 }

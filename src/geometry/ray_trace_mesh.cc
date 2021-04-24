@@ -1,13 +1,12 @@
 #include <iostream>
 #include "geometry/ray_trace_mesh.h"
 
-
 namespace geometry {
-RayTraceMesh::RayTraceMesh(const geometry::TriangleMesh& mesh) :
-    nanoMesh(mesh.vertices().data(), mesh.faces().data(), sizeof(float) * 3) {
-  nanort::TriangleSAHPred<float> trianglePred(mesh.vertices().data(), mesh.faces().data(), sizeof(float) * 3);
+RayTraceMesh::RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> m) : nanoMesh(m->vertices().data(), m->faces().data(), sizeof(float) * 3) {
+  mesh = m;
+  nanort::TriangleSAHPred<float> trianglePred(mesh->vertices().data(), mesh->faces().data(), sizeof(float) * 3);
   nanort::BVHBuildOptions<float> build_options;
-  auto ret = bvh.Build(mesh.faces().rows(), nanoMesh, trianglePred, build_options);
+  auto ret = bvh.Build(mesh->faces().rows(), nanoMesh, trianglePred, build_options);
   assert(ret && "Can't build bounding volume hierarchy.");
   nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }

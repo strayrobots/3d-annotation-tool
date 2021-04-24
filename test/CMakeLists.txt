@@ -5,7 +5,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
 file(GLOB TEST_FILES *.cc)
-file(GLOB LIB_FILES ${CMAKE_SOURCE_DIR}/src/**/*.cc ${CMAKE_SOURCE_DIR}/src/*.cc)
+file(GLOB_RECURSE LIB_FILES ${CMAKE_SOURCE_DIR}/src/*.cc)
 
 add_library(shared_lib ${LIB_FILES})
 target_link_libraries(shared_lib bgfx bx bimg glfw ${eigen3_LIBRARIES})

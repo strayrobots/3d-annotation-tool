@@ -7,7 +7,7 @@
 #include "3rdparty/json.hpp"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
-  studioViewController(sceneModel), datasetFolder(folder)
+  commandStack(), studioViewController(sceneModel, commandStack), datasetFolder(folder)
 {
   loadState();
 
@@ -43,7 +43,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
       if((CommandModifier == mods) && (GLFW_KEY_S == key)) {
         w->sceneModel.save();
       } else if ((CommandModifier == mods) && (GLFW_KEY_Z == key)) {
-        w->studioViewController.undo();
+        w->undo();
       } else {
         char characterPressed = key;
         w->studioViewController.keypress(characterPressed);
@@ -87,6 +87,12 @@ bool LabelStudio::update() const {
   return !glfwWindowShouldClose(window);
 }
 
+void LabelStudio::undo() {
+  if (commandStack.empty()) return;
+  commandStack.back()->undo(studioViewController, sceneModel);
+  commandStack.pop_back();
+}
+
 void LabelStudio::loadState() {
   std::filesystem::path keypointPath(datasetFolder / "keypoints.json");
   if (!std::filesystem::exists(keypointPath)) return;
@@ -97,7 +103,7 @@ void LabelStudio::loadState() {
     auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
     std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(k);
     command->execute(studioViewController, sceneModel);
-    studioViewController.pushCommand(std::move(command));
+    commandStack.push_back(std::move(command));
   }
 }
 
