@@ -10,7 +10,8 @@
 #include "camera.h"
 #include "geometry/mesh.h"
 
-class SceneModel {
+class SceneModel
+{
 private:
   std::filesystem::path datasetPath;
   // Geometry.
@@ -21,6 +22,7 @@ private:
 
   // Keypoints.
   std::vector<Eigen::Vector3f> keypoints;
+
 public:
   SceneModel(const std::string& datasetFolder);
 
@@ -31,6 +33,7 @@ public:
   void setKeypoints(std::vector<Vector3f>& points) { keypoints = points; };
   void popKeypoint();
   void save() const;
+
 private:
   void initRayTracing();
 };
