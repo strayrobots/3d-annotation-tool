@@ -13,22 +13,26 @@ const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 #endif
 
 using namespace commands;
-class LabelStudio : public GLFWApp {
+class LabelStudio : public GLFWApp
+{
 private:
   const std::filesystem::path datasetFolder;
+
 public:
   SceneModel sceneModel;
   StudioViewController studioViewController;
+  InputModifier currentInputModifier;
 
   LabelStudio(const std::string& folder);
 
   void leftButtonDown(double x, double y);
+  void setInputModifier(int mods);
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
   void scroll(double xoffset, double yoffset);
   void resize(int newWidth, int newHeight);
   bool update() const override;
+
 protected:
   void loadState();
 };
-

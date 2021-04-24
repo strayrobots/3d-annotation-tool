@@ -8,8 +8,10 @@
 #include "scene_model.h"
 #include "view_context_3d.h"
 #include "commands/command.h"
+#include "glfw_app.h"
 
-class StudioViewController {
+class StudioViewController
+{
 private:
   SceneModel& sceneModel;
   std::shared_ptr<views::MeshDrawable> meshDrawable;
@@ -17,7 +19,6 @@ private:
 
   std::optional<Vector3f> pointingAt;
   // Changing view point.
-  double prevX, prevY;
   bool dragging = false, moved = false;
 
   // Tools.
@@ -26,6 +27,7 @@ private:
 
   Camera camera;
   ViewContext3D viewContext;
+
 public:
   std::shared_ptr<views::MeshView> meshView;
 
@@ -35,7 +37,7 @@ public:
   void render() const;
   void leftButtonDown(double x, double y);
   void leftButtonUp(double x, double y);
-  void mouseMoved(double x, double y);
+  void mouseMoved(double x, double y, InputModifier inputModifier);
   void scroll(double xoffset, double yoffset);
   void keypress(char character);
   void resize(int width, int height);
@@ -43,4 +45,3 @@ public:
   void undo();
   void pushCommand(std::unique_ptr<commands::Command>);
 };
-
