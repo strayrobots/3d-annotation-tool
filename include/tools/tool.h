@@ -19,4 +19,4 @@ public:
   virtual bool leftButtonUp(const ViewContext3D& context) { return false; };
   virtual bool mouseMoved(const ViewContext3D& context) { return false; }
 };
-}
+} // namespace tools

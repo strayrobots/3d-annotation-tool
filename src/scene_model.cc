@@ -34,6 +34,7 @@ void SceneModel::removeKeypoint(const Keypoint& kp) {
   keypoints.erase(iterator);
 }
 
+
 Keypoint SceneModel::getKeypoint(int id) const {
   for (int i=0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
@@ -68,4 +69,3 @@ void SceneModel::save() const {
 
 void SceneModel::initRayTracing() {
 }
-

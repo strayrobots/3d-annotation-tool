@@ -16,32 +16,32 @@
 using namespace Eigen;
 
 static void* glfwNativeWindowHandle(GLFWwindow* _window) {
-# if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
   return (void*)(uintptr_t)glfwGetX11Window(_window);
-# elif BX_PLATFORM_OSX
+#elif BX_PLATFORM_OSX
   return glfwGetCocoaWindow(_window);
-# elif BX_PLATFORM_WINDOWS
+#elif BX_PLATFORM_WINDOWS
   return glfwGetWin32Window(_window);
-# endif // BX_PLATFORM_
+#endif // BX_PLATFORM_
 }
 
-static void glfwDestroyWindowImpl(GLFWwindow *_window) {
-  if(!_window)
+static void glfwDestroyWindowImpl(GLFWwindow* _window) {
+  if (!_window)
     return;
-# if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-#   if ENTRY_CONFIG_USE_WAYLAND
-  wl_egl_window *win_impl = (wl_egl_window*)glfwGetWindowUserPointer(_window);
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#if ENTRY_CONFIG_USE_WAYLAND
+  wl_egl_window* win_impl = (wl_egl_window*)glfwGetWindowUserPointer(_window);
   if (win_impl) {
     glfwSetWindowUserPointer(_window, nullptr);
     wl_egl_window_destroy(win_impl);
   }
-#		endif
-#	endif
+#endif
+#endif
   glfwDestroyWindow(_window);
 }
 
 static void errorCb(int _error, const char* _description) {
-  std::cout << "GLFW error " << _error << ":" <<  _description << std::endl;
+  std::cout << "GLFW error " << _error << ":" << _description << std::endl;
 }
 
 GLFWApp::GLFWApp(std::string name) {
@@ -106,4 +106,3 @@ void GLFWApp::resize(int newWidth, int newHeight) {
   height = newHeight;
   bgfx::reset(width, height, BGFX_RESET_NONE | BGFX_RESET_VSYNC);
 }
-

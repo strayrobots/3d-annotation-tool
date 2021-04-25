@@ -79,8 +79,7 @@ bool StudioViewController::mouseMoved(double x, double y) {
     moved = true;
     float diffX = (x - prevX);
     float diffY = (y - prevY);
-    Quaternionf q = AngleAxisf(diffX*M_PI/2000, Vector3f::UnitY())
-                          * AngleAxisf(diffY*M_PI/2000, Vector3f::UnitX());
+    Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
     camera.rotateAroundTarget(q);
 
     prevX = x;

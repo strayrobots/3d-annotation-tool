@@ -17,4 +17,4 @@ void AddKeypointCommand::undo(StudioViewController& view, SceneModel& sceneModel
   sceneModel.removeKeypoint(keypoint);
   view.annotationController.removeKeypoint(keypoint);
 }
-}
+} // namespace commands

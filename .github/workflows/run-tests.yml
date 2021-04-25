@@ -1,0 +1,28 @@
+name: Run tests
+on: [push]
+jobs:
+  Run-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Get submodules
+        run: git submodule update --init --recursive
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential ninja-build libglfw3-dev libeigen3-dev libgtest-dev
+      - name: Build project
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -GNinja
+          ninja build_tests
+      - name: Run tests
+        run: |
+          cd build && ctest -V
+

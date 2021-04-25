@@ -13,12 +13,11 @@ class Command {
    * the state of the scene model back to where it was prior to executing the command.
    **/
 public:
-  virtual ~Command() {};
+  virtual ~Command(){};
   virtual void execute(StudioViewController& studio, SceneModel& sceneModel) = 0;
   virtual void undo(StudioViewController& studio, SceneModel& sceneModel) = 0;
 };
 
 using CommandStack = std::list<std::unique_ptr<commands::Command>>;
 
-}
-
+} // namespace commands

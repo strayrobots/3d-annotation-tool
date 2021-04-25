@@ -28,6 +28,7 @@ private:
 
   Camera camera;
   ViewContext3D viewContext;
+
 public:
   // Subcontrollers
   controllers::AnnotationController annotationController;
@@ -46,4 +47,3 @@ public:
 
   void resize(int width, int height) ;
 };
-

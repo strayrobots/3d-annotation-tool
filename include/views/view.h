@@ -14,6 +14,7 @@ public:
 class SizedView : public View {
 protected:
   int width, height;
+
 public:
   SizedView(int w, int h) : View(), width(w), height(h) {};
   void resize(int newWidth, int newHeight) {
@@ -22,7 +23,6 @@ public:
   }
 };
 
-}
+} // namespace views
 
 #endif
-

@@ -20,5 +20,4 @@ public:
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;
 };
-}
-
+} // namespace tools

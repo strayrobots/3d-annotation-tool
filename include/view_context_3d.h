@@ -11,4 +11,3 @@ public:
   double mousePositionX = 0.0;
   double mousePositionY = 0.0;
 };
-

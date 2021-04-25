@@ -24,6 +24,7 @@ private:
 
   // Keypoints.
   std::vector<Keypoint> keypoints;
+
 public:
   SceneModel(const std::string& datasetFolder);
 
@@ -36,6 +37,7 @@ public:
   void updateKeypoint(int keypointId, Keypoint kp);
   Keypoint getKeypoint(int keypointId) const;
   void save() const;
+
 private:
   void initRayTracing();
 };
