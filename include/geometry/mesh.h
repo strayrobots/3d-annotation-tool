@@ -54,4 +54,3 @@ public:
   ~Mesh();
 };
 } // namespace geometry
-#endif
