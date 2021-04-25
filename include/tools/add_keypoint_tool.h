@@ -13,15 +13,14 @@ class AddKeypointTool : public Tool {
 private:
 public:
   AddKeypointTool(const SceneModel& model) : Tool(model) {
-
   }
 
   std::optional<std::unique_ptr<Command>> leftClick(const std::optional<Vector3f>& pointingAt) override {
-    if (!pointingAt.has_value()) return {};
+    if (!pointingAt.has_value())
+      return {};
     std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
     std::cout << "Added keypoint: " << pointingAt.value().transpose() << std::endl;
     return command;
   }
 };
-}
-
+} // namespace tools

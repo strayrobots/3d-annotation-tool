@@ -25,4 +25,4 @@ void AddKeypointCommand::undo(StudioViewController& view, SceneModel& sceneModel
   sceneModel.setKeypoints(keypoints);
   view.meshView->popObject();
 }
-}
+} // namespace commands

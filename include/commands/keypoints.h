@@ -15,6 +15,7 @@ class AddKeypointCommand : public Command {
 private:
   const Vector3f& keypoint;
   std::shared_ptr<geometry::Sphere> sphere;
+
 public:
   AddKeypointCommand(const Vector3f& k);
   ~AddKeypointCommand() override;
@@ -22,5 +23,5 @@ public:
   void execute(StudioViewController& view, SceneModel& sceneModel) override;
   void undo(StudioViewController& view, SceneModel& sceneModel) override;
 };
-}
+} // namespace commands
 #endif

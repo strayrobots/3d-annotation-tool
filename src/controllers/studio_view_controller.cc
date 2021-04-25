@@ -50,8 +50,7 @@ void StudioViewController::mouseMoved(double x, double y) {
   if (dragging) {
     float diffX = (x - prevX);
     float diffY = (y - prevY);
-    Quaternionf q = AngleAxisf(diffX*M_PI/2000, Vector3f::UnitY())
-                          * AngleAxisf(diffY*M_PI/2000, Vector3f::UnitX());
+    Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
     camera.rotateAroundTarget(q);
 
     prevX = x;
@@ -81,7 +80,8 @@ void StudioViewController::keypress(char character) {
 
 // Commands.
 void StudioViewController::undo() {
-  if (commandStack.empty()) return;
+  if (commandStack.empty())
+    return;
   commandStack.back()->undo(*this, sceneModel);
   commandStack.pop_back();
 }
@@ -89,5 +89,3 @@ void StudioViewController::undo() {
 void StudioViewController::pushCommand(std::unique_ptr<Command> command) {
   commandStack.push_back(std::move(command));
 }
-
-

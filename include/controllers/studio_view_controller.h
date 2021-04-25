@@ -26,6 +26,7 @@ private:
 
   Camera camera;
   ViewContext3D viewContext;
+
 public:
   std::shared_ptr<views::MeshView> meshView;
 
@@ -43,4 +44,3 @@ public:
   void undo();
   void pushCommand(std::unique_ptr<commands::Command>);
 };
-

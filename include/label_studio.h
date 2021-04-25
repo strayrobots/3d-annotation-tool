@@ -16,6 +16,7 @@ using namespace commands;
 class LabelStudio : public GLFWApp {
 private:
   const std::filesystem::path datasetFolder;
+
 public:
   SceneModel sceneModel;
   StudioViewController studioViewController;
@@ -28,7 +29,7 @@ public:
   void scroll(double xoffset, double yoffset);
   void resize(int newWidth, int newHeight);
   bool update() const override;
+
 protected:
   void loadState();
 };
-
