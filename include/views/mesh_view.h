@@ -23,6 +23,7 @@ private:
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
+
 public:
   MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0));
   ~MeshDrawable();
@@ -38,6 +39,7 @@ private:
   bgfx::ProgramHandle program;
   std::vector<std::shared_ptr<views::MeshDrawable>> objects;
   Vector4f lightDir;
+
 public:
   MeshView(int width, int height);
   ~MeshView();
@@ -49,5 +51,5 @@ public:
   virtual void render(const Camera& camera) const override;
 };
 
-}
+} // namespace views
 #endif

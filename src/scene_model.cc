@@ -41,7 +41,8 @@ std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vecto
 }
 
 void SceneModel::popKeypoint() {
-  if (keypoints.empty()) return;
+  if (keypoints.empty())
+    return;
   keypoints.pop_back();
 }
 
@@ -49,7 +50,7 @@ void SceneModel::save() const {
   auto keypointPath = datasetPath / "keypoints.json";
   nlohmann::json json = nlohmann::json::array();
   for (size_t i = 0; i < keypoints.size(); i++) {
-    json[i] = { {"x", keypoints[i][0]}, {"y", keypoints[i][1]}, {"z", keypoints[i][2]} };
+    json[i] = {{"x", keypoints[i][0]}, {"y", keypoints[i][1]}, {"z", keypoints[i][2]}};
   }
   std::ofstream file(keypointPath.string());
   file << json;
@@ -69,4 +70,3 @@ void SceneModel::initRayTracing() {
   std::cout << "Done building bounding volume hierarchy." << std::endl;
   nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }
-

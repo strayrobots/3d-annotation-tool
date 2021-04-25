@@ -16,9 +16,9 @@ using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
 MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c) : mesh(m), color(c) {
   layout.begin()
-    .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-    .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
-    .end();
+      .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+      .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
+      .end();
   packVertexData();
   createBuffers();
 }
@@ -41,8 +41,8 @@ void MeshDrawable::packVertexData() {
   const auto& N = mesh->getVertexNormals();
 
   vertexData.resize(V.rows(), 6);
-  #pragma omp parallel for
-  for (int i=0; i < V.rows(); i++) {
+#pragma omp parallel for
+  for (int i = 0; i < V.rows(); i++) {
     auto vertex = V.row(i);
     vertexData.block<1, 3>(i, 0) = V.row(i);
     vertexData.block<1, 3>(i, 3) = N.row(i);
@@ -82,10 +82,10 @@ void MeshView::render(const Camera& camera) const {
   auto lookat = camera.getLookat();
   auto cameraUp = camera.getUpVector();
 
-  const bx::Vec3 at  = { lookat[0], lookat[1], lookat[2] };
-  const bx::Vec3 eye = { position[0], position[1], position[2] };
-  const bx::Vec3 up = { cameraUp[0], cameraUp[1], cameraUp[2] };
-  bx::mtxProj(proj, camera.fov, float(width)/float(height), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
+  const bx::Vec3 at = {lookat[0], lookat[1], lookat[2]};
+  const bx::Vec3 eye = {position[0], position[1], position[2]};
+  const bx::Vec3 up = {cameraUp[0], cameraUp[1], cameraUp[2]};
+  bx::mtxProj(proj, camera.fov, float(width) / float(height), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
   bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
 
   bgfx::setViewTransform(0, view, proj);
@@ -98,4 +98,4 @@ void MeshView::render(const Camera& camera) const {
   }
 }
 
-}
+} // namespace views

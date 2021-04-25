@@ -17,6 +17,7 @@ protected:
   RowMatrixf V; // Vertices.
   RowMatrixi F;
   RowMatrixf vertexNormals;
+
 public:
   TriangleMesh(const Matrix4f T = Matrix4f::Identity());
 
@@ -30,6 +31,7 @@ public:
   const RowMatrixi& faces() const { return F; }
   const RowMatrixf& getVertexNormals() const { return vertexNormals; }
   Eigen::RowVector3f getMeshMean() const;
+
 protected:
   void computeNormals();
 };
@@ -37,8 +39,10 @@ protected:
 class Sphere : public TriangleMesh {
 private:
   float radius;
+
 public:
   Sphere(const Matrix4f T, float radius);
+
 private:
   void createSphere();
   void subdivide();
@@ -49,5 +53,5 @@ public:
   Mesh(const std::string& meshFile);
   ~Mesh();
 };
-}
+} // namespace geometry
 #endif
