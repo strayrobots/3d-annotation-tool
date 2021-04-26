@@ -2,8 +2,7 @@
 #include "controllers/studio_view_controller.h"
 
 namespace tools {
-AddKeypointTool::AddKeypointTool(SceneModel& model, StudioViewController& c, CommandStack& stack) :
-    Tool(model, stack), studioViewController(c) {
+AddKeypointTool::AddKeypointTool(SceneModel& model, StudioViewController& c, CommandStack& stack) : Tool(model, stack), studioViewController(c) {
 }
 
 bool AddKeypointTool::leftButtonUp(const ViewContext3D& viewContext) {
@@ -18,9 +17,9 @@ bool AddKeypointTool::leftButtonUp(const ViewContext3D& viewContext) {
 
 bool AddKeypointTool::mouseMoved(const ViewContext3D& viewContext) {
   const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
-    viewContext.mousePositionX, viewContext.mousePositionY);
+                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
   pointingAt = sceneModel.traceRay(viewContext.camera.getPosition(), rayDirection);
   return false;
 }
 
-};
+}; // namespace tools

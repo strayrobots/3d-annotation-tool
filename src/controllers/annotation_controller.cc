@@ -8,7 +8,7 @@ const Vector4f KeypointColor(1.0, 0.5, 0.5, 1.0);
 namespace controllers {
 
 AnnotationController::AnnotationController(const SceneModel& model) : sceneModel(model),
-    controls(), keypoints(){
+                                                                      controls(), keypoints() {
 }
 
 void AnnotationController::viewWillAppear(int width, int height) {
@@ -63,7 +63,7 @@ void AnnotationController::render(const Camera& camera) const {
   if (meshView == nullptr) return;
   if (!keypoints.empty()) {
     meshView->setCameraTransform(camera);
-    for (auto iter=keypoints.begin(); iter != keypoints.end(); iter++) {
+    for (auto iter = keypoints.begin(); iter != keypoints.end(); iter++) {
       meshView->renderObject(iter->second.keypointMesh);
     }
   }
@@ -72,5 +72,4 @@ void AnnotationController::render(const Camera& camera) const {
   }
 }
 
-}
-
+} // namespace controllers

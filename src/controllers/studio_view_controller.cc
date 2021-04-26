@@ -5,9 +5,8 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, CommandStack& stack) :
-    sceneModel(model), commandStack(stack), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
-    viewContext(camera), annotationController(model) {
+StudioViewController::StudioViewController(SceneModel& model, CommandStack& stack) : sceneModel(model), commandStack(stack), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
+                                                                                     viewContext(camera), annotationController(model) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {

@@ -50,7 +50,7 @@ private:
 
 class Mesh : public TriangleMesh {
 public:
-  Mesh(const std::string& meshFile, const Matrix4f& T = Matrix4f::Identity(), float scale=1.0);
+  Mesh(const std::string& meshFile, const Matrix4f& T = Matrix4f::Identity(), float scale = 1.0);
   ~Mesh();
 };
 } // namespace geometry

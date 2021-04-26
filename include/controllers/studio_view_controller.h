@@ -39,11 +39,11 @@ public:
 
   void render() const;
 
-  bool leftButtonDown(double x, double y) ;
-  bool leftButtonUp(double x, double y) ;
-  bool mouseMoved(double x, double y) ;
-  bool scroll(double xoffset, double yoffset) ;
-  bool keypress(char character) ;
+  bool leftButtonDown(double x, double y);
+  bool leftButtonUp(double x, double y);
+  bool mouseMoved(double x, double y);
+  bool scroll(double xoffset, double yoffset);
+  bool keypress(char character);
 
-  void resize(int width, int height) ;
+  void resize(int width, int height);
 };

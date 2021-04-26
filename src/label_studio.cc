@@ -8,8 +8,7 @@
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
 
-  commandStack(), studioViewController(sceneModel, commandStack), datasetFolder(folder)
-{
+                                                      commandStack(), studioViewController(sceneModel, commandStack), datasetFolder(folder) {
   loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {

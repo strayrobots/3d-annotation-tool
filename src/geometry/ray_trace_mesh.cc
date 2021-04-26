@@ -42,4 +42,4 @@ std::optional<Vector3f> RayTraceMesh::traceRay(const Vector3f& origin, const Vec
   }
   return {};
 }
-}
+} // namespace geometry

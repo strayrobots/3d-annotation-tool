@@ -13,10 +13,11 @@ class MoveKeypointCommand : public Command {
 private:
   Keypoint oldKeypoint;
   Keypoint newKeypoint;
+
 public:
   MoveKeypointCommand(Keypoint kp, const Vector3f& newPosition);
 
   void execute(StudioViewController& view, SceneModel& sceneModel) override;
   void undo(StudioViewController& view, SceneModel& sceneModel) override;
 };
-}
+} // namespace commands

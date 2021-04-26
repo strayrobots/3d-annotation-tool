@@ -5,7 +5,7 @@
 namespace commands {
 
 MoveKeypointCommand::MoveKeypointCommand(Keypoint kp, const Vector3f& newPosition) : oldKeypoint(kp),
-  newKeypoint(kp.id, newPosition) {
+                                                                                     newKeypoint(kp.id, newPosition) {
 }
 
 void MoveKeypointCommand::execute(StudioViewController& view, SceneModel& sceneModel) {
@@ -17,5 +17,4 @@ void MoveKeypointCommand::undo(StudioViewController& view, SceneModel& sceneMode
   sceneModel.updateKeypoint(oldKeypoint.id, oldKeypoint);
   view.annotationController.setKeypointPosition(oldKeypoint, oldKeypoint.position);
 }
-};
-
+}; // namespace commands

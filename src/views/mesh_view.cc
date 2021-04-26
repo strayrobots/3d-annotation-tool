@@ -102,11 +102,7 @@ void MeshView::renderObject(const std::shared_ptr<views::MeshDrawable>& object) 
   bgfx::setUniform(u_color, object->getColor().data(), 1);
   bgfx::setTransform(object->getTransform().data());
   object->setDrawingGeometry();
-  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
-      | BGFX_STATE_MSAA
-      | BGFX_STATE_WRITE_A
-      | BGFX_STATE_WRITE_RGB
-      | BGFX_STATE_BLEND_ALPHA);
+  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
   bgfx::submit(0, program);
 }
 

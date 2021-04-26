@@ -5,8 +5,8 @@
 #include "3rdparty/json.hpp"
 
 SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder),
-    mesh(new geometry::Mesh((datasetPath / "scene" / "integrated.ply").string())),
-    rtMesh(mesh) {
+                                                           mesh(new geometry::Mesh((datasetPath / "scene" / "integrated.ply").string())),
+                                                           rtMesh(mesh) {
   initRayTracing();
 }
 
@@ -25,7 +25,7 @@ Keypoint SceneModel::addKeypoint(const Vector3f& p) {
 void SceneModel::removeKeypoint(const Keypoint& kp) {
   if (keypoints.empty()) return;
   auto iterator = std::find_if(keypoints.begin(), keypoints.end(), [&](const Keypoint& keypoint) {
-      return keypoint.id == kp.id;
+    return keypoint.id == kp.id;
   });
   if (iterator == keypoints.end()) {
     std::cout << "Keypoint " << kp.id << " was not found. Should not happen." << std::endl;
@@ -34,9 +34,8 @@ void SceneModel::removeKeypoint(const Keypoint& kp) {
   keypoints.erase(iterator);
 }
 
-
 Keypoint SceneModel::getKeypoint(int id) const {
-  for (int i=0; i < keypoints.size(); i++) {
+  for (int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
       return keypoints[i];
     }
@@ -47,7 +46,7 @@ Keypoint SceneModel::getKeypoint(int id) const {
 void SceneModel::updateKeypoint(int id, Keypoint kp) {
   assert(kp.id == id && "Keypoint needs to be the same as the one being updated.");
   int value = -1;
-  for (int i=0; i < keypoints.size(); i++) {
+  for (int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
       value = i;
       keypoints[i] = kp;
@@ -60,7 +59,7 @@ void SceneModel::save() const {
   auto keypointPath = datasetPath / "keypoints.json";
   nlohmann::json json = nlohmann::json::array();
   for (size_t i = 0; i < keypoints.size(); i++) {
-    json[i] = { {"x", keypoints[i].position[0]}, {"y", keypoints[i].position[1]}, {"z", keypoints[i].position[2]} };
+    json[i] = {{"x", keypoints[i].position[0]}, {"y", keypoints[i].position[1]}, {"z", keypoints[i].position[2]}};
   }
   std::ofstream file(keypointPath.string());
   file << json;

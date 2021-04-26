@@ -9,8 +9,8 @@ using namespace tools;
 
 namespace tools {
 MoveKeypointTool::MoveKeypointTool(SceneModel& model, StudioViewController& c,
-    controllers::AnnotationController& annotation, CommandStack& stack) : Tool(model, stack),
-    studioController(c), annotationController(annotation), rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01))  {
+                                   controllers::AnnotationController& annotation, CommandStack& stack) : Tool(model, stack),
+                                                                                                         studioController(c), annotationController(annotation), rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)) {
   translateControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPosition) {
     newValue = newPosition;
     annotationController.setKeypointPosition(currentKeypoint, newPosition);
@@ -36,7 +36,7 @@ bool MoveKeypointTool::leftButtonDown(const ViewContext3D& context) {
   for (const Keypoint& kp : sceneModel.getKeypoints()) {
     auto position = context.camera.getPosition() - kp.position;
     auto rayDirection = context.camera.computeRayWorld(context.width, context.height,
-        context.mousePositionX, context.mousePositionY);
+                                                       context.mousePositionX, context.mousePositionY);
     auto hit = rtKeypointSphere.traceRay(position, rayDirection);
     if (hit.has_value()) {
       currentKeypoint = kp;
@@ -66,5 +66,4 @@ void MoveKeypointTool::deactivate() {
   annotationController.removeControl(translateControl);
   studioController.meshView->setAlpha(1.0);
 }
-};
-
+}; // namespace tools

@@ -21,5 +21,4 @@ public:
   void undo(StudioViewController& view, SceneModel& sceneModel) override;
 };
 
-}
-
+} // namespace commands

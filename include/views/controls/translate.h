@@ -20,7 +20,8 @@ private:
   Vector4f xAxisColor = Vector4f(1.0, 0.2, 0.2, 1.0);
   Vector4f yAxisColor = Vector4f(0.2, 1.0, 0.2, 1.0);
   Vector4f zAxisColor = Vector4f(0.2, 0.2, 1.0, 1.0);
-  Transform<float, 3, Eigen::Affine> currentTransform = Transform<float, 3, Eigen::Affine>::Identity();;
+  Transform<float, 3, Eigen::Affine> currentTransform = Transform<float, 3, Eigen::Affine>::Identity();
+  ;
   Transform<float, 3, Eigen::Affine> yTransform;
   Transform<float, 3, Eigen::Affine> zTransform;
 
@@ -31,6 +32,7 @@ private:
   int activeAxis = -1;
   // Point on the chosen axis that is being dragged.
   Vector3f dragPoint;
+
 public:
   TranslateControl(std::function<void(const Vector3f&)> cb);
   ~TranslateControl();
@@ -42,4 +44,4 @@ public:
   void render(const Camera& camera) const override;
 };
 
-}
+} // namespace views::controls

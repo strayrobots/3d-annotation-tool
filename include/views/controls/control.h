@@ -9,5 +9,4 @@ public:
   virtual bool leftButtonUp(const ViewContext3D& viewContext) { return false; };
   virtual bool mouseMoved(const ViewContext3D& viewContext) { return false; };
 };
-}
-
+} // namespace views::controls

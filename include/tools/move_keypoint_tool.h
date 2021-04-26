@@ -20,14 +20,14 @@ private:
   std::shared_ptr<views::controls::TranslateControl> translateControl;
   geometry::RayTraceMesh rtKeypointSphere;
   bool active = false;
+
 public:
   MoveKeypointTool(SceneModel& model, StudioViewController& c,
-      controllers::AnnotationController& annotation, CommandStack& stack);
+                   controllers::AnnotationController& annotation, CommandStack& stack);
   bool leftButtonUp(const ViewContext3D& context) override;
   bool leftButtonDown(const ViewContext3D& context) override;
   bool mouseMoved(const ViewContext3D& context) override;
   void activate() override;
   void deactivate() override;
 };
-}
-
+} // namespace tools

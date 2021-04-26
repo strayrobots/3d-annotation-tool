@@ -10,11 +10,11 @@
 
 namespace views::controls {
 
-TranslateControl::TranslateControl(std::function<void(const Vector3f&)>cb) : callback(cb)  {
+TranslateControl::TranslateControl(std::function<void(const Vector3f&)> cb) : callback(cb) {
   yTransform = Transform<float, 3, Eigen::Affine>::Identity();
   zTransform = Transform<float, 3, Eigen::Affine>::Identity();
-  yTransform.rotate(AngleAxisf(M_PI/2.0, Vector3f(0.0, 0.0, 1.0)));
-  zTransform.rotate(AngleAxisf(-M_PI/2.0, Vector3f(0.0, 1.0, 0.0)));
+  yTransform.rotate(AngleAxisf(M_PI / 2.0, Vector3f(0.0, 0.0, 1.0)));
+  zTransform.rotate(AngleAxisf(-M_PI / 2.0, Vector3f(0.0, 1.0, 0.0)));
 
   auto xAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", Matrix4f::Identity(), 0.5);
   xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh, xAxisColor);
@@ -35,7 +35,7 @@ bool TranslateControl::leftButtonDown(const ViewContext3D& viewContext) {
   activeAxis = -1;
   const Vector3f& cameraOrigin = viewContext.camera.getPosition() - currentTransform.translation();
   const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
-      viewContext.mousePositionX, viewContext.mousePositionY);
+                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
   auto hitX = rtAxisMesh->traceRay(cameraOrigin, rayDirection);
   if (hitX.has_value()) {
     activeAxis = 0;
@@ -67,7 +67,7 @@ bool TranslateControl::mouseMoved(const ViewContext3D& viewContext) {
   if (activeAxis < 0) return false;
   const Vector3f& cameraOrigin = viewContext.camera.getPosition() - currentTransform.translation();
   const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
-      viewContext.mousePositionX, viewContext.mousePositionY);
+                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
   const Vector3f& translation = currentTransform.translation();
   Vector3f change;
   if (activeAxis == 0) {
@@ -119,4 +119,4 @@ void TranslateControl::render(const Camera& camera) const {
   bgfx::submit(0, program);
 }
 
-}
+} // namespace views::controls

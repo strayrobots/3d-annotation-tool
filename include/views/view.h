@@ -16,7 +16,7 @@ protected:
   int width, height;
 
 public:
-  SizedView(int w, int h) : View(), width(w), height(h) {};
+  SizedView(int w, int h) : View(), width(w), height(h){};
   void resize(int newWidth, int newHeight) {
     width = newWidth;
     height = newHeight;

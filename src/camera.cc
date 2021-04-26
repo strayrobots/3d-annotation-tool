@@ -41,8 +41,8 @@ Vector3f Camera::computeRayWorld(float width, float height, double x, double y) 
 }
 
 Vector2f Camera::projectPoint(const Vector3f& point) const {
-    Vector3f viewVector = viewMatrix * point;
-    return (viewVector / viewVector[2]).head<2>();
+  Vector3f viewVector = viewMatrix * point;
+  return (viewVector / viewVector[2]).head<2>();
 }
 
 void Camera::updatePosition(const Vector3f& p) {

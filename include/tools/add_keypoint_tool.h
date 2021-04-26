@@ -15,6 +15,7 @@ class AddKeypointTool : public Tool {
 private:
   StudioViewController& studioViewController;
   std::optional<Vector3f> pointingAt;
+
 public:
   AddKeypointTool(SceneModel& model, StudioViewController& c, CommandStack& stack);
   bool leftButtonUp(const ViewContext3D& viewContext) override;

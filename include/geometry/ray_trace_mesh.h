@@ -18,4 +18,4 @@ public:
   RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> mesh);
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction) const;
 };
-}
+} // namespace geometry

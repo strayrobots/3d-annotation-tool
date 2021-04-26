@@ -15,13 +15,13 @@ private:
   struct KeypointAnnotation {
     Keypoint keypoint;
     std::shared_ptr<views::MeshDrawable> keypointMesh;
-    KeypointAnnotation(Keypoint kp, std::shared_ptr<views::MeshDrawable> mesh) :
-      keypoint(kp), keypointMesh(mesh) {}
+    KeypointAnnotation(Keypoint kp, std::shared_ptr<views::MeshDrawable> mesh) : keypoint(kp), keypointMesh(mesh) {}
   };
 
   const SceneModel& sceneModel;
   std::vector<std::shared_ptr<views::controls::Control>> controls;
   std::map<int, KeypointAnnotation> keypoints;
+
 public:
   std::shared_ptr<views::MeshView> meshView;
 
@@ -38,7 +38,6 @@ public:
   void removeKeypoint(const Keypoint& p);
   void render(const Camera& camera) const;
 
-  void setKeypointPosition(const Keypoint &kp, Vector3f p);
+  void setKeypointPosition(const Keypoint& kp, Vector3f p);
 };
-}
-
+} // namespace controllers
