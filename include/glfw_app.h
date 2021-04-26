@@ -3,20 +3,12 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-#if BX_PLATFORM_OSX
-const unsigned int CommandModifier = GLFW_MOD_SUPER;
-#else
-const unsigned int CommandModifier = GLFW_MOD_CONTROL;
-#endif
-
-enum class InputModifier
-{
+enum class InputModifier {
   command,
   NONE
 };
 
-class GLFWApp
-{
+class GLFWApp {
 protected:
   GLFWwindow* window;
   std::shared_ptr<views::View> view;

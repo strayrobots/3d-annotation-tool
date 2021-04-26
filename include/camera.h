@@ -3,8 +3,7 @@
 
 using namespace Eigen;
 
-class Camera
-{
+class Camera {
 private:
   Vector3f position;
   Vector3f lookat;
@@ -15,6 +14,7 @@ private:
   void setPosition(const Vector3f& p) { position = p; }
   void setLookat(const Vector3f& l) { lookat = l; }
   void setOrientation(const Quaternionf& q) { orientation = q; }
+
   Matrix3f getCameraRotation(const Vector3f& forwardVector) const;
 
 public:
@@ -35,6 +35,8 @@ public:
   Vector3f computeRayWorld(float width, float height, double x, double y) const;
 
   void reset(const Vector3f lookat, const Vector3f position);
+  Vector2f projectPoint(const Vector3f& point) const;
+
   void updatePosition(const Vector3f& p);
   void updateLookat(const Vector3f& newLookat);
   void rotateAroundTarget(const Quaternionf& q);
