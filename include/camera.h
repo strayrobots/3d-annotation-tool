@@ -10,10 +10,10 @@ private:
   Quaternionf orientation;
   Affine3f viewMatrix;
 
-  void setViewMatrix(const Affine3f& newViewMatrix) { viewMatrix = newViewMatrix;}
-  void setPosition(const Vector3f& p) { position = p;}
+  void setViewMatrix(const Affine3f& newViewMatrix) { viewMatrix = newViewMatrix; }
+  void setPosition(const Vector3f& p) { position = p; }
   void setLookat(const Vector3f& l) { lookat = l; }
-  void setOrientation(const Quaternionf& q) { orientation = q;}
+  void setOrientation(const Quaternionf& q) { orientation = q; }
 
   Matrix3f getCameraRotation(const Vector3f& forwardVector) const;
 
@@ -34,9 +34,10 @@ public:
   Vector3f getRightVector(void) const;
   Vector3f computeRayWorld(float width, float height, double x, double y) const;
 
+  Vector2f projectPoint(const Vector3f& point) const;
+
   void updatePosition(const Vector3f& p);
   void updateLookat(const Vector3f& newLookat);
   void rotateAroundTarget(const Quaternionf& q);
   void zoom(float d);
 };
-

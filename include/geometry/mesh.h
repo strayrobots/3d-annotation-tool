@@ -1,16 +1,15 @@
-#ifndef H_MESH
-#define H_MESH
+#pragma once
 #include <eigen3/Eigen/Dense>
+
+using namespace Eigen;
 
 using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
-namespace geometry
-{
+namespace geometry {
 
-class TriangleMesh
-{
+class TriangleMesh {
 protected:
   // Transforms.
   Eigen::Matrix4f transform;
@@ -27,10 +26,9 @@ public:
   TriangleMesh(const Matrix4f T = Matrix4f::Identity());
 
   const Matrix4f& getTransform() const;
-
+  void setTranslation(const Vector3f& t);
   void setRotation(const Matrix3f& rotation);
   void setTransform(const Matrix4f& T);
-  const Eigen::Matrix4f& getTransform() { return transform; };
 
   const RowMatrixf& vertices() const { return V; }
   const RowMatrixi& faces() const { return F; }
@@ -42,8 +40,7 @@ protected:
   void computeNormals();
 };
 
-class Sphere : public TriangleMesh
-{
+class Sphere : public TriangleMesh {
 private:
   float radius;
 
@@ -55,11 +52,9 @@ private:
   void subdivide();
 };
 
-class Mesh : public TriangleMesh
-{
+class Mesh : public TriangleMesh {
 public:
-  Mesh(const std::string& meshFile);
+  Mesh(const std::string& meshFile, const Matrix4f& T = Matrix4f::Identity(), float scale = 1.0);
   ~Mesh();
 };
 } // namespace geometry
-#endif

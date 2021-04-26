@@ -7,13 +7,11 @@
 #include "views/view.h"
 #include "geometry/mesh.h"
 
-namespace views
-{
+namespace views {
 
 using namespace Eigen;
 
-class MeshDrawable
-{
+class MeshDrawable {
 private:
   std::shared_ptr<geometry::TriangleMesh> mesh;
   Eigen::Matrix<float, Eigen::Dynamic, 7, Eigen::RowMajor> vertexData;
@@ -33,10 +31,13 @@ public:
   void setDrawingGeometry() const;
   void packVertexData();
   void createBuffers();
+  const Vector4f& getColor() { return defaultColor; };
+  const Matrix4f& getTransform() { return mesh->getTransform(); };
+  void setPosition(const Vector3f& p) { mesh->setTranslation(p); };
+  void setAlpha(float value);
 };
 
-class MeshView : public views::View
-{
+class MeshView : public views::SizedView {
 private:
   bgfx::UniformHandle u_color, u_lightDir;
   bgfx::ProgramHandle program;
@@ -50,7 +51,10 @@ public:
 
   void addObject(std::shared_ptr<MeshDrawable> obj);
   void popObject() { objects.pop_back(); }
+  void setAlpha(float value);
 
+  void setCameraTransform(const Camera& camera) const;
+  void renderObject(const std::shared_ptr<views::MeshDrawable>& object) const;
   virtual void render(const Camera& camera) const override;
 };
 

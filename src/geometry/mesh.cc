@@ -6,29 +6,28 @@
 #include "shader_utils.h"
 #include "views/mesh_view.h"
 
-namespace geometry
-{
+namespace geometry {
 
 TriangleMesh::TriangleMesh(const Matrix4f T) : transform(T) {}
 
 const Matrix4f& TriangleMesh::getTransform() const { return transform; }
 
-void TriangleMesh::setRotation(const Matrix3f& rotation)
-{
+void TriangleMesh::setTranslation(const Vector3f& t) {
+  transform.block<3, 1>(0, 3) = t;
+}
+
+void TriangleMesh::setRotation(const Matrix3f& rotation) {
   transform.block<3, 3>(0, 0) = rotation;
 }
 
-void TriangleMesh::setTransform(const Matrix4f& T)
-{
+void TriangleMesh::setTransform(const Matrix4f& T) {
   transform = T;
 }
 
-void TriangleMesh::computeNormals()
-{
+void TriangleMesh::computeNormals() {
   RowMatrixf faceNormals = RowMatrixf::Zero(F.rows(), 3);
 #pragma omp parallel for
-  for (int i = 0; i < F.rows(); i++)
-  {
+  for (int i = 0; i < F.rows(); i++) {
     auto vertex_indices = F.row(i);
     auto vertex1 = V.row(vertex_indices[0]);
     auto vertex2 = V.row(vertex_indices[1]);
@@ -39,8 +38,7 @@ void TriangleMesh::computeNormals()
     faceNormals.row(i) = a.cross(b);
   }
   vertexNormals.resize(V.rows(), 3);
-  for (int i = 0; i < F.rows(); i++)
-  {
+  for (int i = 0; i < F.rows(); i++) {
     auto vertex_indices = F.row(i);
     Eigen::RowVector3f normal = faceNormals.row(i);
     vertexNormals.row(vertex_indices[0]) += normal;
@@ -49,25 +47,21 @@ void TriangleMesh::computeNormals()
   }
 
 #pragma omp parallel for
-  for (int i = 0; i < vertexNormals.rows(); i++)
-  {
+  for (int i = 0; i < vertexNormals.rows(); i++) {
     vertexNormals.row(i) = vertexNormals.row(i).normalized();
   }
 }
 
-Eigen::RowVector3f TriangleMesh::getMeshMean() const
-{
+Eigen::RowVector3f TriangleMesh::getMeshMean() const {
   Eigen::RowVector3f mean = V.colwise().mean();
   return mean;
 }
 
-Sphere::Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius)
-{
+Sphere::Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius) {
   createSphere();
 }
 
-void Sphere::createSphere()
-{
+void Sphere::createSphere() {
   // Creates a sphere by starting with a tetrahedron, then subdivides the triangles
   // a few times while normalizing vertices, resulting in an approximation of a sphere.
   const double X = 0.5;
@@ -77,16 +71,13 @@ void Sphere::createSphere()
   uint32_t faceIndices[20][3] = {
       {0, 4, 1}, {0, 9, 4}, {9, 5, 4}, {4, 5, 8}, {4, 8, 1}, {8, 10, 1}, {8, 3, 10}, {5, 3, 8}, {5, 2, 3}, {2, 7, 3}, {7, 10, 3}, {7, 6, 10}, {7, 11, 6}, {11, 0, 6}, {0, 1, 6}, {6, 1, 10}, {9, 0, 11}, {9, 11, 2}, {9, 2, 5}, {7, 2, 11}};
   F.resize(20, 3);
-  for (int i = 0; i < 20; i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
+  for (int i = 0; i < 20; i++) {
+    for (int j = 0; j < 3; j++) {
       F(i, j) = faceIndices[i][j];
     }
   }
   V.resize(12, 3);
-  for (int i = 0; i < 12; i++)
-  {
+  for (int i = 0; i < 12; i++) {
     V.row(i) = RowVector3f(vdata[i][0], vdata[i][1], vdata[i][2]).normalized() * radius;
   }
 
@@ -95,15 +86,13 @@ void Sphere::createSphere()
   computeNormals();
 }
 
-void Sphere::subdivide()
-{
+void Sphere::subdivide() {
   RowMatrixf newVertices(V.rows() + 3 * F.rows(), 3);
   RowMatrixi newFaces(F.rows() * 4, 3);
   newVertices.block(0, 0, V.rows(), 3) = V.block(0, 0, V.rows(), 3);
   RowVector3f origin = RowVector3f::Zero();
   int nextVertexIndex = V.rows();
-  for (int i = 0; i < F.rows(); i++)
-  {
+  for (int i = 0; i < F.rows(); i++) {
     TriangleFace triangle = F.row(i);
     RowVector3f a = V.row(triangle[0]);
     RowVector3f b = V.row(triangle[1]);
@@ -133,34 +122,30 @@ void Sphere::subdivide()
   V = newVertices;
 }
 
-Mesh::Mesh(const std::string& meshFile) : TriangleMesh()
-{
+Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : TriangleMesh(T) {
   happly::PLYData plyIn(meshFile);
   const auto& vertices = plyIn.getVertexPositions();
   std::vector<std::array<unsigned char, 3>> colors;
-  try
-  {
+  try {
+    std::cout << "Colors" << std::endl;
     colors = plyIn.getVertexColors();
-    if (vertices.size() == colors.size())
-    {
+    std::cout << "got Colors" << std::endl;
+    if (vertices.size() == colors.size()) {
       colorsFromFile = true;
       vertexColors.resize(colors.size(), 1);
     }
-    }
-  catch (...)
-  {
+    std::cout << "Colors 3" << std::endl;
+  } catch (...) {
     std::cout << "No mesh vertex color data found." << std::endl;
   }
 
   V.resize(vertices.size(), 3);
   uint8_t a = 0xff;
-  for (int i = 0; i < vertices.size(); i++)
-  {
-    V(i, 0) = float(vertices[i][0]);
-    V(i, 1) = float(vertices[i][1]);
-    V(i, 2) = float(vertices[i][2]);
-    if (colorsFromFile)
-    {
+  for (int i = 0; i < vertices.size(); i++) {
+    V(i, 0) = float(vertices[i][0]) * scale;
+    V(i, 1) = float(vertices[i][1]) * scale;
+    V(i, 2) = float(vertices[i][2]) * scale;
+    if (colorsFromFile) {
       uint8_t r = colors[i][0];
       uint8_t g = colors[i][1];
       uint8_t b = colors[i][2];
@@ -170,18 +155,15 @@ Mesh::Mesh(const std::string& meshFile) : TriangleMesh()
   }
   auto faces = plyIn.getFaceIndices<size_t>();
   F.resize(faces.size(), 3);
-  for (int i = 0; i < faces.size(); i++)
-  {
-    for (int j = 0; j < 3; j++)
-    {
+  for (int i = 0; i < faces.size(); i++) {
+    for (int j = 0; j < 3; j++) {
       F(i, j) = faces[i][j];
     }
   }
   computeNormals();
 }
 
-Mesh::~Mesh()
-{
+Mesh::~Mesh() {
 }
 
 } // namespace geometry

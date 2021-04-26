@@ -1,55 +1,65 @@
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include "scene_model.h"
+#include "3rdparty/json.hpp"
 
-SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder) {
-  auto scenePath = datasetPath / "scene" / "integrated.ply";
-  mesh = std::make_shared<geometry::Mesh>(scenePath.string());
-  auto meshMean = mesh->getMeshMean();
+SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder),
+                                                           mesh(new geometry::Mesh((datasetPath / "scene" / "integrated.ply").string())),
+                                                           rtMesh(mesh) {
   initRayTracing();
 }
 
 std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
 
 std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vector3f& direction) {
-  nanort::Ray<float> ray;
-  ray.min_t = 0.0;
-  ray.max_t = 1e9f;
-
-  ray.org[0] = origin[0];
-  ray.org[1] = origin[1];
-  ray.org[2] = origin[2];
-
-  ray.dir[0] = direction[0];
-  ray.dir[1] = direction[1];
-  ray.dir[2] = direction[2];
-  const auto& faces = mesh->faces();
-  nanort::TriangleIntersector<float, nanort::TriangleIntersection<float>> triangleIntersector(mesh->vertices().data(), faces.data(), sizeof(float) * 3);
-  nanort::TriangleIntersection<float> isect;
-  bool pointingAtMesh = bvh.Traverse(ray, triangleIntersector, &isect);
-  if (pointingAtMesh) {
-    uint32_t faceId = isect.prim_id;
-    const auto& face = faces.row(faceId);
-    const Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& vertices = mesh->vertices();
-    auto vertex1 = vertices.row(face[0]);
-    auto vertex2 = vertices.row(face[1]);
-    auto vertex3 = vertices.row(face[2]);
-    Vector3f point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
-    return std::make_optional(point);
-  }
-  return {};
+  return rtMesh.traceRay(origin, direction);
 }
 
-void SceneModel::popKeypoint() {
+Keypoint SceneModel::addKeypoint(const Vector3f& p) {
+  Keypoint kp(keypoints.size() + 1, p);
+  keypoints.push_back(kp);
+  return kp;
+}
+
+void SceneModel::removeKeypoint(const Keypoint& kp) {
   if (keypoints.empty()) return;
-  keypoints.pop_back();
+  auto iterator = std::find_if(keypoints.begin(), keypoints.end(), [&](const Keypoint& keypoint) {
+    return keypoint.id == kp.id;
+  });
+  if (iterator == keypoints.end()) {
+    std::cout << "Keypoint " << kp.id << " was not found. Should not happen." << std::endl;
+    return;
+  }
+  keypoints.erase(iterator);
+}
+
+Keypoint SceneModel::getKeypoint(int id) const {
+  for (int i = 0; i < keypoints.size(); i++) {
+    if (keypoints[i].id == id) {
+      return keypoints[i];
+    }
+  }
+  return Keypoint(-1);
+}
+
+void SceneModel::updateKeypoint(int id, Keypoint kp) {
+  assert(kp.id == id && "Keypoint needs to be the same as the one being updated.");
+  int value = -1;
+  for (int i = 0; i < keypoints.size(); i++) {
+    if (keypoints[i].id == id) {
+      value = i;
+      keypoints[i] = kp;
+      return;
+    }
+  }
 }
 
 void SceneModel::save() const {
   auto keypointPath = datasetPath / "keypoints.json";
   nlohmann::json json = nlohmann::json::array();
   for (size_t i = 0; i < keypoints.size(); i++) {
-    json[i] = { {"x", keypoints[i][0]}, {"y", keypoints[i][1]}, {"z", keypoints[i][2]} };
+    json[i] = {{"x", keypoints[i].position[0]}, {"y", keypoints[i].position[1]}, {"z", keypoints[i].position[2]}};
   }
   std::ofstream file(keypointPath.string());
   file << json;
@@ -57,16 +67,4 @@ void SceneModel::save() const {
 }
 
 void SceneModel::initRayTracing() {
-  const auto& faces = mesh->faces();
-  const float* vertices = mesh->vertices().data();
-  const uint32_t* indices = faces.data();
-  nanoMesh = std::make_unique<nanort::TriangleMesh<float>>(vertices, indices, sizeof(float) * 3);
-  triangle_pred = std::make_unique<nanort::TriangleSAHPred<float>>(vertices, indices, sizeof(float) * 3);
-  nanort::BVHBuildOptions<float> build_options;
-  std::cout << "Building bounding volume hierarchy.\r" << std::flush;
-  auto ret = bvh.Build(faces.rows(), *nanoMesh.get(), *triangle_pred.get(), build_options);
-  assert(ret);
-  std::cout << "Done building bounding volume hierarchy." << std::endl;
-  nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }
-

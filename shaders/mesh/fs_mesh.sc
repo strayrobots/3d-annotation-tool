@@ -9,5 +9,5 @@ void main() {
   vec3 light_dir = u_light_dir.xyz;
 
   gl_FragColor.xyz = color * max(dot(v_normal, light_dir) * 0.5 + 0.5, 0.25);
-  gl_FragColor.w = 1.0;
+  gl_FragColor.w = v_color0.w;
 }
