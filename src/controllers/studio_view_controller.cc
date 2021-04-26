@@ -66,7 +66,7 @@ bool StudioViewController::leftButtonUp(double x, double y) {
   return false;
 }
 
-bool StudioViewController::mouseMoved(double x, double y, InputModifier inputModifier) {
+bool StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (currentTool->mouseMoved(viewContext)) {
@@ -76,16 +76,12 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier inputMod
     return true;
   }
 
-  if (dragging)
-  {
+  if (dragging) {
     float diffX = float(x - prevX);
     float diffY = float(y - prevY);
-    if (inputModifier == InputModifier::command)
-    {
+    if (inputModifier == InputModifier::command) {
       camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
-    }
-    else
-    {
+    } else {
       Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
       camera.rotateAroundTarget(q);
     }

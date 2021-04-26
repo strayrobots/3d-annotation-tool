@@ -20,7 +20,6 @@ public:
   SceneModel sceneModel;
   std::list<std::unique_ptr<commands::Command>> commandStack;
   StudioViewController studioViewController;
-  InputModifier currentInputModifier;
 
   LabelStudio(const std::string& folder);
 

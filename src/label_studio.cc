@@ -59,9 +59,9 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
 
 void LabelStudio::setInputModifier(int mods) {
   if (mods == CommandModifier) {
-    currentInputModifier = InputModifier::command;
+    studioViewController.setInputModifier(InputModifier::command);
   } else {
-    currentInputModifier = InputModifier::NONE;
+    studioViewController.setInputModifier(InputModifier::NONE);
   }
 }
 
@@ -74,7 +74,7 @@ void LabelStudio::leftButtonUp(double x, double y) {
 }
 
 void LabelStudio::mouseMoved(double x, double y) {
-  studioViewController.mouseMoved(x, y, currentInputModifier);
+  studioViewController.mouseMoved(x, y);
 }
 
 void LabelStudio::scroll(double xoffset, double yoffset) {

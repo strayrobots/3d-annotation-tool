@@ -3,11 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-enum class InputModifier {
-  command,
-  NONE
-};
-
 class GLFWApp {
 protected:
   GLFWwindow* window;

@@ -9,9 +9,13 @@
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
-#include "commands/command.h"
 #include "glfw_app.h"
 #include "controllers/controller.h"
+
+enum class InputModifier {
+  command,
+  NONE
+};
 
 class StudioViewController {
 private:
@@ -20,8 +24,9 @@ private:
   CommandStack& commandStack;
 
   // Changing view point.
-  bool dragging = false, moved = false;
   double prevX, prevY;
+  bool dragging = false, moved = false;
+  InputModifier inputModifier;
 
   // Tools.
   std::shared_ptr<tools::AddKeypointTool> addKeypointTool;
@@ -40,9 +45,10 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
+  void setInputModifier(InputModifier newInputModifier) { inputModifier = newInputModifier; }
   bool leftButtonDown(double x, double y);
   bool leftButtonUp(double x, double y);
-  bool mouseMoved(double x, double y, InputModifier inputModifier);
+  bool mouseMoved(double x, double y);
   bool scroll(double xoffset, double yoffset);
   bool keypress(char character);
   void resize(int width, int height);
