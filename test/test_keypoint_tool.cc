@@ -1,26 +1,39 @@
 #include <optional>
 #include <gtest/gtest.h>
 #include <eigen3/Eigen/Dense>
+#include <bgfx/bgfx.h>
 #include "scene_model.h"
 #include "tools/add_keypoint_tool.h"
+#include "controllers/studio_view_controller.h"
 
 std::string datasetPath;
 
 using namespace tools;
 
-TEST(TestKeypointTool, BasicCase) {
-  const SceneModel sceneModel(datasetPath);
-  AddKeypointTool tool(sceneModel);
-  std::optional<Vector3f> pointingAt = Vector3f(1.0, 0.0, 1.0);
-  auto command = tool.leftClick(pointingAt);
-  ASSERT_TRUE(command.has_value());
-  pointingAt = {};
-  auto command2 = tool.leftClick(pointingAt);
-  ASSERT_FALSE(command2.has_value());
+TEST(TestAddKeypointTool, BasicCase) {
+  SceneModel sceneModel(datasetPath);
+  CommandStack stack;
+  StudioViewController controller(sceneModel, stack);
+  AddKeypointTool tool(sceneModel, controller, stack);
+  Camera camera(Vector3f::Zero(), 1.0);
+  camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
+  camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
+  ViewContext3D context(camera);
+  context.mousePositionX = 250;
+  context.mousePositionY = 430;
+  context.width = 500;
+  context.height = 500;
+  tool.mouseMoved(context);
+  bool added = tool.leftButtonUp(context);
+  ASSERT_TRUE(added);
+  ASSERT_EQ(stack.size(), 1);
 }
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
+  bgfx::Init init;
+  init.type = bgfx::RendererType::Noop;
+  bgfx::init(init);
   datasetPath = argv[1];
   return RUN_ALL_TESTS();
 }

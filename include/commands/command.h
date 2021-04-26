@@ -1,7 +1,9 @@
 #pragma once
+#include <list>
 #include "scene_model.h"
 
 class StudioViewController;
+
 namespace commands {
 
 class Command {
@@ -15,4 +17,7 @@ public:
   virtual void execute(StudioViewController& studio, SceneModel& sceneModel) = 0;
   virtual void undo(StudioViewController& studio, SceneModel& sceneModel) = 0;
 };
+
+using CommandStack = std::list<std::unique_ptr<commands::Command>>;
+
 } // namespace commands

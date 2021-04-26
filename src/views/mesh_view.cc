@@ -49,14 +49,16 @@ void MeshDrawable::packVertexData() {
   }
 }
 
-void MeshDrawable::setDrawingGeometry(const bgfx::UniformHandle& u_color) const {
-  bgfx::setUniform(u_color, color.data(), 1);
-  bgfx::setTransform(mesh->getTransform().data());
+void MeshDrawable::setDrawingGeometry() const {
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
 }
 
-MeshView::MeshView(int width, int height) : View(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
+void MeshDrawable::setAlpha(float value) {
+  color[3] = value;
+}
+
+MeshView::MeshView(int width, int height) : SizedView(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
   program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
@@ -72,11 +74,15 @@ void MeshView::addObject(std::shared_ptr<MeshDrawable> obj) {
   objects.push_back(obj);
 }
 
-void MeshView::render(const Camera& camera) const {
+void MeshView::setAlpha(float value) {
+  for (auto& object : objects) {
+    object->setAlpha(value);
+  }
+}
+
+void MeshView::setCameraTransform(const Camera& camera) const {
   float proj[16];
   float view[16];
-
-  bgfx::touch(0);
 
   auto position = camera.getPosition();
   auto lookat = camera.getLookat();
@@ -89,12 +95,25 @@ void MeshView::render(const Camera& camera) const {
   bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
 
   bgfx::setViewTransform(0, view, proj);
+}
 
+void MeshView::renderObject(const std::shared_ptr<views::MeshDrawable>& object) const {
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
+  bgfx::setUniform(u_color, object->getColor().data(), 1);
+  bgfx::setTransform(object->getTransform().data());
+  object->setDrawingGeometry();
+  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW
+      | BGFX_STATE_MSAA
+      | BGFX_STATE_WRITE_A
+      | BGFX_STATE_WRITE_RGB
+      | BGFX_STATE_BLEND_ALPHA);
+  bgfx::submit(0, program);
+}
+
+void MeshView::render(const Camera& camera) const {
+  setCameraTransform(camera);
   for (const auto& object : objects) {
-    object->setDrawingGeometry(u_color);
-    bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW);
-    bgfx::submit(0, program);
+    renderObject(object);
   }
 }
 

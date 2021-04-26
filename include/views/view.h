@@ -6,12 +6,17 @@ namespace views {
 
 using namespace Eigen;
 class View {
+public:
+  View() {}
+  virtual void render(const Camera& camera) const = 0;
+};
+
+class SizedView : public View {
 protected:
   int width, height;
 
 public:
-  View(int w, int h) : width(w), height(h) {}
-  virtual void render(const Camera& camera) const = 0;
+  SizedView(int w, int h) : View(), width(w), height(h) {};
   void resize(int newWidth, int newHeight) {
     width = newWidth;
     height = newHeight;
