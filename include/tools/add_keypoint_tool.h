@@ -3,6 +3,7 @@
 #include <optional>
 #include "scene_model.h"
 #include "tools/tool.h"
+#include "timeline.h"
 #include "commands/command.h"
 #include "commands/keypoints.h"
 
@@ -17,7 +18,7 @@ private:
   std::optional<Vector3f> pointingAt;
 
 public:
-  AddKeypointTool(SceneModel& model, StudioViewController& c, CommandStack& stack);
+  AddKeypointTool(SceneModel& model, StudioViewController& c, Timeline& tl);
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;
 };

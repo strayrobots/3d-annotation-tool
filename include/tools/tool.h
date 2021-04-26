@@ -2,6 +2,7 @@
 #include "scene_model.h"
 #include "commands/command.h"
 #include "view_context_3d.h"
+#include "timeline.h"
 
 using namespace commands;
 namespace tools {
@@ -9,10 +10,10 @@ namespace tools {
 class Tool {
 protected:
   SceneModel& sceneModel;
-  CommandStack& commandStack;
+  Timeline& timeline;
 
 public:
-  Tool(SceneModel& sceneModel, CommandStack& commandStack);
+  Tool(SceneModel& sceneModel, Timeline& timeline);
   virtual ~Tool(){};
   virtual void activate(){};
   virtual void deactivate(){};

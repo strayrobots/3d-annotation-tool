@@ -5,7 +5,7 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, CommandStack& stack) : sceneModel(model), commandStack(stack), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
                                                                                      viewContext(camera), annotationController(model) {
 }
 
@@ -14,8 +14,8 @@ void StudioViewController::viewWillAppear(int width, int height) {
   meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
   meshView->addObject(meshDrawable);
 
-  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, *this, commandStack);
-  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, *this, annotationController, commandStack);
+  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, *this, timeline);
+  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, *this, annotationController, timeline);
   currentTool = addKeypointTool;
 
   viewContext.width = width;

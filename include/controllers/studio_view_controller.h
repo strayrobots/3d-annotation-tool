@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <list>
+#include "timeline.h"
 #include "tools/tool.h"
 #include "tools/add_keypoint_tool.h"
 #include "tools/move_keypoint_tool.h"
@@ -15,7 +15,7 @@ class StudioViewController {
 private:
   SceneModel& sceneModel;
   std::shared_ptr<views::MeshDrawable> meshDrawable;
-  CommandStack& commandStack;
+  Timeline& timeline;
 
   // Changing view point.
   double prevX, prevY;
@@ -34,7 +34,7 @@ public:
   controllers::AnnotationController annotationController;
   std::shared_ptr<views::MeshView> meshView;
 
-  StudioViewController(SceneModel& model, CommandStack& stack);
+  StudioViewController(SceneModel& model, Timeline& timeline);
   void viewWillAppear(int width, int height);
 
   void render() const;

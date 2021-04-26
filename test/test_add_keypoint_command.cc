@@ -2,6 +2,7 @@
 #include "scene_model.h"
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
+#include "timeline.h"
 #include <bgfx/bgfx.h>
 
 std::string datasetPath;
@@ -10,18 +11,16 @@ using namespace commands;
 
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
-  CommandStack stack;
-  StudioViewController view(sceneModel, stack);
+  Timeline timeline(sceneModel);
+  StudioViewController view(sceneModel, timeline);
   view.viewWillAppear(500, 500);
-  AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
+  auto command = std::make_unique<AddKeypointCommand>(Vector3f(1.0, 1.0, 1.0));
   ASSERT_EQ(view.meshView->getObjects().size(), 1);
-  command.execute(view, sceneModel);
+  timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
-  ASSERT_EQ(view.meshView->getObjects().size(), 1);
 
-  command.undo(view, sceneModel);
+  timeline.undoCommand();
   ASSERT_EQ(sceneModel.getKeypoints().size(), 0);
-  ASSERT_EQ(view.meshView->getObjects().size(), 1);
 }
 
 int main(int argc, char **argv) {

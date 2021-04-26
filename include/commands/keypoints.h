@@ -17,8 +17,8 @@ public:
   AddKeypointCommand(const Vector3f& k);
   ~AddKeypointCommand() override;
 
-  void execute(StudioViewController& view, SceneModel& sceneModel) override;
-  void undo(StudioViewController& view, SceneModel& sceneModel) override;
+  void execute(SceneModel& sceneModel) override;
+  void undo(SceneModel& sceneModel) override;
 };
 
 } // namespace commands

@@ -7,8 +7,7 @@
 #include "3rdparty/json.hpp"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
-
-                                                      commandStack(), studioViewController(sceneModel, commandStack), datasetFolder(folder) {
+    timeline(sceneModel), studioViewController(sceneModel, timeline), datasetFolder(folder) {
   loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -89,9 +88,7 @@ bool LabelStudio::update() const {
 }
 
 void LabelStudio::undo() {
-  if (commandStack.empty()) return;
-  commandStack.back()->undo(studioViewController, sceneModel);
-  commandStack.pop_back();
+  timeline.undoCommand();
 }
 
 void LabelStudio::loadState() {
@@ -104,7 +101,6 @@ void LabelStudio::loadState() {
   for (auto& keypoint : json) {
     auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
     std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(k);
-    command->execute(studioViewController, sceneModel);
-    commandStack.push_back(std::move(command));
+    timeline.pushCommand(std::move(command));
   }
 }

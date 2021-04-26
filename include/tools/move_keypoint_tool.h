@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <list>
+#include "timeline.h"
 #include "tools/tool.h"
 #include "commands/command.h"
 #include "scene_model.h"
@@ -23,7 +24,7 @@ private:
 
 public:
   MoveKeypointTool(SceneModel& model, StudioViewController& c,
-                   controllers::AnnotationController& annotation, CommandStack& stack);
+                   controllers::AnnotationController& annotation, Timeline& tl);
   bool leftButtonUp(const ViewContext3D& context) override;
   bool leftButtonDown(const ViewContext3D& context) override;
   bool mouseMoved(const ViewContext3D& context) override;

@@ -12,9 +12,9 @@ using namespace tools;
 
 TEST(TestAddKeypointTool, BasicCase) {
   SceneModel sceneModel(datasetPath);
-  CommandStack stack;
-  StudioViewController controller(sceneModel, stack);
-  AddKeypointTool tool(sceneModel, controller, stack);
+  Timeline timeline(sceneModel);
+  StudioViewController controller(sceneModel, timeline);
+  AddKeypointTool tool(sceneModel, controller, timeline);
   Camera camera(Vector3f::Zero(), 1.0);
   camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
@@ -26,7 +26,7 @@ TEST(TestAddKeypointTool, BasicCase) {
   tool.mouseMoved(context);
   bool added = tool.leftButtonUp(context);
   ASSERT_TRUE(added);
-  ASSERT_EQ(stack.size(), 1);
+  ASSERT_EQ(timeline.size(), 1);
 }
 
 int main(int argc, char **argv) {

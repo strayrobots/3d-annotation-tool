@@ -2,15 +2,14 @@
 #include "controllers/studio_view_controller.h"
 
 namespace tools {
-AddKeypointTool::AddKeypointTool(SceneModel& model, StudioViewController& c, CommandStack& stack) : Tool(model, stack), studioViewController(c) {
+AddKeypointTool::AddKeypointTool(SceneModel& model, StudioViewController& c, Timeline& tl) : Tool(model, tl), studioViewController(c) {
 }
 
 bool AddKeypointTool::leftButtonUp(const ViewContext3D& viewContext) {
   if (!pointingAt.has_value()) return false;
 
   std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
-  command->execute(studioViewController, sceneModel);
-  commandStack.push_back(std::move(command));
+  timeline.pushCommand(std::move(command));
   std::cout << "Added keypoint: " << pointingAt.value().transpose() << std::endl;
   return true;
 }

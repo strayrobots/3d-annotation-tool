@@ -13,9 +13,9 @@ using namespace tools;
 
 TEST(TestAddKeypointTool, BasicCase) {
   SceneModel sceneModel(datasetPath);
-  CommandStack stack;
-  StudioViewController controller(sceneModel, stack);
-  MoveKeypointTool tool(sceneModel, controller, controller.annotationController, stack);
+  Timeline timeline(sceneModel);
+  StudioViewController controller(sceneModel, timeline);
+  MoveKeypointTool tool(sceneModel, controller, controller.annotationController, timeline);
   Camera camera(Vector3f::Zero(), 1.0);
   camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
@@ -31,8 +31,7 @@ TEST(TestAddKeypointTool, BasicCase) {
   auto pointingAt = sceneModel.traceRay(camera.getPosition(), camera.computeRayWorld(context.width, context.height,
         context.mousePositionX, context.mousePositionY));
   auto command  = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
-  command->execute(controller, sceneModel);
-  stack.push_back(std::move(command));
+  timeline.pushCommand(std::move(command));
 
   hit = tool.leftButtonDown(context);
   ASSERT_TRUE(hit);
@@ -42,7 +41,7 @@ TEST(TestAddKeypointTool, BasicCase) {
   ASSERT_TRUE(hit);
   hit = tool.leftButtonUp(context);
   ASSERT_TRUE(hit);
-  ASSERT_EQ(stack.size(), 2);
+  ASSERT_EQ(timeline.size(), 2);
 
   auto diff = pointingAt.value().transpose() - sceneModel.getKeypoints()[0].position.transpose();
   ASSERT_NE(sceneModel.getKeypoints()[0].position, pointingAt.value());

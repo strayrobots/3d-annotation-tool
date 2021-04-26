@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <memory>
+#include "timeline.h"
 #include "scene_model.h"
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
@@ -11,19 +13,19 @@ using namespace commands;
 
 TEST(TestMoveKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
-  CommandStack stack;
-  StudioViewController view(sceneModel, stack);
+  Timeline timeline(sceneModel);
+  StudioViewController view(sceneModel, timeline);
   view.viewWillAppear(500, 500);
-  AddKeypointCommand command(Vector3f(1.0, 1.0, 1.0));
-  command.execute(view, sceneModel);
+  auto command = std::make_unique<AddKeypointCommand>(Vector3f(1.0, 1.0, 1.0));
+  timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
 
   Vector3f newPosition(0.25, -0.25, 0.3);
-  MoveKeypointCommand moveCommand(sceneModel.getKeypoints()[0], newPosition);
-  moveCommand.execute(view, sceneModel);
+  auto moveCommand = std::make_unique<MoveKeypointCommand>(sceneModel.getKeypoints()[0], newPosition);
+  timeline.pushCommand(std::move(moveCommand));
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, newPosition);
-  moveCommand.undo(view, sceneModel);
+  timeline.undoCommand();
   ASSERT_NE(sceneModel.getKeypoints()[0].position, newPosition);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
 }

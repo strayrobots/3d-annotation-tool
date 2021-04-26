@@ -9,7 +9,7 @@ using namespace tools;
 
 namespace tools {
 MoveKeypointTool::MoveKeypointTool(SceneModel& model, StudioViewController& c,
-                                   controllers::AnnotationController& annotation, CommandStack& stack) : Tool(model, stack),
+                                   controllers::AnnotationController& annotation, Timeline& timeline) : Tool(model, timeline),
                                                                                                          studioController(c), annotationController(annotation), rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)) {
   translateControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPosition) {
     newValue = newPosition;
@@ -20,8 +20,7 @@ bool MoveKeypointTool::leftButtonUp(const ViewContext3D& context) {
   if (active) {
     auto command = std::make_unique<MoveKeypointCommand>(currentKeypoint, newValue);
     currentKeypoint = Keypoint(currentKeypoint.id, newValue);
-    command->execute(studioController, sceneModel);
-    commandStack.push_back(std::move(command));
+    timeline.pushCommand(std::move(command));
     active = false;
     return true;
   }
