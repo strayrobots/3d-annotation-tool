@@ -40,6 +40,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
 
   glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    w->setInputModifier(mods);
     if (action == GLFW_PRESS) {
       if ((CommandModifier == mods) && (GLFW_KEY_S == key)) {
         w->sceneModel.save();
