@@ -12,11 +12,6 @@
 #include "glfw_app.h"
 #include "controllers/controller.h"
 
-enum class InputModifier {
-  command,
-  NONE
-};
-
 class StudioViewController {
 private:
   SceneModel& sceneModel;
@@ -26,7 +21,6 @@ private:
   // Changing view point.
   double prevX, prevY;
   bool dragging = false, moved = false;
-  InputModifier inputModifier;
 
   // Tools.
   std::shared_ptr<tools::AddKeypointTool> addKeypointTool;
@@ -45,11 +39,10 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
-  void setInputModifier(InputModifier newInputModifier) { inputModifier = newInputModifier; }
-  bool leftButtonDown(double x, double y);
-  bool leftButtonUp(double x, double y);
-  bool mouseMoved(double x, double y);
-  bool scroll(double xoffset, double yoffset);
-  bool keypress(char character);
-  void resize(int width, int height);
+  bool leftButtonDown(double x, double y, InputModifier mod = InputModifier::NONE);
+  bool leftButtonUp(double x, double y, InputModifier mod = InputModifier::NONE);
+  bool mouseMoved(double x, double y, InputModifier mod = InputModifier::NONE);
+  bool scroll(double xoffset, double yoffset, InputModifier mod = InputModifier::NONE);
+  bool keypress(char character, InputModifier mod = InputModifier::NONE);
+  void resize(int width, int height, InputModifier mod = InputModifier::NONE);
 };

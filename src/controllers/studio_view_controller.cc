@@ -33,7 +33,7 @@ void StudioViewController::render() const {
 }
 
 // Input handling.
-bool StudioViewController::leftButtonDown(double x, double y) {
+bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (currentTool->leftButtonDown(viewContext)) {
@@ -49,7 +49,7 @@ bool StudioViewController::leftButtonDown(double x, double y) {
   return true;
 }
 
-bool StudioViewController::leftButtonUp(double x, double y) {
+bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
@@ -66,7 +66,7 @@ bool StudioViewController::leftButtonUp(double x, double y) {
   return false;
 }
 
-bool StudioViewController::mouseMoved(double x, double y) {
+bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (currentTool->mouseMoved(viewContext)) {
@@ -80,7 +80,7 @@ bool StudioViewController::mouseMoved(double x, double y) {
     moved = true;
     float diffX = float(x - prevX);
     float diffY = float(y - prevY);
-    if (inputModifier == InputModifier::command) {
+    if (mod == InputModifier::command) {
       camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
       Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
@@ -94,19 +94,19 @@ bool StudioViewController::mouseMoved(double x, double y) {
   return true;
 }
 
-bool StudioViewController::scroll(double xoffset, double yoffset) {
+bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
   float diff = yoffset * 0.05;
   camera.zoom(diff);
   return true;
 }
 
-void StudioViewController::resize(int width, int height) {
+void StudioViewController::resize(int width, int height, InputModifier mod) {
   viewContext.width = width;
   viewContext.height = height;
   meshView->resize(width, height);
 }
 
-bool StudioViewController::keypress(char character) {
+bool StudioViewController::keypress(char character, InputModifier mod) {
   if (character == 'K') {
     currentTool->deactivate();
     currentTool = addKeypointTool;
