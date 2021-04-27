@@ -77,6 +77,7 @@ bool StudioViewController::mouseMoved(double x, double y) {
   }
 
   if (dragging) {
+    moved = true;
     float diffX = float(x - prevX);
     float diffY = float(y - prevY);
     if (inputModifier == InputModifier::command) {
