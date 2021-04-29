@@ -1,6 +1,11 @@
 {
     "editor.formatOnSave": true,
     "files.associations": {
+        "bitset": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "future": "cpp",
+        "optional": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -15,7 +20,6 @@
         "atomic": "cpp",
         "strstream": "cpp",
         "*.tcc": "cpp",
-        "bitset": "cpp",
         "chrono": "cpp",
         "codecvt": "cpp",
         "complex": "cpp",
@@ -33,11 +37,8 @@
         "functional": "cpp",
         "iterator": "cpp",
         "map": "cpp",
-        "memory": "cpp",
         "memory_resource": "cpp",
         "numeric": "cpp",
-        "optional": "cpp",
-        "random": "cpp",
         "ratio": "cpp",
         "regex": "cpp",
         "set": "cpp",
@@ -65,7 +66,8 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "bit": "cpp",
-        "cwctype": "cpp"
+        "cwctype": "cpp",
+        "core": "cpp"
     },
     "editor.defaultFormatter": "ms-vscode.cpptools"
 }
