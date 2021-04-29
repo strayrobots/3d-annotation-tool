@@ -80,7 +80,7 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
     moved = true;
     float diffX = float(x - prevX);
     float diffY = float(y - prevY);
-    if (mod == InputModifier::command) {
+    if (mod & ModCommand) {
       camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
       Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());

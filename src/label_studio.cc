@@ -48,7 +48,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
         w->undo();
       } else {
         char characterPressed = key;
-        w->studioViewController.keypress(characterPressed);
+        w->studioViewController.keypress(characterPressed, w->inputModifier);
       }
     }
   });
@@ -60,9 +60,9 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
 
 void LabelStudio::setInputModifier(int mods) {
   if (mods == CommandModifier) {
-    inputModifier = InputModifier::command;
+    inputModifier = inputModifier | ModCommand; //Only set bits of inputModifier
   } else {
-    inputModifier = InputModifier::NONE;
+    inputModifier = ModNone;
   }
 }
 

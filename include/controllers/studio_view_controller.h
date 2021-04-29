@@ -39,10 +39,10 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
-  bool leftButtonDown(double x, double y, InputModifier mod = InputModifier::NONE);
-  bool leftButtonUp(double x, double y, InputModifier mod = InputModifier::NONE);
-  bool mouseMoved(double x, double y, InputModifier mod = InputModifier::NONE);
-  bool scroll(double xoffset, double yoffset, InputModifier mod = InputModifier::NONE);
-  bool keypress(char character, InputModifier mod = InputModifier::NONE);
-  void resize(int width, int height, InputModifier mod = InputModifier::NONE);
+  bool leftButtonDown(double x, double y, InputModifier mod);
+  bool leftButtonUp(double x, double y, InputModifier mod);
+  bool mouseMoved(double x, double y, InputModifier mod);
+  bool scroll(double xoffset, double yoffset, InputModifier mod);
+  bool keypress(char character, InputModifier mod);
+  void resize(int width, int height, InputModifier mod);
 };
