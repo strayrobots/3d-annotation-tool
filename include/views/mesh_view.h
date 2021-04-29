@@ -13,11 +13,10 @@ using namespace Eigen;
 
 class MeshDrawable {
 private:
-  std::shared_ptr<geometry::TriangleMesh> mesh;
   Eigen::Matrix<float, Eigen::Dynamic, 7, Eigen::RowMajor> vertexData;
 
   // Uniform data.
-  Vector4f defaultColor;
+  Vector4f color;
 
   // Rendering.
   bgfx::VertexBufferHandle vertexBuffer;
@@ -25,13 +24,14 @@ private:
   bgfx::VertexLayout layout;
 
 public:
+  std::shared_ptr<geometry::TriangleMesh> mesh;
   MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c = Vector4f(0.92, 0.59, 0.2, 1.0));
   ~MeshDrawable();
 
   void setDrawingGeometry() const;
   void packVertexData();
   void createBuffers();
-  const Vector4f& getColor() { return defaultColor; };
+  const Vector4f& getColor() { return color; };
   const Matrix4f& getTransform() { return mesh->getTransform(); };
   void setPosition(const Vector3f& p) { mesh->setTranslation(p); };
   void setAlpha(float value);
@@ -40,7 +40,8 @@ public:
 class MeshView : public views::SizedView {
 private:
   bgfx::UniformHandle u_color, u_lightDir;
-  bgfx::ProgramHandle program;
+  bgfx::ProgramHandle uniformProgram;
+  bgfx::ProgramHandle colorProgram;
   std::vector<std::shared_ptr<views::MeshDrawable>> objects;
   Vector4f lightDir;
 

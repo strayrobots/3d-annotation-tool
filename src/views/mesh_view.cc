@@ -14,10 +14,11 @@ using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
-MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c) : mesh(m), defaultColor(c) {
+MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c) : mesh(m), color(c) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
+      .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
       .end();
   packVertexData();
   createBuffers();
@@ -43,20 +44,15 @@ void MeshDrawable::packVertexData() {
   vertexData.resize(V.rows(), 7);
 #pragma omp parallel for
   for (int i = 0; i < V.rows(); i++) {
-    float vertexColor;
-
     auto vertex = V.row(i);
     vertexData.block<1, 3>(i, 0) = V.row(i);
     vertexData.block<1, 3>(i, 3) = N.row(i);
 
     if (colorsFromFile) {
+      float vertexColor;
       std::memcpy(&vertexColor, &vertexColors[i], sizeof(vertexColors[i]));
-    } else {
-      //Vector4f to 4 concatenated uint8_t representing the abgr color value
-      uint32_t uint32defaultColor = ((uint8_t)(255 * defaultColor[3]) << 24) + ((uint8_t)(255 * defaultColor[2]) << 16) + ((uint8_t)(255 * defaultColor[1]) << 8) + (uint8_t)(255 * defaultColor[0]);
-      std::memcpy(&vertexColor, &uint32defaultColor, sizeof(uint32defaultColor));
+      vertexData.block<1, 1>(i, 6) << vertexColor;
     }
-    vertexData.block<1, 1>(i, 6) << vertexColor;
   }
 }
 
@@ -66,16 +62,19 @@ void MeshDrawable::setDrawingGeometry() const {
 }
 
 void MeshDrawable::setAlpha(float value) {
-  defaultColor[3] = value;
+  color[3] = value;
 }
 
 MeshView::MeshView(int width, int height) : SizedView(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
-  program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
+  u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+  uniformProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
+  colorProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_colors");
 }
 
 MeshView::~MeshView() {
-  bgfx::destroy(program);
+  bgfx::destroy(uniformProgram);
+  bgfx::destroy(colorProgram);
   bgfx::destroy(u_lightDir);
   bgfx::destroy(u_color);
 }
@@ -113,7 +112,11 @@ void MeshView::renderObject(const std::shared_ptr<views::MeshDrawable>& object) 
   bgfx::setTransform(object->getTransform().data());
   object->setDrawingGeometry();
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
-  bgfx::submit(0, program);
+  if (object->mesh->colorsFromFile) {
+    bgfx::submit(0, colorProgram);
+  } else {
+    bgfx::submit(0, uniformProgram);
+  }
 }
 
 void MeshView::render(const Camera& camera) const {

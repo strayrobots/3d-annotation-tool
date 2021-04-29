@@ -126,15 +126,13 @@ Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : Triang
   happly::PLYData plyIn(meshFile);
   const auto& vertices = plyIn.getVertexPositions();
   std::vector<std::array<unsigned char, 3>> colors;
+
   try {
-    std::cout << "Colors" << std::endl;
     colors = plyIn.getVertexColors();
-    std::cout << "got Colors" << std::endl;
     if (vertices.size() == colors.size()) {
       colorsFromFile = true;
       vertexColors.resize(colors.size(), 1);
     }
-    std::cout << "Colors 3" << std::endl;
   } catch (...) {
     std::cout << "No mesh vertex color data found." << std::endl;
   }
@@ -145,6 +143,7 @@ Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : Triang
     V(i, 0) = float(vertices[i][0]) * scale;
     V(i, 1) = float(vertices[i][1]) * scale;
     V(i, 2) = float(vertices[i][2]) * scale;
+
     if (colorsFromFile) {
       uint8_t r = colors[i][0];
       uint8_t g = colors[i][1];
