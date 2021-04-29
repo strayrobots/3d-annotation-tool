@@ -1,8 +1,7 @@
 #include "tools/add_keypoint_tool.h"
-#include "controllers/studio_view_controller.h"
 
 namespace tools {
-AddKeypointTool::AddKeypointTool(SceneModel& model, StudioViewController& c, Timeline& tl) : Tool(model, tl), studioViewController(c) {
+AddKeypointTool::AddKeypointTool(SceneModel& model, Timeline& tl) : Tool(model, tl) {
 }
 
 bool AddKeypointTool::leftButtonUp(const ViewContext3D& viewContext) {

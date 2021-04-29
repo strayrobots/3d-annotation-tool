@@ -4,7 +4,6 @@
 #include <bgfx/bgfx.h>
 #include "scene_model.h"
 #include "tools/add_keypoint_tool.h"
-#include "controllers/studio_view_controller.h"
 
 std::string datasetPath;
 
@@ -13,8 +12,7 @@ using namespace tools;
 TEST(TestAddKeypointTool, BasicCase) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  StudioViewController controller(sceneModel, timeline);
-  AddKeypointTool tool(sceneModel, controller, timeline);
+  AddKeypointTool tool(sceneModel, timeline);
   Camera camera(Vector3f::Zero(), 1.0);
   camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));

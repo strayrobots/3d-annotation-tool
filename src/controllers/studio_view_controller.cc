@@ -6,38 +6,40 @@
 using namespace commands;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
-                                                                                     viewContext(camera), annotationController(model) {
+                                                                                     viewContext(camera),
+  annotationView(model), sceneMeshView(model.getMesh()) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
-  meshView = std::make_shared<views::MeshView>(width, height);
-  meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
-  meshView->addObject(meshDrawable);
-
-  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, *this, timeline);
-  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, *this, annotationController, timeline);
-  currentTool = addKeypointTool;
-
   viewContext.width = width;
   viewContext.height = height;
-  annotationController.viewWillAppear(width, height);
+
+  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, timeline);
+  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, timeline);
+}
+
+std::shared_ptr<tools::Tool> StudioViewController::getActiveTool() const {
+  if (sceneModel.activeToolId == AddKeypointToolId) {
+    return addKeypointTool;
+  } else {
+    return moveKeypointTool;
+  }
 }
 
 void StudioViewController::render() const {
-  assert(meshView != nullptr && "Rendering not initialized");
-
-  annotationController.render(camera);
-  meshView->render(camera);
+  annotationView.render(viewContext);
+  if (sceneModel.activeToolId == AddKeypointToolId) {
+    sceneMeshView.render();
+  } else {
+    sceneMeshView.render(Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
+  }
 }
 
 // Input handling.
 bool StudioViewController::leftButtonDown(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (currentTool->leftButtonDown(viewContext)) {
-    return true;
-  }
-  if (annotationController.leftButtonDown(viewContext)) {
+  if (getActiveTool()->leftButtonDown(viewContext)) {
     return true;
   }
   dragging = true;
@@ -51,7 +53,7 @@ bool StudioViewController::leftButtonUp(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
-    if (currentTool->leftButtonUp(viewContext)) {
+    if (getActiveTool()->leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
       return true;
@@ -60,17 +62,13 @@ bool StudioViewController::leftButtonUp(double x, double y) {
     moved = false;
   }
   dragging = false;
-  //if (annotationController.leftButtonUp(viewContext)) return true;
   return false;
 }
 
 bool StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (currentTool->mouseMoved(viewContext)) {
-    return true;
-  }
-  if (annotationController.mouseMoved(viewContext)) {
+  if (getActiveTool()->mouseMoved(viewContext)) {
     return true;
   }
 
@@ -97,20 +95,16 @@ bool StudioViewController::scroll(double xoffset, double yoffset) {
 void StudioViewController::resize(int width, int height) {
   viewContext.width = width;
   viewContext.height = height;
-  meshView->resize(width, height);
 }
 
 bool StudioViewController::keypress(char character) {
   if (character == 'K') {
-    currentTool->deactivate();
-    currentTool = addKeypointTool;
-    currentTool->activate();
+    sceneModel.activeToolId = AddKeypointToolId;
     return true;
   } else if (character == 'V') {
-    currentTool->deactivate();
-    currentTool = moveKeypointTool;
-    currentTool->activate();
+    sceneModel.activeToolId = MoveKeypointToolId;
     return true;
   }
   return false;
 }
+

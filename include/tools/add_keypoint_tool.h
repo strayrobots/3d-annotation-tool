@@ -14,11 +14,10 @@ using namespace tools;
 namespace tools {
 class AddKeypointTool : public Tool {
 private:
-  StudioViewController& studioViewController;
   std::optional<Vector3f> pointingAt;
 
 public:
-  AddKeypointTool(SceneModel& model, StudioViewController& c, Timeline& tl);
+  AddKeypointTool(SceneModel& model, Timeline& tl);
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;
 };

@@ -15,8 +15,6 @@ protected:
 public:
   Tool(SceneModel& sceneModel, Timeline& timeline);
   virtual ~Tool(){};
-  virtual void activate(){};
-  virtual void deactivate(){};
   virtual bool leftButtonDown(const ViewContext3D& context) { return false; };
   virtual bool leftButtonUp(const ViewContext3D& context) { return false; };
   virtual bool mouseMoved(const ViewContext3D& context) { return false; }
