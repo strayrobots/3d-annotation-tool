@@ -5,6 +5,7 @@
 #include <fstream>
 #include <bgfx/bgfx.h>
 #include "3rdparty/json.hpp"
+#include "commands/keypoints.h"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
     timeline(sceneModel), studioViewController(sceneModel, timeline), datasetFolder(folder) {
@@ -100,7 +101,7 @@ void LabelStudio::loadState() {
   file >> json;
   for (auto& keypoint : json) {
     auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
-    std::unique_ptr<Command> command = std::make_unique<AddKeypointCommand>(k);
+    std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(k);
     timeline.pushCommand(std::move(command));
   }
 }

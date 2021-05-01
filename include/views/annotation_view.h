@@ -9,7 +9,6 @@ const Vector4f KeypointColor(1.0, 0.5, 0.5, 1.0);
 
 class AnnotationView : public views::View3D {
 private:
-
   views::MeshDrawable sphereDrawable;
   SceneModel& sceneModel;
 

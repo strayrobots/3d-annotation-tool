@@ -34,13 +34,22 @@ void SceneModel::removeKeypoint(const Keypoint& kp) {
   keypoints.erase(iterator);
 }
 
-Keypoint SceneModel::getKeypoint(int id) const {
+std::optional<Keypoint> SceneModel::getKeypoint(int id) const {
   for (int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
       return keypoints[i];
     }
   }
-  return Keypoint(-1);
+  return {};
+}
+
+void SceneModel::setKeypoint(const Keypoint& updated) {
+  auto point = std::find_if(keypoints.begin(), keypoints.end(), [&](const Keypoint& keypoint) {
+    return keypoint.id == updated.id;
+  });
+  if (point != keypoints.end()) {
+    *point = updated;
+  }
 }
 
 void SceneModel::updateKeypoint(int id, Keypoint kp) {

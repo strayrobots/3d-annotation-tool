@@ -3,41 +3,45 @@
 #include <eigen3/Eigen/Dense>
 #include <bgfx/bgfx.h>
 #include "scene_model.h"
-#include "tools/move_keypoint_tool.h"
+#include "views/move_keypoint_view.h"
 #include "commands/keypoints.h"
 
 std::string datasetPath;
 
-using namespace tools;
-
-TEST(TestAddKeypointTool, BasicCase) {
+TEST(TestMoveKeypointView, BasicCase) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  MoveKeypointTool tool(sceneModel, timeline);
+  views::MoveKeypointView view(sceneModel, timeline);
   Camera camera(Vector3f::Zero(), 1.0);
   camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
   ViewContext3D context(camera);
   context.mousePositionX = 250;
-  context.mousePositionY = 430;
+  context.mousePositionY = 400;
   context.width = 500;
   context.height = 500;
 
-  bool hit = tool.leftButtonDown(context);
+  bool hit = view.leftButtonDown(context);
   ASSERT_FALSE(hit);
 
   auto pointingAt = sceneModel.traceRay(camera.getPosition(), camera.computeRayWorld(context.width, context.height,
         context.mousePositionX, context.mousePositionY));
+  ASSERT_TRUE(pointingAt.has_value());
   auto command  = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
   timeline.pushCommand(std::move(command));
 
-  hit = tool.leftButtonDown(context);
+  hit = view.leftButtonDown(context);
+  ASSERT_TRUE(hit);
+  ASSERT_EQ(sceneModel.activeKeypoint, sceneModel.getKeypoints()[0].id);
+  ASSERT_NE(sceneModel.activeKeypoint, -1);
+
+  hit = view.leftButtonDown(context);
   ASSERT_TRUE(hit);
 
   context.mousePositionX = 400;
-  hit = tool.mouseMoved(context);
+  hit = view.mouseMoved(context);
   ASSERT_TRUE(hit);
-  hit = tool.leftButtonUp(context);
+  hit = view.leftButtonUp(context);
   ASSERT_TRUE(hit);
   ASSERT_EQ(timeline.size(), 2);
 

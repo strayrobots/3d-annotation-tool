@@ -11,7 +11,7 @@ private:
   Keypoint newKeypoint;
 
 public:
-  MoveKeypointCommand(Keypoint kp, const Vector3f& newPosition);
+  MoveKeypointCommand(const Keypoint& kp, const Vector3f& newPosition);
 
   void execute(SceneModel& sceneModel) override;
   void undo(SceneModel& sceneModel) override;

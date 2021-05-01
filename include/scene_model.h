@@ -42,7 +42,8 @@ public:
   Keypoint addKeypoint(const Vector3f& p);
   void removeKeypoint(const Keypoint& keypoint);
   void updateKeypoint(int keypointId, Keypoint kp);
-  Keypoint getKeypoint(int keypointId) const;
+  std::optional<Keypoint> getKeypoint(int keypointId) const;
+  void setKeypoint(const Keypoint& keypoint);
   void setActiveKeypoint(int id) { activeKeypoint = id; }
   void save() const;
 

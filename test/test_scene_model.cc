@@ -27,8 +27,8 @@ TEST(TestUpdateKeypoint, BasicCase) {
   auto kp1 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
   Keypoint kp2(kp1.id, Vector3f::Zero());
   model.updateKeypoint(kp1.id, kp2);
-  ASSERT_EQ(model.getKeypoint(kp1.id).position, Vector3f::Zero());
-  ASSERT_EQ(model.getKeypoint(kp1.id).id, kp2.id);
+  ASSERT_EQ(model.getKeypoint(kp1.id).value().position, Vector3f::Zero());
+  ASSERT_EQ(model.getKeypoint(kp1.id).value().id, kp2.id);
 }
 
 int main(int argc, char **argv) {

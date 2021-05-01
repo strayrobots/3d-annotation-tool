@@ -13,8 +13,12 @@ public:
   View() {}
 };
 
-class View3D : public View {
+class View3D : View {
 public:
+  virtual bool leftButtonDown(const ViewContext3D& viewContext) { return false; }
+  virtual bool leftButtonUp(const ViewContext3D& viewContext) { return false; }
+  virtual bool mouseMoved(const ViewContext3D& viewContext) { return false; }
+
   void setCameraTransform(const ViewContext3D& context) const {
     const auto camera = context.camera;
     float proj[16];

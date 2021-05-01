@@ -6,28 +6,28 @@
 using namespace commands;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(Vector3f(0.0, 0.0, 1.0), -2.0),
-                                                                                     viewContext(camera),
-  annotationView(model), sceneMeshView(model.getMesh()) {
+  viewContext(camera), annotationView(model), sceneMeshView(model.getMesh()),
+  addKeypointView(model, tl), moveKeypointView(model, tl) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.width = width;
   viewContext.height = height;
-
-  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, timeline);
-  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, timeline);
 }
 
-std::shared_ptr<tools::Tool> StudioViewController::getActiveTool() const {
+views::View3D& StudioViewController::getActiveToolView() {
   if (sceneModel.activeToolId == AddKeypointToolId) {
-    return addKeypointTool;
+    return addKeypointView;
   } else {
-    return moveKeypointTool;
+    return moveKeypointView;
   }
 }
 
 void StudioViewController::render() const {
   annotationView.render(viewContext);
+  if (sceneModel.activeToolId == MoveKeypointToolId) {
+    moveKeypointView.render(viewContext);
+  }
   if (sceneModel.activeToolId == AddKeypointToolId) {
     sceneMeshView.render();
   } else {
@@ -39,7 +39,7 @@ void StudioViewController::render() const {
 bool StudioViewController::leftButtonDown(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (getActiveTool()->leftButtonDown(viewContext)) {
+  if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
   dragging = true;
@@ -53,7 +53,7 @@ bool StudioViewController::leftButtonUp(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
-    if (getActiveTool()->leftButtonUp(viewContext)) {
+    if (getActiveToolView().leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
       return true;
@@ -68,7 +68,7 @@ bool StudioViewController::leftButtonUp(double x, double y) {
 bool StudioViewController::mouseMoved(double x, double y) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (getActiveTool()->mouseMoved(viewContext)) {
+  if (getActiveToolView().mouseMoved(viewContext)) {
     return true;
   }
 
