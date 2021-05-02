@@ -15,7 +15,8 @@ TEST(TestAddKeypointTool, BasicCase) {
   CommandStack stack;
   StudioViewController controller(sceneModel, stack);
   AddKeypointTool tool(sceneModel, controller, stack);
-  Camera camera(Vector3f::Zero(), 1.0);
+  Camera camera;
+  camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 0.0));
   camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
   ViewContext3D context(camera);

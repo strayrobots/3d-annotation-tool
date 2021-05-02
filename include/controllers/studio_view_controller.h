@@ -9,6 +9,7 @@
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
+#include "glfw_app.h"
 #include "controllers/controller.h"
 
 class StudioViewController {
@@ -38,12 +39,10 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
-
-  bool leftButtonDown(double x, double y);
-  bool leftButtonUp(double x, double y);
-  bool mouseMoved(double x, double y);
-  bool scroll(double xoffset, double yoffset);
-  bool keypress(char character);
-
-  void resize(int width, int height);
+  bool leftButtonDown(double x, double y, InputModifier mod);
+  bool leftButtonUp(double x, double y, InputModifier mod);
+  bool mouseMoved(double x, double y, InputModifier mod);
+  bool scroll(double xoffset, double yoffset, InputModifier mod);
+  bool keypress(char character, InputModifier mod);
+  void resize(int width, int height, InputModifier mod);
 };

@@ -1,12 +1,16 @@
 #include "camera.h"
 #include <iostream>
 
-Camera::Camera(Vector3f initialLookat, float distance) : lookat(initialLookat) {
+Camera::Camera() {
+  reset(Vector3f(-0.1, -0.1, -0.1), Vector3f(0.0, 0.0, 0.0));
+}
+
+void Camera::reset(const Vector3f resetLookat, const Vector3f resetPosition) {
+  lookat = resetLookat;
+  position = resetPosition;
   viewMatrix.setIdentity();
   orientation.setIdentity();
-  orientation = Quaternionf(getCameraRotation(initialLookat));
-  position = initialLookat * distance;
-
+  orientation = Quaternionf(getCameraRotation(lookat));
   Quaternionf q = orientation.conjugate();
   viewMatrix.linear() = q.toRotationMatrix();
   viewMatrix.translation() = -(viewMatrix.linear() * position);
@@ -58,6 +62,17 @@ void Camera::updateLookat(const Vector3f& newLookat) {
     Matrix3f cameraRotation(getCameraRotation(newForwardVector));
     setOrientation(Quaternionf(cameraRotation));
   }
+}
+
+void Camera::translate(const Vector3f& t) {
+  Vector3f trans = orientation * t;
+  Affine3f newViewMatrix;
+  setPosition(position + trans);
+  setLookat(lookat + trans);
+  Quaternionf q = getOrientation().conjugate();
+  newViewMatrix.linear() = q.toRotationMatrix();
+  newViewMatrix.translation() = -(viewMatrix.linear() * getPosition());
+  setViewMatrix(newViewMatrix);
 }
 
 void Camera::rotateAroundTarget(const Quaternionf& q) {
