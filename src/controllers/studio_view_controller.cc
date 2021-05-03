@@ -29,9 +29,9 @@ void StudioViewController::render() const {
     moveKeypointView.render(viewContext);
   }
   if (sceneModel.activeToolId == AddKeypointToolId) {
-    sceneMeshView.render();
+    sceneMeshView.render(viewContext);
   } else {
-    sceneMeshView.render(Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
+    sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
 }
 

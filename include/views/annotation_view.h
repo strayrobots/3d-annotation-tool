@@ -22,11 +22,10 @@ public:
   void render(const ViewContext3D& context) const {
     const auto keypoints = sceneModel.getKeypoints();
     if (!keypoints.empty()) {
-      setCameraTransform(context);
       for (const auto& keypoint : keypoints) {
         Matrix4f T = Matrix4f::Identity();
         T.block<3, 1>(0, 3) = keypoint.position;
-        sphereDrawable.render(T, KeypointColor);
+        sphereDrawable.render(context, T, KeypointColor);
       }
     }
   }

@@ -48,7 +48,7 @@ void MeshDrawable::packVertexData() {
   const auto& N = mesh->getVertexNormals();
 
   vertexData.resize(V.rows(), 6);
-#pragma omp parallel for
+  #pragma omp parallel for
   for (int i = 0; i < V.rows(); i++) {
     auto vertex = V.row(i);
     vertexData.block<1, 3>(i, 0) = V.row(i);
@@ -61,7 +61,8 @@ void MeshDrawable::setDrawingGeometry() const {
   bgfx::setIndexBuffer(indexBuffer);
 }
 
-void MeshDrawable::render(const Matrix4f& T, const Vector4f& color) const {
+void MeshDrawable::render(const ViewContext3D& context, const Matrix4f& T, const Vector4f& color) const {
+  views::setCameraTransform(context);
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   bgfx::setUniform(u_color, color.data(), 1);
   bgfx::setTransform(T.data());

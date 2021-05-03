@@ -11,7 +11,7 @@ namespace views {
 
 using namespace Eigen;
 
-class MeshDrawable : views::View {
+class MeshDrawable : views::View3D {
 private:
   bgfx::UniformHandle u_color, u_lightDir;
   std::shared_ptr<geometry::TriangleMesh> mesh;
@@ -33,7 +33,7 @@ public:
   void setDrawingGeometry() const;
   void packVertexData();
   void createBuffers();
-  void render(const Matrix4f& T = Matrix4f::Identity(), const Vector4f& color = Vector4f(0.92, 0.59, 0.2, 1.0)) const;
+  void render(const ViewContext3D& context, const Matrix4f& T = Matrix4f::Identity(), const Vector4f& color = Vector4f(0.92, 0.59, 0.2, 1.0)) const;
 };
 
 } // namespace views
