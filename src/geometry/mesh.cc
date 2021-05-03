@@ -125,31 +125,25 @@ void Sphere::subdivide() {
 Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : TriangleMesh(T) {
   happly::PLYData plyIn(meshFile);
   const auto& vertices = plyIn.getVertexPositions();
+  const auto& propertyNames = plyIn.getElement("vertex").getPropertyNames();
   std::vector<std::array<unsigned char, 3>> colors;
 
-  try {
+  if (std::find(propertyNames.begin(), propertyNames.end(), "red") != propertyNames.end()) {
+    colorsFromFile = true;
     colors = plyIn.getVertexColors();
-    if (vertices.size() == colors.size()) {
-      colorsFromFile = true;
-      vertexColors.resize(colors.size(), 1);
-    }
-  } catch (...) {
-    std::cout << "No mesh vertex color data found." << std::endl;
+    vertexColors.resize(colors.size(), 3);
   }
 
   V.resize(vertices.size(), 3);
-  uint8_t a = 0xff;
   for (int i = 0; i < vertices.size(); i++) {
     V(i, 0) = float(vertices[i][0]) * scale;
     V(i, 1) = float(vertices[i][1]) * scale;
     V(i, 2) = float(vertices[i][2]) * scale;
 
     if (colorsFromFile) {
-      uint8_t r = colors[i][0];
-      uint8_t g = colors[i][1];
-      uint8_t b = colors[i][2];
-      uint32_t color = (a << 24) + (b << 16) + (g << 8) + r;
-      vertexColors[i] = color;
+      vertexColors(i, 0) = colors[i][0];
+      vertexColors(i, 1) = colors[i][1];
+      vertexColors(i, 2) = colors[i][2];
     }
   }
   auto faces = plyIn.getFaceIndices<size_t>();

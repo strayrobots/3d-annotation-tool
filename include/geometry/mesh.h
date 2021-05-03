@@ -18,8 +18,7 @@ protected:
   RowMatrixf V; // Vertices.
   RowMatrixi F;
   RowMatrixf vertexNormals;
-  //abgr (4 x uint8_t)
-  Eigen::RowVectorXi vertexColors;
+  Eigen::Matrix<uint8_t, Eigen::Dynamic, 3, Eigen::RowMajor> vertexColors;
 
 public:
   bool colorsFromFile = false;
@@ -33,7 +32,7 @@ public:
   const RowMatrixf& vertices() const { return V; }
   const RowMatrixi& faces() const { return F; }
   const RowMatrixf& getVertexNormals() const { return vertexNormals; }
-  const Eigen::RowVectorXi& getVertexColors() const { return vertexColors; }
+  const Eigen::Matrix<uint8_t, Eigen::Dynamic, 3, Eigen::RowMajor>& getVertexColors() const { return vertexColors; }
   Eigen::RowVector3f getMeshMean() const;
 
 protected:

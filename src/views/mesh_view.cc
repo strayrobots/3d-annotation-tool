@@ -49,9 +49,8 @@ void MeshDrawable::packVertexData() {
     vertexData.block<1, 3>(i, 3) = N.row(i);
 
     if (colorsFromFile) {
-      float vertexColor;
-      std::memcpy(&vertexColor, &vertexColors[i], sizeof(vertexColors[i]));
-      vertexData.block<1, 1>(i, 6) << vertexColor;
+      uint32_t vertexColor = (0xff << 24) + (vertexColors(i, 2) << 16) + (vertexColors(i, 1) << 8) + vertexColors(i, 0);
+      std::memcpy(&vertexData(i, 6), &vertexColor, sizeof(vertexColor));
     }
   }
 }
