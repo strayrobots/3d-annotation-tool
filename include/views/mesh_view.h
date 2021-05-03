@@ -15,7 +15,7 @@ class MeshDrawable : views::View3D {
 private:
   bgfx::UniformHandle u_color, u_lightDir;
   std::shared_ptr<geometry::TriangleMesh> mesh;
-  Eigen::Matrix<float, Eigen::Dynamic, 6, Eigen::RowMajor> vertexData;
+  Eigen::Matrix<float, Eigen::Dynamic, 7, Eigen::RowMajor> vertexData;
 
   // Uniform data.
   Vector4f lightDir;
@@ -24,7 +24,8 @@ private:
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
-  bgfx::ProgramHandle program;
+  bgfx::ProgramHandle uniformProgram;
+  bgfx::ProgramHandle colorProgram;
 
 public:
   MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m);

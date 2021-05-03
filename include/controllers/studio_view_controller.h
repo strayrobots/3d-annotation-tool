@@ -5,6 +5,7 @@
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
+#include "glfw_app.h"
 #include "controllers/controller.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
@@ -13,7 +14,6 @@
 class StudioViewController {
 private:
   SceneModel& sceneModel;
-  std::shared_ptr<views::MeshDrawable> meshDrawable;
   Timeline& timeline;
 
   // Changing view point.
@@ -35,12 +35,13 @@ public:
 
   void render() const;
 
-  bool leftButtonDown(double x, double y);
-  bool leftButtonUp(double x, double y);
-  bool mouseMoved(double x, double y);
-  bool scroll(double xoffset, double yoffset);
-  bool keypress(char character);
-  views::View3D& getActiveToolView();
+  bool leftButtonDown(double x, double y, InputModifier mod);
+  bool leftButtonUp(double x, double y, InputModifier mod);
+  bool mouseMoved(double x, double y, InputModifier mod);
+  bool scroll(double xoffset, double yoffset, InputModifier mod);
+  bool keypress(char character, InputModifier mod);
+  void resize(int width, int height, InputModifier mod);
 
-  void resize(int width, int height);
+private:
+  views::View3D& getActiveToolView();
 };

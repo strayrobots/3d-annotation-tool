@@ -20,7 +20,7 @@ file(GLOB_RECURSE SOURCE_FILES src/*.cc)
 add_executable(main ${SOURCE_FILES} apps/desktop.cc)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
-add_shaders(main SHADERS mesh/vs_mesh.sc mesh/fs_mesh.sc)
+add_shaders(main SHADERS mesh/vs_mesh.sc mesh/fs_mesh_uniform.sc mesh/fs_mesh_colors.sc)
 
 enable_testing()
 add_subdirectory(test EXCLUDE_FROM_ALL)

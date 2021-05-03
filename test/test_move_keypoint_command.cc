@@ -14,8 +14,6 @@ using namespace commands;
 TEST(TestMoveKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  StudioViewController view(sceneModel, timeline);
-  view.viewWillAppear(500, 500);
   auto command = std::make_unique<AddKeypointCommand>(Vector3f(1.0, 1.0, 1.0));
   timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);

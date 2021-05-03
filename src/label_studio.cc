@@ -15,6 +15,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    w->setInputModifier(mods);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
       w->leftButtonDown(x, y);
     } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
@@ -39,6 +40,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
 
   glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    w->setInputModifier(mods);
     if (action == GLFW_PRESS) {
       if ((CommandModifier == mods) && (GLFW_KEY_S == key)) {
         w->sceneModel.save();
@@ -46,7 +48,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
         w->undo();
       } else {
         char characterPressed = key;
-        w->studioViewController.keypress(characterPressed);
+        w->studioViewController.keypress(characterPressed, w->inputModifier);
       }
     }
   });
@@ -56,25 +58,33 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
   loadState();
 }
 
+void LabelStudio::setInputModifier(int mods) {
+  if (mods == CommandModifier) {
+    inputModifier = inputModifier | ModCommand; //Only set bits of inputModifier
+  } else {
+    inputModifier = ModNone;
+  }
+}
+
 void LabelStudio::leftButtonDown(double x, double y) {
-  studioViewController.leftButtonDown(x, y);
+  studioViewController.leftButtonDown(x, y, inputModifier);
 }
 
 void LabelStudio::leftButtonUp(double x, double y) {
-  studioViewController.leftButtonUp(x, y);
+  studioViewController.leftButtonUp(x, y, inputModifier);
 }
 
 void LabelStudio::mouseMoved(double x, double y) {
-  studioViewController.mouseMoved(x, y);
+  studioViewController.mouseMoved(x, y, inputModifier);
 }
 
 void LabelStudio::scroll(double xoffset, double yoffset) {
-  studioViewController.scroll(xoffset, yoffset);
+  studioViewController.scroll(xoffset, yoffset, inputModifier);
 }
 
 void LabelStudio::resize(int newWidth, int newHeight) {
   GLFWApp::resize(newWidth, newHeight);
-  studioViewController.resize(newWidth, newHeight);
+  studioViewController.resize(newWidth, newHeight, inputModifier);
 }
 
 bool LabelStudio::update() const {
