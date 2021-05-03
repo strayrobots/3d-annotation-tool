@@ -18,8 +18,10 @@ protected:
   RowMatrixf V; // Vertices.
   RowMatrixi F;
   RowMatrixf vertexNormals;
+  Eigen::Matrix<uint8_t, Eigen::Dynamic, 3, Eigen::RowMajor> vertexColors;
 
 public:
+  bool colorsFromFile = false;
   TriangleMesh(const Matrix4f T = Matrix4f::Identity());
 
   const Matrix4f& getTransform() const;
@@ -30,6 +32,7 @@ public:
   const RowMatrixf& vertices() const { return V; }
   const RowMatrixi& faces() const { return F; }
   const RowMatrixf& getVertexNormals() const { return vertexNormals; }
+  const Eigen::Matrix<uint8_t, Eigen::Dynamic, 3, Eigen::RowMajor>& getVertexColors() const { return vertexColors; }
   Eigen::RowVector3f getMeshMean() const;
 
 protected:

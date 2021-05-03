@@ -22,7 +22,7 @@ TranslateControl::TranslateControl(std::function<void(const Vector3f&)> cb) : ca
 
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
-  program = shader_utils::loadProgram("vs_mesh", "fs_mesh");
+  program = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
 }
 
 TranslateControl::~TranslateControl() {

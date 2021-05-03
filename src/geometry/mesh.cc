@@ -125,11 +125,26 @@ void Sphere::subdivide() {
 Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : TriangleMesh(T) {
   happly::PLYData plyIn(meshFile);
   const auto& vertices = plyIn.getVertexPositions();
+  const auto& propertyNames = plyIn.getElement("vertex").getPropertyNames();
+  std::vector<std::array<unsigned char, 3>> colors;
+
+  if (std::find(propertyNames.begin(), propertyNames.end(), "red") != propertyNames.end()) {
+    colorsFromFile = true;
+    colors = plyIn.getVertexColors();
+    vertexColors.resize(colors.size(), 3);
+  }
+
   V.resize(vertices.size(), 3);
   for (int i = 0; i < vertices.size(); i++) {
     V(i, 0) = float(vertices[i][0]) * scale;
     V(i, 1) = float(vertices[i][1]) * scale;
     V(i, 2) = float(vertices[i][2]) * scale;
+
+    if (colorsFromFile) {
+      vertexColors(i, 0) = colors[i][0];
+      vertexColors(i, 1) = colors[i][1];
+      vertexColors(i, 2) = colors[i][2];
+    }
   }
   auto faces = plyIn.getFaceIndices<size_t>();
   F.resize(faces.size(), 3);
