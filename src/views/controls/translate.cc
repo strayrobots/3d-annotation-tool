@@ -17,7 +17,7 @@ TranslateControl::TranslateControl(std::function<void(const Vector3f&)> cb) : ca
   zTransform.rotate(AngleAxisf(-M_PI / 2.0, Vector3f(0.0, 1.0, 0.0)));
 
   auto xAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", Matrix4f::Identity(), 0.5);
-  xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh, xAxisColor);
+  xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh);
   rtAxisMesh = std::make_unique<geometry::RayTraceMesh>(xAxisMesh);
 
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);

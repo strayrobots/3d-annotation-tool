@@ -5,41 +5,44 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, CommandStack& stack) : sceneModel(model), commandStack(stack), camera(),
-                                                                                     viewContext(camera), annotationController(model) {
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(),
+  viewContext(camera), annotationView(model), sceneMeshView(model.getMesh()),
+  addKeypointView(model, tl), moveKeypointView(model, tl) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
-  meshView = std::make_shared<views::MeshView>(width, height);
-  meshDrawable = std::make_shared<views::MeshDrawable>(sceneModel.getMesh());
-  meshView->addObject(meshDrawable);
   auto meshMean = sceneModel.getMesh()->getMeshMean();
   camera.reset(meshMean, -meshMean.normalized());
 
-  addKeypointTool = std::make_shared<AddKeypointTool>(sceneModel, *this, commandStack);
-  moveKeypointTool = std::make_shared<MoveKeypointTool>(sceneModel, *this, annotationController, commandStack);
-  currentTool = addKeypointTool;
-
   viewContext.width = width;
   viewContext.height = height;
-  annotationController.viewWillAppear(width, height);
+}
+
+views::View3D& StudioViewController::getActiveToolView() {
+  if (sceneModel.activeToolId == AddKeypointToolId) {
+    return addKeypointView;
+  } else {
+    return moveKeypointView;
+  }
 }
 
 void StudioViewController::render() const {
-  assert(meshView != nullptr && "Rendering not initialized");
-
-  annotationController.render(camera);
-  meshView->render(camera);
+  annotationView.render(viewContext);
+  if (sceneModel.activeToolId == MoveKeypointToolId) {
+    moveKeypointView.render(viewContext);
+  }
+  if (sceneModel.activeToolId == AddKeypointToolId) {
+    sceneMeshView.render(viewContext);
+  } else {
+    sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
+  }
 }
 
 // Input handling.
 bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (currentTool->leftButtonDown(viewContext)) {
-    return true;
-  }
-  if (annotationController.leftButtonDown(viewContext)) {
+  if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
   dragging = true;
@@ -53,7 +56,7 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
-    if (currentTool->leftButtonUp(viewContext)) {
+    if (getActiveToolView().leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
       return true;
@@ -62,17 +65,13 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
     moved = false;
   }
   dragging = false;
-  //if (annotationController.leftButtonUp(viewContext)) return true;
   return false;
 }
 
 bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
-  if (currentTool->mouseMoved(viewContext)) {
-    return true;
-  }
-  if (annotationController.mouseMoved(viewContext)) {
+  if (getActiveToolView().mouseMoved(viewContext)) {
     return true;
   }
 
@@ -103,20 +102,16 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
 void StudioViewController::resize(int width, int height, InputModifier mod) {
   viewContext.width = width;
   viewContext.height = height;
-  meshView->resize(width, height);
 }
 
 bool StudioViewController::keypress(char character, InputModifier mod) {
   if (character == 'K') {
-    currentTool->deactivate();
-    currentTool = addKeypointTool;
-    currentTool->activate();
+    sceneModel.activeToolId = AddKeypointToolId;
     return true;
   } else if (character == 'V') {
-    currentTool->deactivate();
-    currentTool = moveKeypointTool;
-    currentTool->activate();
+    sceneModel.activeToolId = MoveKeypointToolId;
     return true;
   }
   return false;
 }
+

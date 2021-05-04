@@ -14,7 +14,7 @@ using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
-MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vector4f& c) : mesh(m), color(c) {
+MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m) : mesh(m), lightDir(0.0, 1.0, -1.0, 1.0) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
@@ -22,11 +22,20 @@ MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, const Vect
       .end();
   packVertexData();
   createBuffers();
+
+  u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
+  u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+  uniformProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
+  colorProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_colors");
 }
 
 MeshDrawable::~MeshDrawable() {
   bgfx::destroy(indexBuffer);
   bgfx::destroy(vertexBuffer);
+  bgfx::destroy(uniformProgram);
+  bgfx::destroy(colorProgram);
+  bgfx::destroy(u_lightDir);
+  bgfx::destroy(u_color);
 }
 
 void MeshDrawable::createBuffers() {
@@ -39,10 +48,12 @@ void MeshDrawable::packVertexData() {
   const auto& F = mesh->faces();
   const auto& V = mesh->vertices();
   const auto& N = mesh->getVertexNormals();
+
   const auto& vertexColors = mesh->getVertexColors();
-  bool colorsFromFile = mesh->colorsFromFile;
+  const bool colorsFromFile = mesh->colorsFromFile;
   vertexData.resize(V.rows(), 7);
-#pragma omp parallel for
+
+  #pragma omp parallel for
   for (int i = 0; i < V.rows(); i++) {
     auto vertex = V.row(i);
     vertexData.block<1, 3>(i, 0) = V.row(i);
@@ -60,68 +71,17 @@ void MeshDrawable::setDrawingGeometry() const {
   bgfx::setIndexBuffer(indexBuffer);
 }
 
-void MeshDrawable::setAlpha(float value) {
-  color[3] = value;
-}
-
-MeshView::MeshView(int width, int height) : SizedView(width, height), lightDir(0.0, 1.0, -1.0, 1.0) {
-  u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
-  u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
-  uniformProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
-  colorProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_colors");
-}
-
-MeshView::~MeshView() {
-  bgfx::destroy(uniformProgram);
-  bgfx::destroy(colorProgram);
-  bgfx::destroy(u_lightDir);
-  bgfx::destroy(u_color);
-}
-
-void MeshView::addObject(std::shared_ptr<MeshDrawable> obj) {
-  objects.push_back(obj);
-}
-
-void MeshView::setAlpha(float value) {
-  for (auto& object : objects) {
-    object->setAlpha(value);
-  }
-}
-
-void MeshView::setCameraTransform(const Camera& camera) const {
-  float proj[16];
-  float view[16];
-
-  auto position = camera.getPosition();
-  auto lookat = camera.getLookat();
-  auto cameraUp = camera.getUpVector();
-
-  const bx::Vec3 at = {lookat[0], lookat[1], lookat[2]};
-  const bx::Vec3 eye = {position[0], position[1], position[2]};
-  const bx::Vec3 up = {cameraUp[0], cameraUp[1], cameraUp[2]};
-  bx::mtxProj(proj, camera.fov, float(width) / float(height), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
-  bx::mtxLookAt(view, eye, at, up, bx::Handness::Right);
-
-  bgfx::setViewTransform(0, view, proj);
-}
-
-void MeshView::renderObject(const std::shared_ptr<views::MeshDrawable>& object) const {
+void MeshDrawable::render(const ViewContext3D& context, const Matrix4f& T, const Vector4f& color) const {
+  views::setCameraTransform(context);
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
-  bgfx::setUniform(u_color, object->getColor().data(), 1);
-  bgfx::setTransform(object->getTransform().data());
-  object->setDrawingGeometry();
+  bgfx::setTransform(T.data());
+  setDrawingGeometry();
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
-  if (object->mesh->colorsFromFile) {
+  if (mesh->colorsFromFile) {
     bgfx::submit(0, colorProgram);
   } else {
+    bgfx::setUniform(u_color, color.data(), 1);
     bgfx::submit(0, uniformProgram);
-  }
-}
-
-void MeshView::render(const Camera& camera) const {
-  setCameraTransform(camera);
-  for (const auto& object : objects) {
-    renderObject(object);
   }
 }
 

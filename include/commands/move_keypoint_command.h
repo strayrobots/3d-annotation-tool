@@ -1,10 +1,6 @@
 #pragma once
-#include <eigen3/Eigen/Dense>
 #include "commands/command.h"
 #include "scene_model.h"
-#include "views/controls/translate.h"
-
-class StudioViewController;
 
 namespace commands {
 
@@ -15,9 +11,9 @@ private:
   Keypoint newKeypoint;
 
 public:
-  MoveKeypointCommand(Keypoint kp, const Vector3f& newPosition);
+  MoveKeypointCommand(const Keypoint& kp, const Vector3f& newPosition);
 
-  void execute(StudioViewController& view, SceneModel& sceneModel) override;
-  void undo(StudioViewController& view, SceneModel& sceneModel) override;
+  void execute(SceneModel& sceneModel) override;
+  void undo(SceneModel& sceneModel) override;
 };
 } // namespace commands

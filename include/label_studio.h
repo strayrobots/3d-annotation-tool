@@ -2,17 +2,17 @@
 #include <bgfx/platform.h>
 #include "glfw_app.h"
 #include "scene_model.h"
-#include "commands/command.h"
+#include "timeline.h"
 #include "controllers/studio_view_controller.h"
 
 using namespace commands;
 class LabelStudio : public GLFWApp {
 private:
   const std::filesystem::path datasetFolder;
+  Timeline timeline;
 
 public:
   SceneModel sceneModel;
-  std::list<std::unique_ptr<commands::Command>> commandStack;
   StudioViewController studioViewController;
   InputModifier inputModifier = ModNone;
 

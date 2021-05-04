@@ -15,6 +15,11 @@ struct Keypoint {
   Keypoint(int id) : id(id), position(Vector3f::Zero()) {}
 };
 
+enum ActiveTool {
+  AddKeypointToolId,
+  MoveKeypointToolId
+};
+
 class SceneModel {
 private:
   std::filesystem::path datasetPath;
@@ -24,8 +29,10 @@ private:
 
   // Keypoints.
   std::vector<Keypoint> keypoints;
-
 public:
+  int activeKeypoint = -1;
+  ActiveTool activeToolId = AddKeypointToolId;
+
   SceneModel(const std::string& datasetFolder);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
@@ -35,7 +42,9 @@ public:
   Keypoint addKeypoint(const Vector3f& p);
   void removeKeypoint(const Keypoint& keypoint);
   void updateKeypoint(int keypointId, Keypoint kp);
-  Keypoint getKeypoint(int keypointId) const;
+  std::optional<Keypoint> getKeypoint(int keypointId) const;
+  void setKeypoint(const Keypoint& keypoint);
+  void setActiveKeypoint(int id) { activeKeypoint = id; }
   void save() const;
 
 private:

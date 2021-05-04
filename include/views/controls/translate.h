@@ -41,7 +41,7 @@ public:
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;
   void setPosition(const Vector3f& newPos);
-  void render(const Camera& camera) const override;
+  void render(const Camera& camera) const;
 };
 
 } // namespace views::controls
