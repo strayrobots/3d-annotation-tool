@@ -10,6 +10,7 @@
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
 #include "views/move_keypoint_view.h"
+#include "views/add_bbox_view.h"
 
 class StudioViewController {
 private:
@@ -28,6 +29,7 @@ private:
   // Tool views.
   views::AddKeypointView addKeypointView;
   views::MoveKeypointView moveKeypointView;
+  views::AddBBoxView addBBoxView;
 
 public:
   StudioViewController(SceneModel& model, Timeline& timeline);

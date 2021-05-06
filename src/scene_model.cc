@@ -16,6 +16,10 @@ std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vecto
   return rtMesh.traceRay(origin, direction);
 }
 
+geometry::Intersection SceneModel::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) {
+  return rtMesh.traceRayIntersection(origin, direction);
+}
+
 Keypoint SceneModel::addKeypoint(const Vector3f& p) {
   Keypoint kp(keypoints.size() + 1, p);
   keypoints.push_back(kp);
@@ -62,6 +66,12 @@ void SceneModel::updateKeypoint(int id, Keypoint kp) {
       return;
     }
   }
+}
+
+// Bounding boxes
+void SceneModel::addBBox(BBox& bbox) {
+  bbox.id = boundingBoxes.size() + 1;
+  boundingBoxes.push_back(bbox);
 }
 
 void SceneModel::save() const {

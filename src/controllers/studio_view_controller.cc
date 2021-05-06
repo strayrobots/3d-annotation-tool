@@ -7,7 +7,7 @@ using namespace commands;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(),
   viewContext(camera), annotationView(model), sceneMeshView(model.getMesh()),
-  addKeypointView(model, tl), moveKeypointView(model, tl) {
+  addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
@@ -21,13 +21,17 @@ void StudioViewController::viewWillAppear(int width, int height) {
 views::View3D& StudioViewController::getActiveToolView() {
   if (sceneModel.activeToolId == AddKeypointToolId) {
     return addKeypointView;
-  } else {
+  } else if (sceneModel.activeToolId == MoveKeypointToolId) {
     return moveKeypointView;
+  } else {
+    return addBBoxView;
   }
 }
 
 void StudioViewController::render() const {
   annotationView.render(viewContext);
+  addBBoxView.render(viewContext);
+
   if (sceneModel.activeToolId == MoveKeypointToolId) {
     moveKeypointView.render(viewContext);
   }
@@ -110,6 +114,9 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
     return true;
   } else if (character == 'V') {
     sceneModel.activeToolId = MoveKeypointToolId;
+    return true;
+  } else if (character == 'B') {
+    sceneModel.activeToolId = BBoxToolId;
     return true;
   }
   return false;
