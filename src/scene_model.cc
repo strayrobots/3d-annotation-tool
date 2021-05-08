@@ -6,7 +6,7 @@
 
 SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder),
                                                            mesh(new geometry::Mesh((datasetPath / "scene" / "integrated.ply").string())),
-                                                           rtMesh(mesh) {
+                                                           rtMesh(mesh), keypoints(), boundingBoxes() {
   initRayTracing();
 }
 
@@ -69,18 +69,75 @@ void SceneModel::updateKeypoint(int id, Keypoint kp) {
 }
 
 // Bounding boxes
-void SceneModel::addBBox(BBox& bbox) {
+std::optional<BBox> SceneModel::getBoundingBox(int id) const {
+  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
+    return bbox.id == id;
+  });
+  if (iterator != boundingBoxes.end()) {
+    return *iterator;
+  }
+  return {};
+}
+
+void SceneModel::addBoundingBox(BBox& bbox) {
   bbox.id = boundingBoxes.size() + 1;
   boundingBoxes.push_back(bbox);
 }
 
-void SceneModel::save() const {
-  auto keypointPath = datasetPath / "keypoints.json";
-  nlohmann::json json = nlohmann::json::array();
-  for (size_t i = 0; i < keypoints.size(); i++) {
-    json[i] = {{"x", keypoints[i].position[0]}, {"y", keypoints[i].position[1]}, {"z", keypoints[i].position[2]}};
+void SceneModel::removeBoundingBox(int id) {
+  if (boundingBoxes.empty()) return;
+  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
+    return bbox.id == id;
+  });
+  if (iterator != boundingBoxes.end()) {
+    boundingBoxes.erase(iterator);
   }
-  std::ofstream file(keypointPath.string());
+}
+
+void SceneModel::updateBoundingBox(const BBox& updated) {
+  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
+    return bbox.id == updated.id;
+  });
+
+  if (iterator != boundingBoxes.end()) {
+    *iterator = updated;
+  }
+}
+
+nlohmann::json serializeVector(const Vector3f& v) {
+  auto out = nlohmann::json::array();
+  out[0] = v[0];
+  out[1] = v[1];
+  out[2] = v[2];
+  return out;
+}
+
+nlohmann::json serializeBBox(const BBox& bbox) {
+  auto obj = nlohmann::json::object();
+  obj["position"] = serializeVector(bbox.position);
+  obj["orientation"] = {
+    {"w", bbox.orientation.w()},
+    {"x", bbox.orientation.x()},
+    {"y", bbox.orientation.y()},
+    {"z", bbox.orientation.z()}
+  };
+  obj["dimensions"] = serializeVector(bbox.dimensions);
+  return obj;
+}
+
+void SceneModel::save() const {
+  auto annotationPath = datasetPath / "annotations.json";
+  nlohmann::json json = nlohmann::json::object();
+  json["keypoints"] = nlohmann::json::array();
+  for (size_t i = 0; i < keypoints.size(); i++) {
+    json["keypoints"][i] = serializeVector(keypoints[i].position);
+  }
+  json["bounding_boxes"] = nlohmann::json::array();
+  for (size_t i = 0; i < boundingBoxes.size(); i++) {
+    const auto& bbox = boundingBoxes[i];
+    json["bounding_boxes"][i] = serializeBBox(bbox);
+  }
+  std::ofstream file(annotationPath.string());
   file << json;
   std::cout << "Saved keypoints to keypoints.json" << std::endl;
 }

@@ -11,10 +11,12 @@
 namespace views::controls {
 
 TranslateControl::TranslateControl(std::function<void(const Vector3f&)> cb) : callback(cb) {
+  yRotation = AngleAxisf(M_PI / 2.0, Vector3f(0.0, 0.0, 1.0));
+  zRotation = AngleAxisf(-M_PI / 2.0, Vector3f(0.0, 1.0, 0.0));
   yTransform = Transform<float, 3, Eigen::Affine>::Identity();
   zTransform = Transform<float, 3, Eigen::Affine>::Identity();
-  yTransform.rotate(AngleAxisf(M_PI / 2.0, Vector3f(0.0, 0.0, 1.0)));
-  zTransform.rotate(AngleAxisf(-M_PI / 2.0, Vector3f(0.0, 1.0, 0.0)));
+  yTransform.rotate(yRotation);
+  zTransform.rotate(zRotation);
 
   auto xAxisMesh = std::make_shared<geometry::Mesh>("../assets/x_axis.ply", Matrix4f::Identity(), 0.5);
   xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh);
@@ -33,10 +35,10 @@ TranslateControl::~TranslateControl() {
 
 bool TranslateControl::leftButtonDown(const ViewContext3D& viewContext) {
   activeAxis = -1;
-  const Vector3f& cameraOrigin = viewContext.camera.getPosition() - currentTransform.translation();
+  const Vector3f& cameraOrigin = (viewContext.camera.getPosition() - currentTransform.translation());
   const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
                                                                     viewContext.mousePositionX, viewContext.mousePositionY);
-  auto hitX = rtAxisMesh->traceRay(cameraOrigin, rayDirection);
+  auto hitX = rtAxisMesh->traceRay(currentTransform.rotation().transpose() * cameraOrigin, currentTransform.rotation().transpose() * rayDirection);
   if (hitX.has_value()) {
     activeAxis = 0;
     dragPoint = hitX.value()[0] * Vector3f::UnitX();
@@ -65,10 +67,9 @@ bool TranslateControl::leftButtonUp(const ViewContext3D& viewContext) {
 
 bool TranslateControl::mouseMoved(const ViewContext3D& viewContext) {
   if (activeAxis < 0) return false;
-  const Vector3f& cameraOrigin = viewContext.camera.getPosition() - currentTransform.translation();
-  const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
+  const Vector3f& cameraOrigin = currentTransform.rotation().transpose() * (viewContext.camera.getPosition() - currentTransform.translation());
+  const Vector3f& rayDirection = currentTransform.rotation().transpose() * viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
                                                                     viewContext.mousePositionX, viewContext.mousePositionY);
-  const Vector3f& translation = currentTransform.translation();
   Vector3f change;
   if (activeAxis == 0) {
     float t = -cameraOrigin[2] / rayDirection[2];
@@ -86,7 +87,7 @@ bool TranslateControl::mouseMoved(const ViewContext3D& viewContext) {
     float displacement = pointOnXZPlane[2];
     change = (displacement - dragPoint[2]) * Vector3f::UnitZ();
   }
-  currentTransform.translation() += change;
+  currentTransform.translation() += currentTransform.rotation() * change;
   yTransform.translation() = currentTransform.translation();
   zTransform.translation() = currentTransform.translation();
   callback(currentTransform.translation());
@@ -97,6 +98,13 @@ void TranslateControl::setPosition(const Vector3f& newPos) {
   currentTransform.translation() = newPos;
   yTransform.translation() = newPos;
   zTransform.translation() = newPos;
+}
+
+void TranslateControl::setOrientation(const Quaternionf& orientation) {
+  auto t = Translation3f(currentTransform.translation());
+  currentTransform = t * orientation;
+  yTransform = t * orientation * yRotation;
+  zTransform = t * orientation * zRotation;
 }
 
 void TranslateControl::render(const Camera& camera) const {

@@ -10,6 +10,7 @@ void setCameraTransform(const ViewContext3D& context);
 class View {
 public:
   View() {}
+  virtual ~View() {};
 };
 
 class View3D : View {

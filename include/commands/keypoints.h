@@ -3,8 +3,6 @@
 #include "commands/command.h"
 #include "scene_model.h"
 
-class StudioViewController;
-
 namespace commands {
 
 using namespace Eigen;

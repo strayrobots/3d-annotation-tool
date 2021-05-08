@@ -5,7 +5,7 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), camera(),
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), camera(),
   viewContext(camera), annotationView(model), sceneMeshView(model.getMesh()),
   addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
 }
@@ -28,12 +28,17 @@ views::View3D& StudioViewController::getActiveToolView() {
   }
 }
 
+void StudioViewController::refresh() {
+  addBBoxView.refresh();
+}
+
 void StudioViewController::render() const {
   annotationView.render(viewContext);
-  addBBoxView.render(viewContext);
 
   if (sceneModel.activeToolId == MoveKeypointToolId) {
     moveKeypointView.render(viewContext);
+  } else if (sceneModel.activeToolId == BBoxToolId) {
+    addBBoxView.render(viewContext);
   }
   if (sceneModel.activeToolId == AddKeypointToolId) {
     sceneMeshView.render(viewContext);

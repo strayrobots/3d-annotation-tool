@@ -18,6 +18,7 @@ include(cmake/shaders.cmake)
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cc)
 add_executable(main ${SOURCE_FILES} apps/desktop.cc)
+target_compile_options(main PRIVATE -Wall)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)

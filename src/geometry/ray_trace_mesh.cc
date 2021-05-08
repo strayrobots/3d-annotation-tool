@@ -6,9 +6,8 @@ RayTraceMesh::RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> m) : nanoMesh
   mesh = m;
   nanort::TriangleSAHPred<float> trianglePred(mesh->vertices().data(), mesh->faces().data(), sizeof(float) * 3);
   nanort::BVHBuildOptions<float> build_options;
-  auto ret = bvh.Build(mesh->faces().rows(), nanoMesh, trianglePred, build_options);
+  bvh.Build(mesh->faces().rows(), nanoMesh, trianglePred, build_options);
   assert(ret && "Can't build bounding volume hierarchy.");
-  nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }
 
 Intersection RayTraceMesh::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const {

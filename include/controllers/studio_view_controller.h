@@ -15,7 +15,6 @@
 class StudioViewController {
 private:
   SceneModel& sceneModel;
-  Timeline& timeline;
 
   // Changing view point.
   double prevX, prevY;
@@ -36,6 +35,7 @@ public:
   void viewWillAppear(int width, int height);
 
   void render() const;
+  void refresh();
 
   bool leftButtonDown(double x, double y, InputModifier mod);
   bool leftButtonUp(double x, double y, InputModifier mod);

@@ -18,8 +18,8 @@ struct Keypoint {
 struct BBox {
   int id;
   Vector3f position;
-  Quaternionf orientation;
-  Vector3f dimensions;
+  Quaternionf orientation = Quaternionf::Identity();
+  Vector3f dimensions = Vector3f::Ones() * 0.2;
 };
 
 enum ActiveTool {
@@ -40,6 +40,7 @@ private:
   std::vector<BBox> boundingBoxes;
 public:
   int activeKeypoint = -1;
+  int activeBBox = -1;
   ActiveTool activeToolId = AddKeypointToolId;
 
   SceneModel(const std::string& datasetFolder);
@@ -58,7 +59,10 @@ public:
   void setActiveKeypoint(int id) { activeKeypoint = id; }
 
   // BBoxes.
-  void addBBox(BBox& bbox);
+  std::optional<BBox> getBoundingBox(int id) const;
+  void addBoundingBox(BBox& bbox);
+  void removeBoundingBox(int id);
+  void updateBoundingBox(const BBox& bbox);
   const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
 
   void save() const;
