@@ -57,7 +57,6 @@ void Camera::updateLookat(const Vector3f& newLookat) {
   setLookat(newLookat);
   if (!lookat.isApprox(position)) {
     Vector3f newForwardVector = (lookat - position).normalized();
-    Vector3f up = getUpVector();
 
     Matrix3f cameraRotation(getCameraRotation(newForwardVector));
     setOrientation(Quaternionf(cameraRotation));
