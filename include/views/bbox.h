@@ -12,11 +12,11 @@ private:
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
   bgfx::UniformHandle u_scale;
+
 public:
   BBoxView();
   ~BBoxView();
   void render(const BBox& bbox) const;
 };
 
-}
-
+} // namespace views

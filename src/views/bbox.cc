@@ -3,29 +3,40 @@
 
 namespace views {
 static float cubeVertices[] = {
-   0.5f, -0.5f, -0.5f,
-   0.5f,  0.5f, -0.5f,
-  -0.5f,  0.5f, -0.5f,
-  -0.5f, -0.5f, -0.5f,
-   0.5f, -0.5f,  0.5f,
-   0.5f,  0.5f,  0.5f,
-  -0.5f, -0.5f,  0.5f,
-  -0.5f,  0.5f,  0.5f
-};
+    0.5f, -0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f,
+    -0.5f, 0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f};
 
 static const uint16_t cubeTriangleList[] = {
-  0, 1,
-  0, 3,
-  0, 4,
-  2, 1,
-  2, 3,
-  2, 7,
-  6, 3,
-  6, 4,
-  6, 7,
-  5, 1,
-  5, 4,
-  5, 7,
+    0,
+    1,
+    0,
+    3,
+    0,
+    4,
+    2,
+    1,
+    2,
+    3,
+    2,
+    7,
+    6,
+    3,
+    6,
+    4,
+    6,
+    7,
+    5,
+    1,
+    5,
+    4,
+    5,
+    7,
 };
 
 BBoxView::BBoxView() {
@@ -56,15 +67,14 @@ void BBoxView::render(const BBox& bbox) const {
   Vector4f scale(bbox.dimensions[0], bbox.dimensions[1], bbox.dimensions[2], 1.0);
   bgfx::setUniform(u_scale, scale.data(), 1);
   bgfx::setState(BGFX_STATE_DEFAULT |
-      BGFX_STATE_PT_LINES |
-      BGFX_STATE_WRITE_A |
-      BGFX_STATE_WRITE_RGB |
-      BGFX_STATE_WRITE_Z |
-      BGFX_STATE_CULL_CW |
-      BGFX_STATE_BLEND_ALPHA |
-      BGFX_STATE_MSAA);
+                 BGFX_STATE_PT_LINES |
+                 BGFX_STATE_WRITE_A |
+                 BGFX_STATE_WRITE_RGB |
+                 BGFX_STATE_WRITE_Z |
+                 BGFX_STATE_CULL_CW |
+                 BGFX_STATE_BLEND_ALPHA |
+                 BGFX_STATE_MSAA);
   bgfx::submit(0, program);
 }
 
-}
-
+} // namespace views

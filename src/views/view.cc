@@ -21,4 +21,4 @@ void setCameraTransform(const ViewContext3D& context) {
 
   bgfx::setViewTransform(0, view, proj);
 }
-}
+} // namespace views

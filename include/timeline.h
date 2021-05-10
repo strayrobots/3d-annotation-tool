@@ -10,10 +10,11 @@ class Timeline {
 private:
   SceneModel& sceneModel;
   CommandStack commandStack;
+
 public:
   Timeline(SceneModel& model) : sceneModel(model), commandStack() {
   }
-  Timeline(Timeline const &other) = delete;
+  Timeline(Timeline const& other) = delete;
 
   void pushCommand(CommandPtr command) {
     command->execute(sceneModel);
@@ -30,4 +31,3 @@ public:
     return commandStack.size();
   }
 };
-

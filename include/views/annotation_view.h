@@ -13,8 +13,9 @@ private:
   BBoxView bboxView;
 
   Vector4f lightDir = Vector4f(0.0, 1.0, -1.0, 1.0);
+
 public:
   AnnotationView(SceneModel& model);
   void render(const ViewContext3D& context) const;
 };
-}
+} // namespace views

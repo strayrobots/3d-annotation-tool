@@ -69,7 +69,7 @@ bool TranslateControl::mouseMoved(const ViewContext3D& viewContext) {
   if (activeAxis < 0) return false;
   const Vector3f& cameraOrigin = currentTransform.rotation().transpose() * (viewContext.camera.getPosition() - currentTransform.translation());
   const Vector3f& rayDirection = currentTransform.rotation().transpose() * viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
-                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
+                                                                                                              viewContext.mousePositionX, viewContext.mousePositionY);
   Vector3f change;
   if (activeAxis == 0) {
     float t = -cameraOrigin[2] / rayDirection[2];

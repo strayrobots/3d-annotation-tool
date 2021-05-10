@@ -17,11 +17,11 @@ private:
 
   SceneModel& sceneModel;
   Timeline& timeline;
+
 public:
   AddKeypointView(SceneModel& model, Timeline& timeline);
 
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;
 };
-}
-
+} // namespace views

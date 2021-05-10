@@ -9,7 +9,7 @@
 #include "commands/bounding_box.h"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
-    studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
+                                                      studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
   loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -121,10 +121,9 @@ void LabelStudio::loadState() {
     auto orn = bbox["orientation"];
     auto d = bbox["dimensions"];
     BBox box = {
-      .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
-      .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
-      .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())
-    };
+        .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+        .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
+        .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
     std::unique_ptr<Command> command = std::make_unique<commands::AddBBoxCommand>(box);
     timeline.pushCommand(std::move(command));
   }

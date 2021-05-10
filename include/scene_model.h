@@ -38,6 +38,7 @@ private:
   // Annotations.
   std::vector<Keypoint> keypoints;
   std::vector<BBox> boundingBoxes;
+
 public:
   int activeKeypoint = -1;
   int activeBBox = -1;

@@ -14,6 +14,7 @@ private:
   geometry::RayTraceMesh rtKeypointSphere;
   std::optional<Keypoint> currentKeypoint = {};
   bool dragging = false;
+
 public:
   MoveKeypointView(SceneModel& model, Timeline& tl);
   bool isActive() const;
@@ -22,5 +23,4 @@ public:
   bool mouseMoved(const ViewContext3D& context) override;
   void render(const ViewContext3D& context) const;
 };
-}
-
+} // namespace views

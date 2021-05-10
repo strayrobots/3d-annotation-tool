@@ -17,9 +17,10 @@ private:
   Timeline& timeline;
   std::shared_ptr<views::controls::TranslateControl> translateControl;
   std::shared_ptr<views::controls::TranslateControl> sizeControl;
-  BBox bboxStart = { .id = -1 };
+  BBox bboxStart = {.id = -1};
   Vector3f position = Vector3f::Zero();
   Vector3f dimensions = Vector3f::Zero();
+
 public:
   AddBBoxView(SceneModel& model, Timeline& timeline);
   void refresh();
@@ -28,4 +29,4 @@ public:
   bool mouseMoved(const ViewContext3D& context) override;
   void render(const ViewContext3D& context) const;
 };
-}
+} // namespace views

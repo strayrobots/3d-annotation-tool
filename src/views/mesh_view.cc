@@ -52,7 +52,7 @@ void MeshDrawable::packVertexData() {
   const bool colorsFromFile = mesh->colorsFromFile;
   vertexData.resize(V.rows(), 7);
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < V.rows(); i++) {
     vertexData.block<1, 3>(i, 0) = V.row(i);
     vertexData.block<1, 3>(i, 3) = N.row(i);
@@ -84,4 +84,3 @@ void MeshDrawable::render(const ViewContext3D& context, const Matrix4f& T, const
 }
 
 } // namespace views
-

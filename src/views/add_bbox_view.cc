@@ -7,27 +7,27 @@ using namespace geometry;
 
 AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline) : sceneModel(model), timeline(timeline) {
   translateControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPosition) {
-      auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
-      if (bbox.has_value()) {
-        bbox->position = newPosition;
-        sceneModel.updateBoundingBox(bbox.value());
-        sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
-        position = bbox->position;
-      }
+    auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
+    if (bbox.has_value()) {
+      bbox->position = newPosition;
+      sceneModel.updateBoundingBox(bbox.value());
+      sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+      position = bbox->position;
+    }
   });
   sizeControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPos_W) {
-      auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
-      if (bbox.has_value()) {
-        Vector3f diff_W = newPos_W - (bbox->position + bbox->orientation * bbox->dimensions * 0.5);
-        Vector3f pos_W = bbox->position + diff_W * 0.5;
-        Vector3f newDims_B = bbox->orientation.inverse() * (newPos_W - pos_W) * 2.0;
-        bbox->dimensions = newDims_B;
-        bbox->position = pos_W;
-        position = pos_W;
-        dimensions = newDims_B;
-        translateControl->setPosition(pos_W);
-        sceneModel.updateBoundingBox(bbox.value());
-      }
+    auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
+    if (bbox.has_value()) {
+      Vector3f diff_W = newPos_W - (bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+      Vector3f pos_W = bbox->position + diff_W * 0.5;
+      Vector3f newDims_B = bbox->orientation.inverse() * (newPos_W - pos_W) * 2.0;
+      bbox->dimensions = newDims_B;
+      bbox->position = pos_W;
+      position = pos_W;
+      dimensions = newDims_B;
+      translateControl->setPosition(pos_W);
+      sceneModel.updateBoundingBox(bbox.value());
+    }
   });
 }
 
@@ -65,11 +65,10 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
                                                                     viewContext.mousePositionX, viewContext.mousePositionY);
   Intersection intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
   if (intersection.hit) {
-    BBox bbox = { .id = -1,
-      .position = intersection.point,
-      .orientation = Quaternionf::FromTwoVectors(-Vector3f::UnitY(), intersection.normal),
-      .dimensions = Vector3f(0.2, 0.2, 0.2)
-    };
+    BBox bbox = {.id = -1,
+                 .position = intersection.point,
+                 .orientation = Quaternionf::FromTwoVectors(-Vector3f::UnitY(), intersection.normal),
+                 .dimensions = Vector3f(0.2, 0.2, 0.2)};
     translateControl->setPosition(bbox.position);
     translateControl->setOrientation(bbox.orientation);
     Vector3f sizePos = bbox.position + (bbox.orientation * bbox.dimensions) * 0.5;
@@ -100,4 +99,4 @@ void AddBBoxView::render(const ViewContext3D& context) const {
     sizeControl->render(context.camera);
   }
 }
-}
+} // namespace views
