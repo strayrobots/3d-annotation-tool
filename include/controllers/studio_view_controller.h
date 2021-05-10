@@ -10,11 +10,11 @@
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
 #include "views/move_keypoint_view.h"
+#include "views/add_bbox_view.h"
 
 class StudioViewController {
 private:
   SceneModel& sceneModel;
-  Timeline& timeline;
 
   // Changing view point.
   double prevX, prevY;
@@ -28,12 +28,14 @@ private:
   // Tool views.
   views::AddKeypointView addKeypointView;
   views::MoveKeypointView moveKeypointView;
+  views::AddBBoxView addBBoxView;
 
 public:
   StudioViewController(SceneModel& model, Timeline& timeline);
   void viewWillAppear(int width, int height);
 
   void render() const;
+  void refresh();
 
   bool leftButtonDown(double x, double y, InputModifier mod);
   bool leftButtonUp(double x, double y, InputModifier mod);

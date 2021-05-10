@@ -15,9 +15,17 @@ struct Keypoint {
   Keypoint(int id) : id(id), position(Vector3f::Zero()) {}
 };
 
+struct BBox {
+  int id;
+  Vector3f position;
+  Quaternionf orientation = Quaternionf::Identity();
+  Vector3f dimensions = Vector3f::Ones() * 0.2;
+};
+
 enum ActiveTool {
   AddKeypointToolId,
-  MoveKeypointToolId
+  MoveKeypointToolId,
+  BBoxToolId
 };
 
 class SceneModel {
@@ -27,17 +35,22 @@ private:
   std::shared_ptr<geometry::TriangleMesh> mesh;
   const geometry::RayTraceMesh rtMesh;
 
-  // Keypoints.
+  // Annotations.
   std::vector<Keypoint> keypoints;
+  std::vector<BBox> boundingBoxes;
+
 public:
   int activeKeypoint = -1;
+  int activeBBox = -1;
   ActiveTool activeToolId = AddKeypointToolId;
 
   SceneModel(const std::string& datasetFolder);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction);
+  geometry::Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction);
 
+  // Keypoints
   const std::vector<Keypoint>& getKeypoints() const { return keypoints; };
   Keypoint addKeypoint(const Vector3f& p);
   void removeKeypoint(const Keypoint& keypoint);
@@ -45,6 +58,14 @@ public:
   std::optional<Keypoint> getKeypoint(int keypointId) const;
   void setKeypoint(const Keypoint& keypoint);
   void setActiveKeypoint(int id) { activeKeypoint = id; }
+
+  // BBoxes.
+  std::optional<BBox> getBoundingBox(int id) const;
+  void addBoundingBox(BBox& bbox);
+  void removeBoundingBox(int id);
+  void updateBoundingBox(const BBox& bbox);
+  const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
+
   void save() const;
 
 private:

@@ -7,9 +7,6 @@
 
 using namespace commands;
 class LabelStudio : public GLFWApp {
-private:
-  const std::filesystem::path datasetFolder;
-  Timeline timeline;
 
 public:
   SceneModel sceneModel;
@@ -29,5 +26,8 @@ public:
   void undo();
 
 protected:
+  Timeline timeline;
+  const std::filesystem::path datasetFolder;
+
   void loadState();
 };

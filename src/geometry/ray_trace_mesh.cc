@@ -8,10 +8,10 @@ RayTraceMesh::RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> m) : nanoMesh
   nanort::BVHBuildOptions<float> build_options;
   auto ret = bvh.Build(mesh->faces().rows(), nanoMesh, trianglePred, build_options);
   assert(ret && "Can't build bounding volume hierarchy.");
-  nanort::BVHBuildStatistics stats = bvh.GetStatistics();
 }
 
-std::optional<Vector3f> RayTraceMesh::traceRay(const Vector3f& origin, const Vector3f& direction) const {
+Intersection RayTraceMesh::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const {
+  Intersection intersection = {false, Vector3f::Zero(), Vector3f::Zero()};
   nanort::Ray<float> ray;
   ray.min_t = 0.0;
   ray.max_t = 1e9f;
@@ -37,8 +37,21 @@ std::optional<Vector3f> RayTraceMesh::traceRay(const Vector3f& origin, const Vec
     Vector3f vertex1 = Vector3f(v1[0], v1[1], v1[2]);
     Vector3f vertex2 = Vector3f(v2[0], v2[1], v2[2]);
     Vector3f vertex3 = Vector3f(v3[0], v3[1], v3[2]);
-    Vector3f point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
-    return std::make_optional(point);
+    intersection.hit = true;
+    intersection.point = (1.0f - isect.u - isect.v) * vertex1 + isect.u * vertex2 + isect.v * vertex3;
+    const RowMatrixf& normals = mesh->getVertexNormals();
+    const auto n1 = normals.row(face[0]);
+    const auto n2 = normals.row(face[1]);
+    const auto n3 = normals.row(face[2]);
+    intersection.normal = (n1 + n2 + n3) / 3.0;
+  }
+  return intersection;
+}
+
+std::optional<Vector3f> RayTraceMesh::traceRay(const Vector3f& origin, const Vector3f& direction) const {
+  Intersection its = traceRayIntersection(origin, direction);
+  if (its.hit) {
+    return its.point;
   }
   return {};
 }

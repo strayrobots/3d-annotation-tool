@@ -6,9 +6,10 @@
 #include <bgfx/bgfx.h>
 #include "3rdparty/json.hpp"
 #include "commands/keypoints.h"
+#include "commands/bounding_box.h"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
-    timeline(sceneModel), studioViewController(sceneModel, timeline), datasetFolder(folder) {
+                                                      studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
   loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -100,18 +101,30 @@ bool LabelStudio::update() const {
 
 void LabelStudio::undo() {
   timeline.undoCommand();
+  studioViewController.refresh();
 }
 
 void LabelStudio::loadState() {
-  std::filesystem::path keypointPath(datasetFolder / "keypoints.json");
-  if (!std::filesystem::exists(keypointPath))
+  std::filesystem::path annotationPath(datasetFolder / "annotations.json");
+  if (!std::filesystem::exists(annotationPath))
     return;
-  std::ifstream file(keypointPath.string());
+  std::ifstream file(annotationPath.string());
   nlohmann::json json;
   file >> json;
-  for (auto& keypoint : json) {
-    auto k = Vector3f(keypoint["x"].get<float>(), keypoint["y"].get<float>(), keypoint["z"].get<float>());
+  for (auto& keypoint : json["keypoints"]) {
+    auto k = Vector3f(keypoint[0].get<float>(), keypoint[1].get<float>(), keypoint[2].get<float>());
     std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(k);
+    timeline.pushCommand(std::move(command));
+  }
+  for (auto& bbox : json["bounding_boxes"]) {
+    auto p = bbox["position"];
+    auto orn = bbox["orientation"];
+    auto d = bbox["dimensions"];
+    BBox box = {
+        .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+        .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
+        .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
+    std::unique_ptr<Command> command = std::make_unique<commands::AddBBoxCommand>(box);
     timeline.pushCommand(std::move(command));
   }
 }

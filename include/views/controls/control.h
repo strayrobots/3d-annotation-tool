@@ -3,7 +3,7 @@
 #include "view_context_3d.h"
 
 namespace views::controls {
-class Control : public View {
+class Control : public View3D {
 public:
   virtual bool leftButtonDown(const ViewContext3D& viewContext) { return false; };
   virtual bool leftButtonUp(const ViewContext3D& viewContext) { return false; };

@@ -7,6 +7,13 @@
 
 using namespace Eigen;
 namespace geometry {
+
+struct Intersection {
+  bool hit;
+  Vector3f point;
+  Vector3f normal;
+};
+
 class RayTraceMesh {
 private:
   // Geometry.
@@ -17,5 +24,6 @@ private:
 public:
   RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> mesh);
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction) const;
+  Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const;
 };
 } // namespace geometry
