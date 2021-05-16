@@ -14,7 +14,7 @@ using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
-MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m) : mesh(m), lightDir(0.0, 1.0, -1.0, 1.0) {
+MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId) : views::View3D(viewId), mesh(m), lightDir(0.0, 1.0, -1.0, 1.0) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
