@@ -6,6 +6,9 @@
 #include "3rdparty/cxxopts.h"
 #include "glfw_app.h"
 #include "views/image_pane.h"
+#include "views/annotation_view.h"
+#include "scene_model.h"
+#include "camera.h"
 
 namespace fs = std::filesystem;
 
@@ -33,20 +36,40 @@ void validateFlags(const cxxopts::ParseResult& flags) {
 class PreviewApp  : public GLFWApp {
 private:
   const fs::path datasetPath;
+  SceneModel scene;
+  ViewContext3D viewContext;
+  views::AnnotationView annotationView;
   std::vector<fs::path> colorImages;
+  std::vector<Matrix4f> cameraPoses;
   std::unique_ptr<views::ImagePane> imageView;
   int currentFrame = 0;
 public:
-  PreviewApp(const std::string& folder) : GLFWApp("Stray Preview"), datasetPath(folder) {
+  PreviewApp(const std::string& folder) : GLFWApp("Stray Preview"),
+      datasetPath(folder),
+      scene(folder, false),
+      viewContext(scene.sceneCamera()),
+      annotationView(scene, 1) {
+    viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
     listImages();
+    scene.load();
+    cameraPoses = scene.cameraTrajectory();
     imageView = std::make_unique<views::ImagePane>(colorImages[0]);
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    bgfx::setViewClear(1, BGFX_CLEAR_DEPTH);
   }
 
-  bool advance() {
+  void advance() {
     currentFrame++;
     if (currentFrame < colorImages.size()) {
       imageView->setImage(colorImages[currentFrame]);
+      Matrix4f T_C = cameraPoses[currentFrame];
+      Vector3f p_C = T_C.block<3, 1>(0, 3);
+      Quaternionf R_C(T_C.block<3, 3>(0, 0));
+      auto R_WC = AngleAxisf(M_PI, Vector3f::UnitX());
+      viewContext.camera.setOrientation((R_C * R_WC).normalized());
+      viewContext.camera.setPosition(p_C);
+      viewContext.width = width;
+      viewContext.height = height;
     }
   }
 
@@ -54,6 +77,8 @@ public:
     if (currentFrame >= colorImages.size()) return false;
     bgfx::setViewRect(0, 0, 0, width, height);
     imageView->render();
+    bgfx::setViewRect(1, 0, 0, width, height);
+    annotationView.render(viewContext);
     bgfx::frame();
     glfwWaitEventsTimeout(0.03);
     return !glfwWindowShouldClose(window);

@@ -1,13 +1,14 @@
 #include "views/annotation_view.h"
 #include "shader_utils.h"
+#include <iostream>
 
 namespace views {
 
 const Vector4f KeypointColor(1.0, 0.5, 0.5, 1.0);
 
-AnnotationView::AnnotationView(SceneModel& model) : sceneModel(model),
+AnnotationView::AnnotationView(SceneModel& model, int viewId) : View3D(viewId), sceneModel(model),
     sphereDrawable(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)),
-    bboxView()  {
+    bboxView(viewId)  {
 }
 
 void AnnotationView::render(const ViewContext3D& context) const {
@@ -20,7 +21,7 @@ void AnnotationView::render(const ViewContext3D& context) const {
     }
   }
   for (auto& bbox : sceneModel.getBoundingBoxes()) {
-    views::setCameraTransform(context);
+    setCameraTransform(context);
     bboxView.render(bbox);
   }
 }

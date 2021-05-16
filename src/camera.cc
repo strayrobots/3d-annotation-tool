@@ -5,6 +5,10 @@ Camera::Camera() {
   reset(Vector3f(-0.1, -0.1, -0.1), Vector3f(0.0, 0.0, 0.0));
 }
 
+Camera::Camera(const Matrix3f cameraMatrix, double height) :
+  fov(2.0 * std::atan(height / (2.0 * cameraMatrix(1, 1))) * 180.0 / M_PI) {
+}
+
 void Camera::reset(const Vector3f resetLookat, const Vector3f resetPosition) {
   lookat = resetLookat;
   position = resetPosition;
@@ -36,6 +40,23 @@ Vector3f Camera::getRightVector(void) const {
   return orientation * Vector3f::UnitX();
 }
 
+void Camera::setPosition(const Vector3f& p) {
+  position = p;
+  updateViewMatrix();
+}
+
+void Camera::setOrientation(const Quaternionf& q) {
+  orientation = q;
+  updateViewMatrix();
+}
+
+void Camera::updateViewMatrix() {
+  viewMatrix.setIdentity();
+  Quaternionf q = orientation.conjugate();
+  viewMatrix.linear() = q.toRotationMatrix();
+  viewMatrix.translation() = -(viewMatrix.linear() * position);
+}
+
 Vector3f Camera::computeRayWorld(float width, float height, double x, double y) const {
   float aspectRatio = width / height;
   float pX = (2.0f * (x / width) - 1.0f) * std::tan(fov / 2.0f * M_PI / 180) * aspectRatio;
@@ -47,10 +68,6 @@ Vector3f Camera::computeRayWorld(float width, float height, double x, double y) 
 Vector2f Camera::projectPoint(const Vector3f& point) const {
   Vector3f viewVector = viewMatrix * point;
   return (viewVector / viewVector[2]).head<2>();
-}
-
-void Camera::updatePosition(const Vector3f& p) {
-  setPosition(p);
 }
 
 void Camera::updateLookat(const Vector3f& newLookat) {
@@ -66,7 +83,7 @@ void Camera::updateLookat(const Vector3f& newLookat) {
 void Camera::translate(const Vector3f& t) {
   Vector3f trans = orientation * t;
   Affine3f newViewMatrix;
-  setPosition(position + trans);
+  position = position + trans;
   setLookat(lookat + trans);
   Quaternionf q = getOrientation().conjugate();
   newViewMatrix.linear() = q.toRotationMatrix();
@@ -80,8 +97,8 @@ void Camera::rotateAroundTarget(const Quaternionf& q) {
   newViewMatrix = Translation3f(t) * q * Translation3f(-t) * viewMatrix;
   Quaternionf qa(newViewMatrix.linear());
   qa = qa.conjugate();
-  setOrientation(qa);
-  setPosition(-(qa * viewMatrix.translation()));
+  orientation = qa;
+  position = -(qa * viewMatrix.translation());
   setViewMatrix(newViewMatrix);
 }
 
@@ -89,10 +106,11 @@ void Camera::zoom(float d) {
   float norm = (getPosition() - lookat).norm();
   if (norm > d) {
     Affine3f newViewMatrix;
-    setPosition(getPosition() + getForwardVector() * d);
+    position += getForwardVector() * d;
     Quaternionf q = getOrientation().conjugate();
     newViewMatrix.linear() = q.toRotationMatrix();
     newViewMatrix.translation() = -(viewMatrix.linear() * getPosition());
     setViewMatrix(newViewMatrix);
   }
 }
+

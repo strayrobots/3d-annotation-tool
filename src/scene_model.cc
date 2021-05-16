@@ -1,23 +1,27 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 #include "scene_model.h"
 #include "3rdparty/json.hpp"
 
-SceneModel::SceneModel(const std::string& datasetFolder) : datasetPath(datasetFolder),
-                                                           mesh(new geometry::Mesh((datasetPath / "scene" / "integrated.ply").string())),
-                                                           rtMesh(mesh), keypoints(), boundingBoxes() {
-  initRayTracing();
+SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : datasetPath(datasetFolder),
+                                                           keypoints(), boundingBoxes() {
+  if (rayTracing) {
+    initRayTracing();
+  }
 }
 
 std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
 
 std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vector3f& direction) {
-  return rtMesh.traceRay(origin, direction);
+  if (!rtMesh.has_value()) return {};
+  return rtMesh->traceRay(origin, direction);
 }
 
 geometry::Intersection SceneModel::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) {
-  return rtMesh.traceRayIntersection(origin, direction);
+  if (!rtMesh.has_value()) return {};
+  return rtMesh->traceRayIntersection(origin, direction);
 }
 
 Keypoint SceneModel::addKeypoint(const Vector3f& p) {
@@ -104,6 +108,52 @@ void SceneModel::updateBoundingBox(const BBox& updated) {
   }
 }
 
+Camera SceneModel::sceneCamera() const {
+  auto intrinsicsPath = datasetPath / "camera_intrinsics.json";
+  if (!std::filesystem::exists(intrinsicsPath)) {
+    std::cout << "camera intrinsics do not exist at " << intrinsicsPath.string() << std::endl;
+    exit(1);
+  }
+  std::ifstream file(intrinsicsPath.string());
+  nlohmann::json json;
+  file >> json;
+  Matrix3f cameraMatrix;
+  auto matrix = json["intrinsic_matrix"];
+  for (int i=0; i < 3; i++) {
+    for (int j=0; j < 3; j++) {
+      cameraMatrix(i, j) = matrix[j * 3 + i];
+    }
+  }
+
+  return Camera(cameraMatrix, json["height"]);
+}
+
+std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
+  auto trajectoryLogPath = datasetPath / "scene" / "trajectory.log";
+  std::fstream in;
+  in.open(trajectoryLogPath.string(), std::ios::in);
+  if (in.fail()) return {};
+  std::string line;
+  Vector4f row;
+  std::vector<Matrix4f> out;
+  while (true) {
+    if (!std::getline(in, line)) {
+      break;
+    }
+    Matrix4f pose;
+    for (int i=0; i < 4; i++) {
+      std::getline(in, line);
+      std::stringstream lineStream(line);
+      for (int j=0; j < 4; j++) {
+        lineStream >> row[j];
+      }
+      pose.row(i) = row;
+    }
+    out.push_back(pose);
+  }
+  return out;
+}
+
 nlohmann::json serializeVector(const Vector3f& v) {
   auto out = nlohmann::json::array();
   out[0] = v[0];
@@ -139,8 +189,34 @@ void SceneModel::save() const {
   }
   std::ofstream file(annotationPath.string());
   file << json;
-  std::cout << "Saved keypoints to keypoints.json" << std::endl;
+  std::cout << "Saved annotations to annotations.json" << std::endl;
+}
+
+void SceneModel::load() {
+  auto annotationPath = datasetPath / "annotations.json";
+
+  nlohmann::json json;
+  std::ifstream file(annotationPath);
+  file >> json;
+  for (auto& point : json["keypoints"]) {
+    Keypoint kp(keypoints.size() + 1, Vector3f(point[0].get<float>(), point[1].get<float>(), point[2].get<float>()));
+    keypoints.push_back(kp);
+  }
+  for (auto& bbox : json["bounding_boxes"]) {
+    auto p = bbox["position"];
+    auto orn = bbox["orientation"];
+    auto d = bbox["dimensions"];
+    BBox box = {
+      .id = int(boundingBoxes.size()) + 1,
+      .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+      .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
+      .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())
+    };
+    boundingBoxes.push_back(box);
+  }
 }
 
 void SceneModel::initRayTracing() {
+  mesh = std::make_shared<geometry::Mesh>((datasetPath / "scene" / "integrated.ply").string());
+  rtMesh.emplace(mesh);
 }

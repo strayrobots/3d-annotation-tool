@@ -20,7 +20,6 @@ private:
   double prevX, prevY;
   bool dragging = false, moved = false;
 
-  Camera camera;
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
   views::MeshDrawable sceneMeshView;

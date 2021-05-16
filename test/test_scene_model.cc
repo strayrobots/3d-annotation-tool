@@ -46,6 +46,22 @@ TEST(TestUpdateKeypoint, BasicCase) {
   ASSERT_EQ(model.getKeypoint(kp1.id).value().id, kp2.id);
 }
 
+TEST(SceneModelTest, Camera) {
+  SceneModel model(datasetPath);
+  auto trajectory = model.cameraTrajectory();
+  ASSERT_EQ(trajectory.size(), 474);
+  ASSERT_EQ(trajectory[0], Matrix4f::Identity());
+  ASSERT_NE(trajectory[1], Matrix4f::Identity());
+  ASSERT_NEAR(trajectory[1](0, 0), 0.999, 0.001);
+  ASSERT_NEAR(trajectory[1](0, 1), 0.00386, 0.001);
+  ASSERT_NEAR(trajectory[1](1, 1), 0.999, 0.001);
+  ASSERT_NEAR(trajectory[1](3, 3), 1.0, 0.001);
+  ASSERT_NEAR(trajectory[1](3, 0), 0.0, 0.001);
+  ASSERT_NEAR(trajectory[1](3, 1), 0.0, 0.001);
+  auto camera = model.sceneCamera();
+  ASSERT_NEAR(camera.fov, 52.6131, 0.1);
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   datasetPath = argv[1];

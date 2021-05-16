@@ -70,16 +70,16 @@ void MeshDrawable::setDrawingGeometry() const {
 }
 
 void MeshDrawable::render(const ViewContext3D& context, const Matrix4f& T, const Vector4f& color) const {
-  views::setCameraTransform(context);
+  setCameraTransform(context);
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   bgfx::setUniform(u_color, color.data(), 1);
   bgfx::setTransform(T.data());
   setDrawingGeometry();
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
   if (mesh->colorsFromFile) {
-    bgfx::submit(0, colorProgram);
+    bgfx::submit(viewId, colorProgram);
   } else {
-    bgfx::submit(0, uniformProgram);
+    bgfx::submit(viewId, uniformProgram);
   }
 }
 

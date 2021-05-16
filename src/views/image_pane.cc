@@ -47,6 +47,6 @@ void ImagePane::render() const {
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
   bgfx::setTexture(0, textureColor, texture);
-  bgfx::submit(0, program);
+  bgfx::submit(viewId, program);
 }
 }
