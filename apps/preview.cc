@@ -43,6 +43,7 @@ private:
   std::vector<Matrix4f> cameraPoses;
   std::unique_ptr<views::ImagePane> imageView;
   int currentFrame = 0;
+  bool paused = false;
 public:
   PreviewApp(const std::string& folder) : GLFWApp("Stray Preview"),
       datasetPath(folder),
@@ -56,9 +57,24 @@ public:
     imageView = std::make_unique<views::ImagePane>(colorImages[0]);
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
     bgfx::setViewClear(1, BGFX_CLEAR_DEPTH);
+
+    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
+      GLFWApp* w = (GLFWApp*)glfwGetWindowUserPointer(window);
+      w->resize(width, height);
+    });
+    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+      PreviewApp* w = (PreviewApp*)glfwGetWindowUserPointer(window);
+      char characterPressed = key;
+      if (action == GLFW_PRESS) {
+        if (characterPressed == ' ') {
+          w->paused = !w->paused;
+        }
+      }
+    });
   }
 
   void advance() {
+    if (paused) return;
     currentFrame++;
     if (currentFrame < colorImages.size()) {
       imageView->setImage(colorImages[currentFrame]);
