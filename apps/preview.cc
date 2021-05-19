@@ -50,7 +50,6 @@ public:
       scene(folder, false),
       viewContext(scene.sceneCamera()),
       annotationView(scene, 1) {
-    viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
     listImages();
     scene.load();
     cameraPoses = scene.cameraTrajectory();
@@ -58,9 +57,14 @@ public:
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
     bgfx::setViewClear(1, BGFX_CLEAR_DEPTH);
 
-    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
-      GLFWApp* w = (GLFWApp*)glfwGetWindowUserPointer(window);
-      w->resize(width, height);
+    viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
+    auto size = scene.imageSize();
+    viewContext.width = size.first;
+    viewContext.height = size.second;
+
+    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int newWidth, int newHeight) {
+      PreviewApp* w = (PreviewApp*)glfwGetWindowUserPointer(window);
+      w->resize(newWidth, newHeight);
     });
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
       PreviewApp* w = (PreviewApp*)glfwGetWindowUserPointer(window);
@@ -71,6 +75,10 @@ public:
         }
       }
     });
+  }
+
+  void resize(int newWidth, int newHeight) override {
+    GLFWApp::resize(newWidth, newHeight);
   }
 
   void advance() {
@@ -84,8 +92,6 @@ public:
       auto R_WC = AngleAxisf(M_PI, Vector3f::UnitX());
       viewContext.camera.setOrientation((R_C * R_WC).normalized());
       viewContext.camera.setPosition(p_C);
-      viewContext.width = width;
-      viewContext.height = height;
     }
   }
 
@@ -96,7 +102,7 @@ public:
     bgfx::setViewRect(1, 0, 0, width, height);
     annotationView.render(viewContext);
     bgfx::frame();
-    glfwWaitEventsTimeout(0.03);
+    glfwWaitEventsTimeout(0.025);
     return !glfwWindowShouldClose(window);
   }
 

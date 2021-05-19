@@ -37,6 +37,9 @@ private:
   // Annotations.
   std::vector<Keypoint> keypoints;
   std::vector<BBox> boundingBoxes;
+  int imageWidth;
+  int imageHeight;
+  Matrix3f cameraMatrix;
 public:
   int activeKeypoint = -1;
   int activeBBox = -1;
@@ -65,6 +68,7 @@ public:
   const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
 
   Camera sceneCamera() const;
+  std::pair<int, int> imageSize() const;
   std::vector<Matrix4f> cameraTrajectory() const;
 
   void save() const;
@@ -72,5 +76,6 @@ public:
 
 private:
   void initRayTracing();
+  void loadCameraParams();
 };
 #endif

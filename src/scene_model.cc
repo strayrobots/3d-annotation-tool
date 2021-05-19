@@ -7,6 +7,7 @@
 
 SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : datasetPath(datasetFolder),
                                                            keypoints(), boundingBoxes() {
+  loadCameraParams();
   if (rayTracing) {
     initRayTracing();
   }
@@ -109,23 +110,11 @@ void SceneModel::updateBoundingBox(const BBox& updated) {
 }
 
 Camera SceneModel::sceneCamera() const {
-  auto intrinsicsPath = datasetPath / "camera_intrinsics.json";
-  if (!std::filesystem::exists(intrinsicsPath)) {
-    std::cout << "camera intrinsics do not exist at " << intrinsicsPath.string() << std::endl;
-    exit(1);
-  }
-  std::ifstream file(intrinsicsPath.string());
-  nlohmann::json json;
-  file >> json;
-  Matrix3f cameraMatrix;
-  auto matrix = json["intrinsic_matrix"];
-  for (int i=0; i < 3; i++) {
-    for (int j=0; j < 3; j++) {
-      cameraMatrix(i, j) = matrix[j * 3 + i];
-    }
-  }
+  return Camera(cameraMatrix, imageHeight);
+}
 
-  return Camera(cameraMatrix, json["height"]);
+std::pair<int, int> SceneModel::imageSize() const {
+  return std::make_pair(imageWidth, imageHeight);
 }
 
 std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
@@ -219,4 +208,23 @@ void SceneModel::load() {
 void SceneModel::initRayTracing() {
   mesh = std::make_shared<geometry::Mesh>((datasetPath / "scene" / "integrated.ply").string());
   rtMesh.emplace(mesh);
+}
+
+void SceneModel::loadCameraParams() {
+  auto intrinsicsPath = datasetPath / "camera_intrinsics.json";
+  if (!std::filesystem::exists(intrinsicsPath)) {
+    std::cout << "camera intrinsics do not exist at " << intrinsicsPath.string() << std::endl;
+    exit(1);
+  }
+  std::ifstream file(intrinsicsPath.string());
+  nlohmann::json json;
+  file >> json;
+  auto matrix = json["intrinsic_matrix"];
+  for (int i=0; i < 3; i++) {
+    for (int j=0; j < 3; j++) {
+      cameraMatrix(i, j) = matrix[j * 3 + i];
+    }
+  }
+  imageHeight = json["height"];
+  imageWidth = json["width"];
 }
