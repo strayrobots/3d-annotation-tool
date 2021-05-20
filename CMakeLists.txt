@@ -21,8 +21,15 @@ add_executable(main ${SOURCE_FILES} apps/desktop.cc)
 target_compile_options(main PRIVATE -Wall)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
+add_executable(preview ${SOURCE_FILES} apps/preview.cc)
+target_compile_options(preview PRIVATE -Wall)
+target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
+
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)
 add_shaders(main SHADERS ${SHADER_FILES})
+
+add_dependencies(main shaders)
+add_dependencies(preview shaders)
 
 enable_testing()
 add_subdirectory(test EXCLUDE_FROM_ALL)

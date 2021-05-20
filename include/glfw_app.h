@@ -23,7 +23,7 @@ protected:
 public:
   GLFWApp(std::string name);
   ~GLFWApp();
-  void resize(int newWidth, int newHeight);
+  virtual void resize(int newWidth, int newHeight);
   void setView(std::shared_ptr<views::View> v);
   virtual bool update() const = 0;
 };

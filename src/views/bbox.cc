@@ -39,7 +39,7 @@ static const uint16_t cubeTriangleList[] = {
     7,
 };
 
-BBoxView::BBoxView() {
+BBoxView::BBoxView(int viewId) : View3D(viewId) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .end();
@@ -74,7 +74,7 @@ void BBoxView::render(const BBox& bbox) const {
                  BGFX_STATE_CULL_CW |
                  BGFX_STATE_BLEND_ALPHA |
                  BGFX_STATE_MSAA);
-  bgfx::submit(0, program);
+  bgfx::submit(viewId, program);
 }
 
 } // namespace views

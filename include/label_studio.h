@@ -20,7 +20,7 @@ public:
   void leftButtonUp(double x, double y);
   void mouseMoved(double x, double y);
   void scroll(double xoffset, double yoffset);
-  void resize(int newWidth, int newHeight);
+  void resize(int newWidth, int newHeight) override;
   bool update() const override;
 
   void undo();

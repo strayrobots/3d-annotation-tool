@@ -35,7 +35,6 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
   });
   glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
     LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
-    std::cout << "window resized: " << width << " " << height << std::endl;
     w->resize(width, height);
   });
 
@@ -54,7 +53,6 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), s
     }
   });
 
-  glfwGetWindowSize(window, &width, &height);
   studioViewController.viewWillAppear(width, height);
   loadState();
 }

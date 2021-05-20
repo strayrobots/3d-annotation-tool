@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include "camera.h"
 
-TEST(TestAddKeypointApplyUndo, BasicCases)
-{
+TEST(TestCamera, Init) {
   Camera camera;
   camera.reset(Vector3f(1.0, 1.0, 1.0), Vector3f(-2.0, -2.0, -2.0));
   ASSERT_EQ(camera.getLookat(), Vector3f(1.0, 1.0, 1.0));
@@ -20,6 +19,26 @@ TEST(TestAddKeypointApplyUndo, BasicCases)
 
   ASSERT_TRUE(camera.getOrientation().toRotationMatrix().isApprox(expectedInitialOrientation));
   ASSERT_TRUE(camera.getViewMatrix().isApprox(expectedInitialViewMatrix));
+}
+
+TEST(TestCamera, CameraMatrixInit) {
+  Matrix3f cameraMatrix;
+  cameraMatrix << 100.0, 0.0, 50.0,
+               0.0, 100.0, 50.0,
+               0.0, 0.0, 0.0;
+  Camera camera(cameraMatrix, 100.0);
+  ASSERT_NEAR(camera.fov, 53.1301, 0.01);
+
+  // Test moving camera.
+  Vector3f p(0.25, 0.52, 0.1);
+  camera.setPosition(p);
+  ASSERT_EQ(camera.getPosition(), p);
+  Quaternionf orientation = Quaternionf(0.25, 0.25, 0.25, 0.25).normalized();
+  camera.setOrientation(orientation);
+  ASSERT_EQ(camera.getOrientation().w(), orientation.w());
+  ASSERT_EQ(camera.getOrientation().x(), orientation.x());
+  ASSERT_EQ(camera.getOrientation().y(), orientation.y());
+  ASSERT_EQ(camera.getOrientation().z(), orientation.z());
 }
 
 int main(int argc, char** argv)

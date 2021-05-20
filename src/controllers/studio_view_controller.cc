@@ -5,14 +5,13 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model), camera(),
-                                                                              viewContext(camera), annotationView(model), sceneMeshView(model.getMesh()),
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model),
+                                                                              viewContext(sceneModel.sceneCamera()), annotationView(model), sceneMeshView(model.getMesh()),
                                                                               addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
-  auto meshMean = sceneModel.getMesh()->getMeshMean();
-  camera.reset(meshMean, -meshMean.normalized());
+  viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
   viewContext.width = width;
   viewContext.height = height;
@@ -89,10 +88,10 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
     float diffX = float(x - prevX);
     float diffY = float(y - prevY);
     if (mod & ModCommand) {
-      camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
+      viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
       Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
-      camera.rotateAroundTarget(q);
+      viewContext.camera.rotateAroundTarget(q);
     }
   }
 
@@ -104,7 +103,7 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
 
 bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
   float diff = yoffset * 0.05;
-  camera.zoom(diff);
+  viewContext.camera.zoom(diff);
   return true;
 }
 

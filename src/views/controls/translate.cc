@@ -112,19 +112,19 @@ void TranslateControl::render(const Camera& camera) const {
   bgfx::setUniform(u_color, xAxisColor.data(), 1);
   bgfx::setTransform(currentTransform.matrix().data(), 1);
   xAxisDrawable->setDrawingGeometry();
-  bgfx::submit(0, program);
+  bgfx::submit(viewId, program);
 
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   bgfx::setUniform(u_color, yAxisColor.data(), 1);
   bgfx::setTransform(yTransform.matrix().data(), 1);
   xAxisDrawable->setDrawingGeometry();
-  bgfx::submit(0, program);
+  bgfx::submit(viewId, program);
 
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   bgfx::setUniform(u_color, zAxisColor.data(), 1);
   bgfx::setTransform(zTransform.matrix().data(), 1);
   xAxisDrawable->setDrawingGeometry();
-  bgfx::submit(0, program);
+  bgfx::submit(viewId, program);
 }
 
 } // namespace views::controls

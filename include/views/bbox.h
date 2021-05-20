@@ -14,7 +14,7 @@ private:
   bgfx::UniformHandle u_scale;
 
 public:
-  BBoxView();
+  BBoxView(int viewId=0);
   ~BBoxView();
   void render(const BBox& bbox) const;
 };

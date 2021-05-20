@@ -3,10 +3,9 @@
 #include <memory>
 #include <optional>
 #include <filesystem>
-#include <omp.h>
-#include "camera.h"
 #include "geometry/mesh.h"
 #include "geometry/ray_trace_mesh.h"
+#include "camera.h"
 
 struct Keypoint {
   int id;
@@ -33,18 +32,20 @@ private:
   std::filesystem::path datasetPath;
 
   std::shared_ptr<geometry::TriangleMesh> mesh;
-  const geometry::RayTraceMesh rtMesh;
+  std::optional<geometry::RayTraceMesh> rtMesh;
 
   // Annotations.
   std::vector<Keypoint> keypoints;
   std::vector<BBox> boundingBoxes;
-
+  int imageWidth;
+  int imageHeight;
+  Matrix3f cameraMatrix;
 public:
   int activeKeypoint = -1;
   int activeBBox = -1;
   ActiveTool activeToolId = AddKeypointToolId;
 
-  SceneModel(const std::string& datasetFolder);
+  SceneModel(const std::string& datasetFolder, bool rayTracing = true);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction);
@@ -66,9 +67,15 @@ public:
   void updateBoundingBox(const BBox& bbox);
   const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
 
+  Camera sceneCamera() const;
+  std::pair<int, int> imageSize() const;
+  std::vector<Matrix4f> cameraTrajectory() const;
+
   void save() const;
+  void load();
 
 private:
   void initRayTracing();
+  void loadCameraParams();
 };
 #endif

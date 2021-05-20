@@ -13,7 +13,7 @@ TEST(TestAddKeypointTool, BasicCase) {
   views::AddKeypointView view(sceneModel, timeline);
   Camera camera;
   camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 0.0));
-  camera.updatePosition(Vector3f(0.0, 0.0, 0.2));
+  camera.setPosition(Vector3f(0.0, 0.0, 0.2));
   camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
   ViewContext3D context(camera);
   context.mousePositionX = 250;

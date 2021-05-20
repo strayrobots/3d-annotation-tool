@@ -14,7 +14,7 @@ using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
 
-MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m) : mesh(m), lightDir(0.0, 1.0, -1.0, 1.0) {
+MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId) : views::View3D(viewId), mesh(m), lightDir(0.0, 1.0, -1.0, 1.0) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
@@ -70,16 +70,16 @@ void MeshDrawable::setDrawingGeometry() const {
 }
 
 void MeshDrawable::render(const ViewContext3D& context, const Matrix4f& T, const Vector4f& color) const {
-  views::setCameraTransform(context);
+  setCameraTransform(context);
   bgfx::setUniform(u_lightDir, lightDir.data(), 1);
   bgfx::setUniform(u_color, color.data(), 1);
   bgfx::setTransform(T.data());
   setDrawingGeometry();
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
   if (mesh->colorsFromFile) {
-    bgfx::submit(0, colorProgram);
+    bgfx::submit(viewId, colorProgram);
   } else {
-    bgfx::submit(0, uniformProgram);
+    bgfx::submit(viewId, uniformProgram);
   }
 }
 

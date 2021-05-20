@@ -3,7 +3,7 @@
 
 class ViewContext3D {
 public:
-  const Camera& camera;
+  Camera camera;
 
   ViewContext3D(const Camera& cam) : camera(cam) {}
   double width = 800;

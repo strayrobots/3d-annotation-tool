@@ -26,7 +26,7 @@ void TriangleMesh::setTransform(const Matrix4f& T) {
 
 void TriangleMesh::computeNormals() {
   RowMatrixf faceNormals = RowMatrixf::Zero(F.rows(), 3);
-#pragma omp parallel for
+  #pragma omp parallel for
   for (int i = 0; i < F.rows(); i++) {
     auto vertex_indices = F.row(i);
     auto vertex1 = V.row(vertex_indices[0]);
@@ -46,7 +46,7 @@ void TriangleMesh::computeNormals() {
     vertexNormals.row(vertex_indices[2]) += normal;
   }
 
-#pragma omp parallel for
+  #pragma omp parallel for
   for (int i = 0; i < vertexNormals.rows(); i++) {
     vertexNormals.row(i) = vertexNormals.row(i).normalized();
   }
@@ -90,7 +90,6 @@ void Sphere::subdivide() {
   RowMatrixf newVertices(V.rows() + 3 * F.rows(), 3);
   RowMatrixi newFaces(F.rows() * 4, 3);
   newVertices.block(0, 0, V.rows(), 3) = V.block(0, 0, V.rows(), 3);
-  RowVector3f origin = RowVector3f::Zero();
   int nextVertexIndex = V.rows();
   for (int i = 0; i < F.rows(); i++) {
     TriangleFace triangle = F.row(i);
@@ -135,6 +134,7 @@ Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : Triang
   }
 
   V.resize(vertices.size(), 3);
+  #pragma omp parallel for
   for (int i = 0; i < vertices.size(); i++) {
     V(i, 0) = float(vertices[i][0]) * scale;
     V(i, 1) = float(vertices[i][1]) * scale;
@@ -148,6 +148,7 @@ Mesh::Mesh(const std::string& meshFile, const Matrix4f& T, float scale) : Triang
   }
   auto faces = plyIn.getFaceIndices<size_t>();
   F.resize(faces.size(), 3);
+  #pragma omp parallel for
   for (int i = 0; i < faces.size(); i++) {
     for (int j = 0; j < 3; j++) {
       F(i, j) = faces[i][j];
