@@ -67,5 +67,4 @@ void MoveKeypointView::render(const ViewContext3D& context) const {
     translateControl->render(context.camera);
   }
 }
-}
-
+} // namespace views

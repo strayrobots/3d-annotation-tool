@@ -20,5 +20,4 @@ bool AddKeypointView::mouseMoved(const ViewContext3D& viewContext) {
   pointingAt = sceneModel.traceRay(viewContext.camera.getPosition(), rayDirection);
   return false;
 }
-}
-
+} // namespace views

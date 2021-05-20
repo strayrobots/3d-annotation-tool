@@ -6,8 +6,8 @@
 using namespace commands;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model),
-  viewContext(sceneModel.sceneCamera()), annotationView(model), sceneMeshView(model.getMesh()),
-  addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
+                                                                              viewContext(sceneModel.sceneCamera()), annotationView(model), sceneMeshView(model.getMesh()),
+                                                                              addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
 }
 
 void StudioViewController::viewWillAppear(int width, int height) {
@@ -125,4 +125,3 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
   }
   return false;
 }
-

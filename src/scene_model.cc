@@ -155,11 +155,10 @@ nlohmann::json serializeBBox(const BBox& bbox) {
   auto obj = nlohmann::json::object();
   obj["position"] = serializeVector(bbox.position);
   obj["orientation"] = {
-    {"w", bbox.orientation.w()},
-    {"x", bbox.orientation.x()},
-    {"y", bbox.orientation.y()},
-    {"z", bbox.orientation.z()}
-  };
+      {"w", bbox.orientation.w()},
+      {"x", bbox.orientation.x()},
+      {"y", bbox.orientation.y()},
+      {"z", bbox.orientation.z()}};
   obj["dimensions"] = serializeVector(bbox.dimensions);
   return obj;
 }
@@ -178,7 +177,7 @@ void SceneModel::save() const {
   }
   std::ofstream file(annotationPath.string());
   file << json;
-  std::cout << "Saved annotations to annotations.json" << std::endl;
+  std::cout << "Saved annotations to " << annotationPath.string() << std::endl;
 }
 
 void SceneModel::load() {

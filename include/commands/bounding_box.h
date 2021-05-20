@@ -26,6 +26,7 @@ private:
   BBox bbox;
   const Vector3f oldPosition;
   const Vector3f newPosition;
+
 public:
   MoveBBoxCommand(const BBox& box, const Vector3f& position) : bbox(box), oldPosition(bbox.position), newPosition(position) {}
   void execute(SceneModel& sceneModel) override {
@@ -47,10 +48,10 @@ private:
   const Vector3f newDimensions;
   const Vector3f oldPosition;
   const Vector3f newPosition;
+
 public:
-  ResizeBBoxCommand(const BBox& box, const Vector3f& dimensions, const Vector3f& position) :
-    bbox(box), oldDimensions(bbox.dimensions), newDimensions(dimensions), oldPosition(bbox.position),
-    newPosition(position) {};
+  ResizeBBoxCommand(const BBox& box, const Vector3f& dimensions, const Vector3f& position) : bbox(box), oldDimensions(bbox.dimensions), newDimensions(dimensions), oldPosition(bbox.position),
+                                                                                             newPosition(position){};
   void execute(SceneModel& sceneModel) override {
     bbox.position = newPosition;
     bbox.dimensions = newDimensions;
@@ -64,7 +65,5 @@ public:
     sceneModel.activeBBox = bbox.id;
   };
 };
-
-
 
 } // namespace commands

@@ -10,7 +10,7 @@ RayTraceMesh::RayTraceMesh(std::shared_ptr<geometry::TriangleMesh> m) : nanoMesh
 }
 
 Intersection RayTraceMesh::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const {
-  Intersection intersection = { false, Vector3f::Zero(), Vector3f::Zero() };
+  Intersection intersection = {false, Vector3f::Zero(), Vector3f::Zero()};
   nanort::Ray<float> ray;
   ray.min_t = 0.0;
   ray.max_t = 1e9f;
