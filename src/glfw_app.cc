@@ -81,7 +81,7 @@ GLFWApp::GLFWApp(std::string name) {
   glfwGetWindowSize(window, &width, &height);
   init.resolution.width = (uint32_t)width;
   init.resolution.height = (uint32_t)height;
-  init.resolution.reset = BGFX_RESET_VSYNC;
+  init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_HIDPI;
 
   if (!bgfx::init(init)) {
     std::cout << "Could not init bgfx!" << std::endl;
@@ -105,5 +105,5 @@ void GLFWApp::setView(std::shared_ptr<views::View> v) { view = v; }
 void GLFWApp::resize(int newWidth, int newHeight) {
   width = newWidth;
   height = newHeight;
-  bgfx::reset(width, height, BGFX_RESET_NONE | BGFX_RESET_VSYNC);
+  bgfx::reset(width, height, BGFX_RESET_NONE | BGFX_RESET_VSYNC | BGFX_RESET_HIDPI);
 }

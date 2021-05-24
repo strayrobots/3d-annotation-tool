@@ -7,14 +7,15 @@ using namespace commands;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model),
                                                                               viewContext(sceneModel.sceneCamera()), annotationView(model), sceneMeshView(model.getMesh()),
-                                                                              addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
-}
+                                                                              addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl),
+                                                                              statusBarView(model, 1) {}
 
 void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
   viewContext.width = width;
-  viewContext.height = height;
+  viewContext.height = height - views::StatusBarHeight;
+  bgfx::setViewClear(1, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x000000ff, 1.0f, 0);
 }
 
 views::View3D& StudioViewController::getActiveToolView() {
@@ -32,6 +33,7 @@ void StudioViewController::refresh() {
 }
 
 void StudioViewController::render() const {
+  bgfx::setViewRect(0, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
   if (sceneModel.activeToolId == MoveKeypointToolId) {
@@ -44,6 +46,8 @@ void StudioViewController::render() const {
   } else {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
+  views::Rect rect = { .x = 10, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight) };
+  statusBarView.render(rect);
 }
 
 // Input handling.
@@ -109,7 +113,7 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
 
 void StudioViewController::resize(int width, int height, InputModifier mod) {
   viewContext.width = width;
-  viewContext.height = height;
+  viewContext.height = height - views::StatusBarHeight;
 }
 
 bool StudioViewController::keypress(char character, InputModifier mod) {

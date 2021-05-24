@@ -5,6 +5,12 @@ namespace views {
 
 using namespace Eigen;
 
+struct Rect {
+  float x;
+  float y;
+  float width;
+  float height;
+};
 
 class View {
 protected:
