@@ -53,9 +53,10 @@ public:
     listImages();
     scene.load();
     cameraPoses = scene.cameraTrajectory();
-    imageView = std::make_unique<views::ImagePane>(colorImages[0]);
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-    bgfx::setViewClear(1, BGFX_CLEAR_DEPTH);
+    imageView = std::make_unique<views::ImagePane>(colorImages[0], 0);
+
+    bgfx::setViewClear(imageView->viewId, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f);
+    bgfx::setViewClear(annotationView.viewId, BGFX_CLEAR_DEPTH, 1.0f);
 
     viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
     auto size = scene.imageSize();
@@ -97,9 +98,9 @@ public:
 
   bool update() const override {
     if (currentFrame >= colorImages.size()) return false;
-    bgfx::setViewRect(0, 0, 0, width, height);
+    bgfx::setViewRect(imageView->viewId, 0, 0, width, height);
     imageView->render();
-    bgfx::setViewRect(1, 0, 0, width, height);
+    bgfx::setViewRect(annotationView.viewId, 0, 0, width, height);
     annotationView.render(viewContext);
     bgfx::frame();
     glfwWaitEventsTimeout(0.025);

@@ -15,6 +15,7 @@
 
 class StudioViewController {
 private:
+  int viewId;
   SceneModel& sceneModel;
 
   // Changing view point.
@@ -32,7 +33,7 @@ private:
   views::StatusBarView statusBarView;
 
 public:
-  StudioViewController(SceneModel& model, Timeline& timeline);
+  StudioViewController(SceneModel& model, Timeline& timeline, int viewId);
   void viewWillAppear(int width, int height);
 
   void render() const;

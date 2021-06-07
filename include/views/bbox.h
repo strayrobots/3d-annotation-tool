@@ -11,10 +11,10 @@ private:
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
-  bgfx::UniformHandle u_scale;
+  bgfx::UniformHandle u_scale, u_color;
 
 public:
-  BBoxView(int viewId=0);
+  BBoxView(int viewId = 0);
   ~BBoxView();
   void render(const BBox& bbox) const;
 };

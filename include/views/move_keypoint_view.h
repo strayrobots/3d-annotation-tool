@@ -16,11 +16,13 @@ private:
   bool dragging = false;
 
 public:
-  MoveKeypointView(SceneModel& model, Timeline& tl);
+  MoveKeypointView(SceneModel& model, Timeline& tl, int viewId = 0);
   bool isActive() const;
   bool leftButtonUp(const ViewContext3D& context) override;
   bool leftButtonDown(const ViewContext3D& context) override;
   bool mouseMoved(const ViewContext3D& context) override;
+  bool keypress(const char character, const InputModifier& mod) override;
+  void refresh();
   void render(const ViewContext3D& context) const;
 };
 } // namespace views

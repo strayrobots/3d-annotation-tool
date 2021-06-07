@@ -1,5 +1,6 @@
 #pragma once
 #include "views/view.h"
+#include "input.h"
 #include <GLFW/glfw3.h>
 #include <memory>
 #if BX_PLATFORM_OSX
@@ -7,11 +8,6 @@ const unsigned int CommandModifier = GLFW_MOD_SUPER;
 #else
 const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 #endif
-
-typedef uint8_t InputModifier;
-
-const static InputModifier ModCommand = 0b001;
-const static InputModifier ModNone = 0b000;
 
 class GLFWApp {
 protected:

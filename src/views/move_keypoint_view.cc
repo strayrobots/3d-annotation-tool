@@ -1,10 +1,11 @@
 #include <memory>
 #include "views/move_keypoint_view.h"
+#include "commands/keypoints.h"
 #include "commands/move_keypoint_command.h"
 
 namespace views {
-MoveKeypointView::MoveKeypointView(SceneModel& model, Timeline& tl) : sceneModel(model), timeline(tl), rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)) {
-  translateControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPosition) {
+MoveKeypointView::MoveKeypointView(SceneModel& model, Timeline& tl, int viewId) : views::View3D(viewId), sceneModel(model), timeline(tl), rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)) {
+  translateControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPosition) {
     if (!isActive()) return;
     auto kp = sceneModel.getKeypoint(currentKeypoint.value().id);
     if (kp.has_value()) {
@@ -22,9 +23,9 @@ bool MoveKeypointView::leftButtonUp(const ViewContext3D& context) {
   if (dragging) {
     auto kp = sceneModel.getKeypoint(currentKeypoint.value().id);
     if (kp.has_value()) {
-      auto command = std::make_unique<commands::MoveKeypointCommand>(currentKeypoint.value(), kp.value().position);
+      auto command = std::make_unique<commands::MoveKeypointCommand>(currentKeypoint.value(), kp.value());
       timeline.pushCommand(std::move(command));
-      currentKeypoint.value().position = kp.value().position;
+      currentKeypoint = kp.value();
     }
     dragging = false;
     return true;
@@ -44,7 +45,7 @@ bool MoveKeypointView::leftButtonDown(const ViewContext3D& context) {
                                                        context.mousePositionX, context.mousePositionY);
     auto hit = rtKeypointSphere.traceRay(position, rayDirection);
     if (hit.has_value()) {
-      currentKeypoint = kp;
+      currentKeypoint = Keypoint(kp);
       translateControl->setPosition(kp.position);
       sceneModel.activeKeypoint = kp.id;
       return true;
@@ -54,12 +55,28 @@ bool MoveKeypointView::leftButtonDown(const ViewContext3D& context) {
   return false;
 }
 
+void MoveKeypointView::refresh() {
+  currentKeypoint = sceneModel.getKeypoint(sceneModel.activeKeypoint);
+}
+
 bool MoveKeypointView::mouseMoved(const ViewContext3D& context) {
   if (isActive() && dragging) {
     return translateControl->mouseMoved(context);
   } else {
     return false;
   }
+}
+
+bool MoveKeypointView::keypress(const char character, const InputModifier& mod) {
+  if ('0' <= character && character <= '9') {
+    auto kp = currentKeypoint.value();
+    if (kp.instanceId == character - '0') return true;
+    auto command = std::make_unique<commands::ChangeKeypointInstanceIdCommand>(kp, sceneModel.currentInstanceId);
+    timeline.pushCommand(std::move(command));
+    currentKeypoint = sceneModel.getKeypoint(kp.id);
+    return true;
+  }
+  return true;
 }
 
 void MoveKeypointView::render(const ViewContext3D& context) const {

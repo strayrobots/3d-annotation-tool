@@ -15,10 +15,13 @@ private:
   FontManager* fontManager;
   TextBufferManager* bufferManager;
   FontHandle fontHandle;
-  TextBufferHandle textBuffer;
+  TextBufferHandle toolText;
+  TextBufferHandle instanceIdText;
+  int instanceTextWidth;
+
 public:
-  StatusBarView(const SceneModel& model, int viewId=0);
+  StatusBarView(const SceneModel& model);
   ~StatusBarView();
   void render(const Rect& rect) const;
 };
-}
+} // namespace views

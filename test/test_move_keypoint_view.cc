@@ -29,7 +29,8 @@ TEST(TestMoveKeypointView, BasicCase) {
   auto pointingAt = sceneModel.traceRay(camera.getPosition(), camera.computeRayWorld(context.width, context.height,
         context.mousePositionX, context.mousePositionY));
   ASSERT_TRUE(pointingAt.has_value());
-  auto command  = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
+  Keypoint kp(0, 1, pointingAt.value());
+  auto command  = std::make_unique<commands::AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
 
   hit = view.leftButtonDown(context);
@@ -50,6 +51,12 @@ TEST(TestMoveKeypointView, BasicCase) {
   auto diff = pointingAt.value().transpose() - sceneModel.getKeypoints()[0].position.transpose();
   ASSERT_NE(sceneModel.getKeypoints()[0].position, pointingAt.value());
   ASSERT_GT(diff.norm(), 1e-2);
+
+  sceneModel.currentInstanceId = 7;
+  bool change = view.keypress('7', 0);
+  ASSERT_TRUE(change);
+  ASSERT_EQ(timeline.size(), 3);
+  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 7);
 }
 
 int main(int argc, char **argv) {

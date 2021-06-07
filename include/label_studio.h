@@ -7,6 +7,8 @@
 
 using namespace commands;
 class LabelStudio : public GLFWApp {
+private:
+  int viewId;
 
 public:
   SceneModel sceneModel;

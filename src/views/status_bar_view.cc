@@ -3,11 +3,13 @@
 #include <bx/math.h>
 #include <filesystem>
 #include <bgfx/platform.h>
+#include <sstream>
 #include "views/status_bar_view.h"
 
+const uint32_t TextColor = 0xffffffff;
+const uint32_t StatusBarColor = 0x222222ff;
 static const char* fontCandidates[] = {
-  "../assets/SourceSansPro.ttf"
-};
+    "../assets/SourceSansPro.ttf"};
 
 static bx::DefaultAllocator allocator;
 
@@ -41,7 +43,7 @@ TrueTypeHandle loadTtf(FontManager* fontManager, const char* filePath) {
   return invalid;
 }
 
-StatusBarView::StatusBarView(const SceneModel& model, int viewId) : views::View3D(viewId), model(model) {
+StatusBarView::StatusBarView(const SceneModel& model) : views::View3D(viewId), model(model) {
   fontManager = new FontManager(512);
   bufferManager = new TextBufferManager(fontManager);
 
@@ -57,49 +59,63 @@ StatusBarView::StatusBarView(const SceneModel& model, int viewId) : views::View3
   fontManager->preloadGlyph(fontHandle, L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:. \n");
   fontManager->destroyTtf(fontFile);
 
-  textBuffer = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
+  toolText = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
+  bufferManager->setTextColor(toolText, TextColor);
+  instanceIdText = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
+  bufferManager->setTextColor(instanceIdText, TextColor);
+  bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, StatusBarColor, 0.0f, 0);
+
+  bufferManager->appendText(instanceIdText, fontHandle, "Instance id: 1");
+  auto rect = bufferManager->getRectangle(instanceIdText);
+  instanceTextWidth = rect.width;
 }
 
 StatusBarView::~StatusBarView() {
 }
 
 void StatusBarView::render(const Rect& rect) const {
-  const bx::Vec3 at  = { 0.0f, 0.0f,  0.0f };
-  const bx::Vec3 eye = { 0.0f, 0.0f, -1.0f };
+  const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
+  const bx::Vec3 eye = {0.0f, 0.0f, -1.0f};
   float view[16];
   bx::mtxLookAt(view, eye, at);
   const float centering = 0.5f;
   const bgfx::Caps* caps = bgfx::getCaps();
+  const float padding = 10.0f;
 
   {
     float ortho[16];
     bx::mtxOrtho(ortho,
-        centering,
-        rect.width  + centering,
-        rect.height + centering,
-        centering,
-        0.0f,
-        100.0f,
-        0.0f,
-        caps->homogeneousDepth);
-      bgfx::setViewTransform(viewId, view, ortho);
+                 centering,
+                 rect.width + centering,
+                 rect.height + centering,
+                 centering,
+                 0.0f,
+                 100.0f,
+                 0.0f,
+                 caps->homogeneousDepth);
+    bgfx::setViewTransform(viewId, view, ortho);
   }
-  const int padding = (StatusBarHeight - StatusBarFontSize) / 2 - 3;
-  bgfx::setViewRect(viewId, rect.x + padding, rect.y + padding, rect.width, rect.height);
-  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_MSAA);
-  bufferManager->clearTextBuffer(textBuffer);
-  bufferManager->appendText(textBuffer, fontHandle, "Tool: ");
+  bgfx::setViewRect(viewId, rect.x, rect.y, rect.width, rect.height);
+  bufferManager->clearTextBuffer(toolText);
+  bufferManager->setPenPosition(toolText, padding, 0.0f);
+  bufferManager->appendText(toolText, fontHandle, "Tool: ");
   switch (model.activeToolId) {
-    case AddKeypointToolId:
-      bufferManager->appendText(textBuffer, fontHandle, "Keypoint");
-      break;
-    case MoveKeypointToolId:
-      bufferManager->appendText(textBuffer, fontHandle, "Move");
-      break;
-    case BBoxToolId:
-      bufferManager->appendText(textBuffer, fontHandle, "Bounding Box");
-      break;
+  case AddKeypointToolId:
+    bufferManager->appendText(toolText, fontHandle, "Keypoint");
+    break;
+  case MoveKeypointToolId:
+    bufferManager->appendText(toolText, fontHandle, "Move");
+    break;
+  case BBoxToolId:
+    bufferManager->appendText(toolText, fontHandle, "Bounding Box");
+    break;
   }
-  bufferManager->submitTextBuffer(textBuffer, viewId);
+  bufferManager->submitTextBuffer(toolText, viewId);
+  bufferManager->clearTextBuffer(instanceIdText);
+  bufferManager->setPenPosition(instanceIdText, rect.width - instanceTextWidth - padding, 0.0f);
+  std::stringstream stream;
+  stream << "Instance id: " << model.currentInstanceId;
+  bufferManager->appendText(instanceIdText, fontHandle, stream.str().c_str());
+  bufferManager->submitTextBuffer(instanceIdText, viewId);
 };
-}
+} // namespace views

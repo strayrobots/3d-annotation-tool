@@ -10,7 +10,7 @@
 
 namespace views::controls {
 
-TranslateControl::TranslateControl(std::function<void(const Vector3f&)> cb) : callback(cb) {
+TranslateControl::TranslateControl(int viewId, std::function<void(const Vector3f&)> cb) : views::controls::Control(viewId), callback(cb) {
   yRotation = AngleAxisf(M_PI / 2.0, Vector3f(0.0, 0.0, 1.0));
   zRotation = AngleAxisf(-M_PI / 2.0, Vector3f(0.0, 1.0, 0.0));
   yTransform = Transform<float, 3, Eigen::Affine>::Identity();

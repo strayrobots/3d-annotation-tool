@@ -5,8 +5,8 @@ namespace views {
 
 using namespace geometry;
 
-AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline) : sceneModel(model), timeline(timeline) {
-  translateControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPosition) {
+AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline) {
+  translateControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPosition) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     if (bbox.has_value()) {
       bbox->position = newPosition;
@@ -15,7 +15,7 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline) : sceneModel(mod
       position = bbox->position;
     }
   });
-  sizeControl = std::make_shared<views::controls::TranslateControl>([&](const Vector3f& newPos_W) {
+  sizeControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPos_W) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     if (bbox.has_value()) {
       Vector3f diff_W = newPos_W - (bbox->position + bbox->orientation * bbox->dimensions * 0.5);
@@ -66,6 +66,7 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
   Intersection intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
   if (intersection.hit) {
     BBox bbox = {.id = -1,
+                 .instanceId = sceneModel.currentInstanceId,
                  .position = intersection.point,
                  .orientation = Quaternionf::FromTwoVectors(-Vector3f::UnitY(), intersection.normal),
                  .dimensions = Vector3f(0.2, 0.2, 0.2)};

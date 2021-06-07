@@ -6,7 +6,7 @@
 #include "3rdparty/json.hpp"
 
 SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : datasetPath(datasetFolder),
-                                                           keypoints(), boundingBoxes() {
+                                                                            keypoints(), boundingBoxes() {
   loadCameraParams();
   if (rayTracing) {
     initRayTracing();
@@ -25,10 +25,16 @@ geometry::Intersection SceneModel::traceRayIntersection(const Vector3f& origin, 
   return rtMesh->traceRayIntersection(origin, direction);
 }
 
-Keypoint SceneModel::addKeypoint(const Vector3f& p) {
-  Keypoint kp(keypoints.size() + 1, p);
-  keypoints.push_back(kp);
-  return kp;
+Keypoint SceneModel::addKeypoint(const Vector3f& position) {
+  Keypoint keypoint(keypoints.size() + 1, currentInstanceId, position);
+  keypoints.push_back(keypoint);
+  return keypoint;
+}
+Keypoint SceneModel::addKeypoint(const Keypoint& kp) {
+  Keypoint keypoint = kp;
+  keypoint.id = keypoints.size() + 1;
+  keypoints.push_back(keypoint);
+  return keypoint;
 }
 
 void SceneModel::removeKeypoint(const Keypoint& kp) {
@@ -63,10 +69,8 @@ void SceneModel::setKeypoint(const Keypoint& updated) {
 
 void SceneModel::updateKeypoint(int id, Keypoint kp) {
   assert(kp.id == id && "Keypoint needs to be the same as the one being updated.");
-  int value = -1;
   for (int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
-      value = i;
       keypoints[i] = kp;
       return;
     }
@@ -130,10 +134,10 @@ std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
       break;
     }
     Matrix4f pose;
-    for (int i=0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       std::getline(in, line);
       std::stringstream lineStream(line);
-      for (int j=0; j < 4; j++) {
+      for (int j = 0; j < 4; j++) {
         lineStream >> row[j];
       }
       pose.row(i) = row;
@@ -143,7 +147,7 @@ std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
   return out;
 }
 
-nlohmann::json serializeVector(const Vector3f& v) {
+nlohmann::json serialize(const Vector3f& v) {
   auto out = nlohmann::json::array();
   out[0] = v[0];
   out[1] = v[1];
@@ -151,15 +155,22 @@ nlohmann::json serializeVector(const Vector3f& v) {
   return out;
 }
 
-nlohmann::json serializeBBox(const BBox& bbox) {
+nlohmann::json serialize(const Keypoint& keypoint) {
+  auto out = nlohmann::json::object();
+  out["instance_id"] = keypoint.instanceId;
+  out["position"] = serialize(keypoint.position);
+  return out;
+}
+
+nlohmann::json serialize(const BBox& bbox) {
   auto obj = nlohmann::json::object();
-  obj["position"] = serializeVector(bbox.position);
+  obj["position"] = serialize(bbox.position);
   obj["orientation"] = {
       {"w", bbox.orientation.w()},
       {"x", bbox.orientation.x()},
       {"y", bbox.orientation.y()},
       {"z", bbox.orientation.z()}};
-  obj["dimensions"] = serializeVector(bbox.dimensions);
+  obj["dimensions"] = serialize(bbox.dimensions);
   return obj;
 }
 
@@ -168,12 +179,12 @@ void SceneModel::save() const {
   nlohmann::json json = nlohmann::json::object();
   json["keypoints"] = nlohmann::json::array();
   for (size_t i = 0; i < keypoints.size(); i++) {
-    json["keypoints"][i] = serializeVector(keypoints[i].position);
+    json["keypoints"][i] = serialize(keypoints[i]);
   }
   json["bounding_boxes"] = nlohmann::json::array();
   for (size_t i = 0; i < boundingBoxes.size(); i++) {
     const auto& bbox = boundingBoxes[i];
-    json["bounding_boxes"][i] = serializeBBox(bbox);
+    json["bounding_boxes"][i] = serialize(bbox);
   }
   std::ofstream file(annotationPath.string());
   file << json;
@@ -187,7 +198,9 @@ void SceneModel::load() {
   std::ifstream file(annotationPath);
   file >> json;
   for (auto& point : json["keypoints"]) {
-    Keypoint kp(keypoints.size() + 1, Vector3f(point[0].get<float>(), point[1].get<float>(), point[2].get<float>()));
+    auto position = point["position"];
+    auto instanceId = point["instance_id"].get<int>();
+    Keypoint kp(keypoints.size() + 1, instanceId, Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>()));
     keypoints.push_back(kp);
   }
   for (auto& bbox : json["bounding_boxes"]) {
@@ -195,11 +208,10 @@ void SceneModel::load() {
     auto orn = bbox["orientation"];
     auto d = bbox["dimensions"];
     BBox box = {
-      .id = int(boundingBoxes.size()) + 1,
-      .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
-      .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
-      .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())
-    };
+        .id = int(boundingBoxes.size()) + 1,
+        .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+        .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
+        .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
     boundingBoxes.push_back(box);
   }
 }
@@ -219,8 +231,8 @@ void SceneModel::loadCameraParams() {
   nlohmann::json json;
   file >> json;
   auto matrix = json["intrinsic_matrix"];
-  for (int i=0; i < 3; i++) {
-    for (int j=0; j < 3; j++) {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
       cameraMatrix(i, j) = matrix[j * 3 + i];
     }
   }

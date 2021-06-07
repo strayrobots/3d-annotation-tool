@@ -28,7 +28,7 @@ private:
   bgfx::ProgramHandle colorProgram;
 
 public:
-  MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId=0);
+  MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId = 0);
   ~MeshDrawable();
 
   void setDrawingGeometry() const;

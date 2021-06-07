@@ -19,7 +19,7 @@ private:
   Timeline& timeline;
 
 public:
-  AddKeypointView(SceneModel& model, Timeline& timeline);
+  AddKeypointView(SceneModel& model, Timeline& timeline, int viewId = 0);
 
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool mouseMoved(const ViewContext3D& viewContext) override;

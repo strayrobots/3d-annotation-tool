@@ -36,7 +36,7 @@ private:
   Vector3f dragPoint;
 
 public:
-  TranslateControl(std::function<void(const Vector3f&)> cb);
+  TranslateControl(int viewId, std::function<void(const Vector3f&)> cb);
   ~TranslateControl();
   void setCallback(std::function<void(const Vector3f&)> cb);
   bool leftButtonDown(const ViewContext3D& viewContext) override;

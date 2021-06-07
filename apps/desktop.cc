@@ -27,7 +27,7 @@ void validateFlags(const cxxopts::ParseResult& flags) {
 }
 
 int main(int argc, char* argv[]) {
-  cxxopts::Options options("LabelStudio", "Annotate the world in 3D.");
+  cxxopts::Options options("Studio", "Annotate the world in 3D.");
   options.add_options()("dataset", "That path to folder of the dataset to annotate.",
       cxxopts::value<std::vector<std::string>>());
   options.parse_positional({"dataset"});

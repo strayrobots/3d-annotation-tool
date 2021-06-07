@@ -26,7 +26,7 @@ add_executable(main ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
 target_compile_options(main PRIVATE -Wall)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
-add_executable(preview ${SOURCE_FILES} apps/preview.cc)
+add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
 target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 

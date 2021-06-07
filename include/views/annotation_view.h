@@ -15,7 +15,7 @@ private:
   Vector4f lightDir = Vector4f(0.0, 1.0, -1.0, 1.0);
 
 public:
-  AnnotationView(SceneModel& model, int viewId=0);
+  AnnotationView(SceneModel& model, int viewId = -1);
   void render(const ViewContext3D& context) const;
 };
 } // namespace views

@@ -1,15 +1,15 @@
 #include "label_studio.h"
 #include <memory>
-#include <iostream>
 #include <filesystem>
 #include <fstream>
 #include <bgfx/bgfx.h>
 #include "3rdparty/json.hpp"
 #include "commands/keypoints.h"
 #include "commands/bounding_box.h"
+#include "id.h"
 
-LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Label Studio"), sceneModel(folder),
-                                                      studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
+LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio"), viewId(IdFactory::getInstance().getId()),
+                                                      sceneModel(folder), studioViewController(sceneModel, timeline, viewId), timeline(sceneModel), datasetFolder(folder) {
   loadState();
 
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -87,7 +87,7 @@ void LabelStudio::resize(int newWidth, int newHeight) {
 }
 
 bool LabelStudio::update() const {
-  bgfx::setViewRect(0, 0, 0, width, height);
+  bgfx::setViewRect(viewId, 0, 0, width, height);
   studioViewController.render();
 
   bgfx::frame();
@@ -110,8 +110,10 @@ void LabelStudio::loadState() {
   nlohmann::json json;
   file >> json;
   for (auto& keypoint : json["keypoints"]) {
-    auto k = Vector3f(keypoint[0].get<float>(), keypoint[1].get<float>(), keypoint[2].get<float>());
-    std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(k);
+    auto position = keypoint["position"];
+    auto k = Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>());
+    Keypoint kp(-1, keypoint["instance_id"].get<int>(), k);
+    std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(kp);
     timeline.pushCommand(std::move(command));
   }
   for (auto& bbox : json["bounding_boxes"]) {

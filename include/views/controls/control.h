@@ -5,6 +5,7 @@
 namespace views::controls {
 class Control : public View3D {
 public:
+  Control(int viewId) : View3D(viewId) {};
   virtual bool leftButtonDown(const ViewContext3D& viewContext) { return false; };
   virtual bool leftButtonUp(const ViewContext3D& viewContext) { return false; };
   virtual bool mouseMoved(const ViewContext3D& viewContext) { return false; };
