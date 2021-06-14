@@ -171,6 +171,7 @@ nlohmann::json serialize(const BBox& bbox) {
       {"y", bbox.orientation.y()},
       {"z", bbox.orientation.z()}};
   obj["dimensions"] = serialize(bbox.dimensions);
+  obj["instance_id"] = bbox.instanceId;
   return obj;
 }
 
@@ -207,8 +208,10 @@ void SceneModel::load() {
     auto p = bbox["position"];
     auto orn = bbox["orientation"];
     auto d = bbox["dimensions"];
+    auto instanceId = bbox["instance_id"];
     BBox box = {
         .id = int(boundingBoxes.size()) + 1,
+        .instanceId = instanceId,
         .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
         .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
         .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
