@@ -42,7 +42,7 @@ void ImagePane::setImage(const std::string& path) {
 
 void ImagePane::render() const {
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_WRITE_A | BGFX_STATE_WRITE_RGB |
-      BGFX_STATE_WRITE_Z | BGFX_STATE_BLEND_ALPHA);
+                 BGFX_STATE_WRITE_Z | BGFX_STATE_BLEND_ALPHA);
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
   bgfx::setTexture(0, textureColor, texture);

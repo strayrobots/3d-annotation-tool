@@ -70,8 +70,9 @@ class ChangeBBoxInstanceIdCommand : public Command {
 private:
   BBox bbox;
   const int newInstanceId;
+
 public:
-  ChangeBBoxInstanceIdCommand(const BBox bbox, const int newInstanceId) : newInstanceId(newInstanceId) {};
+  ChangeBBoxInstanceIdCommand(const BBox bbox, const int newInstanceId) : newInstanceId(newInstanceId){};
   void execute(SceneModel& model) {
     BBox updated = bbox;
     bbox.instanceId = newInstanceId;

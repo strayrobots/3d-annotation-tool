@@ -15,9 +15,7 @@ void AddKeypointCommand::undo(SceneModel& sceneModel) {
   sceneModel.removeKeypoint(keypoint);
 }
 
-
-ChangeKeypointInstanceIdCommand::ChangeKeypointInstanceIdCommand(const Keypoint kp, int newId) :
-  keypoint(kp), newInstanceId(newId) {}
+ChangeKeypointInstanceIdCommand::ChangeKeypointInstanceIdCommand(const Keypoint kp, int newId) : keypoint(kp), newInstanceId(newId) {}
 
 void ChangeKeypointInstanceIdCommand::execute(SceneModel& sceneModel) {
   Keypoint kp = keypoint;
