@@ -9,13 +9,17 @@
 
 struct Keypoint {
   int id;
+  int instanceId;
   Vector3f position;
-  Keypoint(int id, const Vector3f& p) : id(id), position(p) {}
-  Keypoint(int id) : id(id), position(Vector3f::Zero()) {}
+  Keypoint(const Vector3f& p) : id(-1), instanceId(0), position(p) {}
+  Keypoint(int id, int instance, const Vector3f& p) : id(id), instanceId(instance), position(p) {}
+  Keypoint(int id, const Vector3f& p) : id(id), instanceId(0), position(p) {}
+  Keypoint(int id) : id(id), instanceId(0), position(Vector3f::Zero()) {}
 };
 
 struct BBox {
   int id;
+  int instanceId;
   Vector3f position;
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Ones() * 0.2;
@@ -40,9 +44,11 @@ private:
   int imageWidth;
   int imageHeight;
   Matrix3f cameraMatrix;
+
 public:
   int activeKeypoint = -1;
   int activeBBox = -1;
+  int currentInstanceId = 0;
   ActiveTool activeToolId = AddKeypointToolId;
 
   SceneModel(const std::string& datasetFolder, bool rayTracing = true);
@@ -53,7 +59,8 @@ public:
 
   // Keypoints
   const std::vector<Keypoint>& getKeypoints() const { return keypoints; };
-  Keypoint addKeypoint(const Vector3f& p);
+  Keypoint addKeypoint(const Vector3f& kp);
+  Keypoint addKeypoint(const Keypoint& kp);
   void removeKeypoint(const Keypoint& keypoint);
   void updateKeypoint(int keypointId, Keypoint kp);
   std::optional<Keypoint> getKeypoint(int keypointId) const;

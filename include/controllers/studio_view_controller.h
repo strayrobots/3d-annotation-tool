@@ -11,9 +11,11 @@
 #include "views/add_keypoint_view.h"
 #include "views/move_keypoint_view.h"
 #include "views/add_bbox_view.h"
+#include "views/status_bar_view.h"
 
 class StudioViewController {
 private:
+  int viewId;
   SceneModel& sceneModel;
 
   // Changing view point.
@@ -28,9 +30,10 @@ private:
   views::AddKeypointView addKeypointView;
   views::MoveKeypointView moveKeypointView;
   views::AddBBoxView addBBoxView;
+  views::StatusBarView statusBarView;
 
 public:
-  StudioViewController(SceneModel& model, Timeline& timeline);
+  StudioViewController(SceneModel& model, Timeline& timeline, int viewId);
   void viewWillAppear(int width, int height);
 
   void render() const;

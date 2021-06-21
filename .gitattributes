@@ -1,1 +1,2 @@
 *.ply filter=lfs diff=lfs merge=lfs -text
+assets/SourceSansPro.ttf filter=lfs diff=lfs merge=lfs -text

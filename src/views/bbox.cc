@@ -1,5 +1,6 @@
 #include "views/bbox.h"
 #include "shader_utils.h"
+#include "colors.h"
 
 namespace views {
 static float cubeVertices[] = {
@@ -39,7 +40,7 @@ static const uint16_t cubeTriangleList[] = {
     7,
 };
 
-BBoxView::BBoxView(int viewId) : View3D(viewId) {
+BBoxView::BBoxView(int id) : View3D(id) {
   layout.begin()
       .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
       .end();
@@ -47,6 +48,7 @@ BBoxView::BBoxView(int viewId) : View3D(viewId) {
   vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(&cubeVertices[0], 8 * 3 * sizeof(float)), layout);
   indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(&cubeTriangleList[0], 24 * sizeof(uint16_t)));
   u_scale = bgfx::createUniform("u_scale", bgfx::UniformType::Vec4);
+  u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
   program = shader_utils::loadProgram("vs_bbox", "fs_bbox");
 }
 
@@ -55,6 +57,7 @@ BBoxView::~BBoxView() {
   bgfx::destroy(vertexBuffer);
   bgfx::destroy(program);
   bgfx::destroy(u_scale);
+  bgfx::destroy(u_color);
 }
 
 void BBoxView::render(const BBox& bbox) const {
@@ -66,14 +69,15 @@ void BBoxView::render(const BBox& bbox) const {
   bgfx::setVertexBuffer(0, vertexBuffer);
   Vector4f scale(bbox.dimensions[0], bbox.dimensions[1], bbox.dimensions[2], 1.0);
   bgfx::setUniform(u_scale, scale.data(), 1);
+  const Vector4f& color = colors::instanceColors[bbox.instanceId % 10];
+  bgfx::setUniform(u_color, color.data(), 1);
   bgfx::setState(BGFX_STATE_DEFAULT |
                  BGFX_STATE_PT_LINES |
                  BGFX_STATE_WRITE_A |
                  BGFX_STATE_WRITE_RGB |
                  BGFX_STATE_WRITE_Z |
                  BGFX_STATE_CULL_CW |
-                 BGFX_STATE_BLEND_ALPHA |
-                 BGFX_STATE_MSAA);
+                 BGFX_STATE_BLEND_ALPHA);
   bgfx::submit(viewId, program);
 }
 

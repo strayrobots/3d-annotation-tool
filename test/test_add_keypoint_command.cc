@@ -11,10 +11,12 @@ using namespace commands;
 TEST(TestAddKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  auto command = std::make_unique<AddKeypointCommand>(Vector3f(1.0, 1.0, 1.0));
+  Keypoint kp(Vector3f::Ones());
+  auto command = std::make_unique<AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
-  auto command2 = std::make_unique<AddKeypointCommand>(Vector3f(0.2, 1.0, 1.0));
+  Keypoint kp2(Vector3f(0.2, 1.0, 1.0));
+  auto command2 = std::make_unique<AddKeypointCommand>(kp2);
   timeline.pushCommand(std::move(command2));
   ASSERT_EQ(sceneModel.getKeypoints().size(), 2);
 

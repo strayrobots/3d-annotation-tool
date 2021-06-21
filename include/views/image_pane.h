@@ -12,9 +12,9 @@ class ImagePane : public View {
   bgfx::UniformHandle textureColor;
 
 public:
-  ImagePane(const std::string& path);
+  ImagePane(const std::string& path, int viewId = 0);
   ~ImagePane();
   void setImage(const std::string& path);
   void render() const;
 };
-}
+} // namespace views

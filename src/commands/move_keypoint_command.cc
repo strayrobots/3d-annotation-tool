@@ -2,8 +2,8 @@
 
 namespace commands {
 
-MoveKeypointCommand::MoveKeypointCommand(const Keypoint& kp, const Vector3f& newPosition) : oldKeypoint(kp),
-                                                                                            newKeypoint(kp.id, newPosition) {
+MoveKeypointCommand::MoveKeypointCommand(const Keypoint& kp, const Keypoint& newKeypoint) : oldKeypoint(kp),
+                                                                                            newKeypoint(newKeypoint) {
 }
 
 void MoveKeypointCommand::execute(SceneModel& sceneModel) {

@@ -22,7 +22,7 @@ private:
   Vector3f dimensions = Vector3f::Zero();
 
 public:
-  AddBBoxView(SceneModel& model, Timeline& timeline);
+  AddBBoxView(SceneModel& model, Timeline& timeline, int viewId = 0);
   void refresh();
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool leftButtonDown(const ViewContext3D& context) override;

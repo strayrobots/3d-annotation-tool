@@ -5,16 +5,18 @@
 
 using namespace commands;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : sceneModel(model),
-                                                                              viewContext(sceneModel.sceneCamera()), annotationView(model), sceneMeshView(model.getMesh()),
-                                                                              addKeypointView(model, tl), moveKeypointView(model, tl), addBBoxView(model, tl) {
-}
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl, int viewId) : viewId(viewId), sceneModel(model),
+                                                                                          viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
+                                                                                          addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
+                                                                                          statusBarView(model) {}
 
 void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
   viewContext.width = width;
-  viewContext.height = height;
+  viewContext.height = height - views::StatusBarHeight;
+
+  bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
 }
 
 views::View3D& StudioViewController::getActiveToolView() {
@@ -29,9 +31,11 @@ views::View3D& StudioViewController::getActiveToolView() {
 
 void StudioViewController::refresh() {
   addBBoxView.refresh();
+  moveKeypointView.refresh();
 }
 
 void StudioViewController::render() const {
+  bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
   if (sceneModel.activeToolId == MoveKeypointToolId) {
@@ -44,6 +48,8 @@ void StudioViewController::render() const {
   } else {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
+  views::Rect rect = {.x = 0, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+  statusBarView.render(rect);
 }
 
 // Input handling.
@@ -109,7 +115,7 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
 
 void StudioViewController::resize(int width, int height, InputModifier mod) {
   viewContext.width = width;
-  viewContext.height = height;
+  viewContext.height = height - views::StatusBarHeight;
 }
 
 bool StudioViewController::keypress(char character, InputModifier mod) {
@@ -122,6 +128,11 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
   } else if (character == 'B') {
     sceneModel.activeToolId = BBoxToolId;
     return true;
+  } else if ('0' <= character && character <= '9') {
+    const int codePoint0Char = 48;
+    int integerValue = int(character) - codePoint0Char;
+    sceneModel.currentInstanceId = integerValue;
+    getActiveToolView().keypress(character, mod);
   }
   return false;
 }

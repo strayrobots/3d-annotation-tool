@@ -5,8 +5,7 @@ Camera::Camera() {
   reset(Vector3f(-0.1, -0.1, -0.1), Vector3f(0.0, 0.0, 0.0));
 }
 
-Camera::Camera(const Matrix3f cameraMatrix, double height) :
-  fov(2.0 * std::atan(height / (2.0 * cameraMatrix(1, 1))) * 180.0 / M_PI) {
+Camera::Camera(const Matrix3f cameraMatrix, double height) : fov(2.0 * std::atan(height / (2.0 * cameraMatrix(1, 1))) * 180.0 / M_PI) {
 }
 
 void Camera::reset(const Vector3f resetLookat, const Vector3f resetPosition) {
@@ -113,4 +112,3 @@ void Camera::zoom(float d) {
     setViewMatrix(newViewMatrix);
   }
 }
-

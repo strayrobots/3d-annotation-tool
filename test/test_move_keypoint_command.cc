@@ -14,18 +14,24 @@ using namespace commands;
 TEST(TestMoveKeypointApplyUndo, BasicCases) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  auto command = std::make_unique<AddKeypointCommand>(Vector3f(1.0, 1.0, 1.0));
+  Keypoint kp(1, 3, Vector3f::Ones());
+  auto command = std::make_unique<AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
+  ASSERT_EQ(kp.instanceId, 3);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
+  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 3);
 
   Vector3f newPosition(0.25, -0.25, 0.3);
-  auto moveCommand = std::make_unique<MoveKeypointCommand>(sceneModel.getKeypoints()[0], newPosition);
+  Keypoint newKp = Keypoint(sceneModel.getKeypoints()[0]);
+  newKp.position = newPosition;
+  auto moveCommand = std::make_unique<MoveKeypointCommand>(sceneModel.getKeypoints()[0], newKp);
   timeline.pushCommand(std::move(moveCommand));
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, newPosition);
   timeline.undoCommand();
   ASSERT_NE(sceneModel.getKeypoints()[0].position, newPosition);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
+  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 3);
 }
 
 int main(int argc, char **argv) {

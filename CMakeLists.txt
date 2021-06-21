@@ -16,12 +16,17 @@ include_directories(include ${eigen3_INCLUDE_DIRS})
 add_subdirectory(submodules/bgfx)
 include(cmake/shaders.cmake)
 
+include_directories("submodules/bgfx/bgfx/examples")
+include_directories("submodules/bgfx/bgfx/3rdparty")
+
 file(GLOB_RECURSE SOURCE_FILES src/*.cc)
-add_executable(main ${SOURCE_FILES} apps/desktop.cc)
+file(GLOB_RECURSE BGFX_COMMON submodules/bgfx/bgfx/examples/common/font/*.cpp
+  submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
+add_executable(main ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
 target_compile_options(main PRIVATE -Wall)
 target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
-add_executable(preview ${SOURCE_FILES} apps/preview.cc)
+add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
 target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 

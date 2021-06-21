@@ -4,12 +4,13 @@
 namespace views {
 using namespace commands;
 
-AddKeypointView::AddKeypointView(SceneModel& model, Timeline& timeline) : sceneModel(model), timeline(timeline) {}
+AddKeypointView::AddKeypointView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline) {}
 
 bool AddKeypointView::leftButtonUp(const ViewContext3D& viewContext) {
   if (!pointingAt.has_value()) return false;
 
-  auto command = std::make_unique<commands::AddKeypointCommand>(pointingAt.value());
+  Keypoint kp(-1, sceneModel.currentInstanceId, pointingAt.value());
+  auto command = std::make_unique<commands::AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
   return true;
 }
