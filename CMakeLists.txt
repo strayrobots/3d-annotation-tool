@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(LabelStudio)
 
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.3)
+    message(FATAL_ERROR "GCC version must be at least 9.3")
+endif()
+
 find_package(PkgConfig)
 pkg_search_module(Eigen3 REQUIRED eigen3)
 find_package(glfw3 REQUIRED)
