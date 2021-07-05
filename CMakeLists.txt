@@ -26,21 +26,24 @@ include_directories("submodules/bgfx/bgfx/3rdparty")
 file(GLOB_RECURSE SOURCE_FILES src/*.cc)
 file(GLOB_RECURSE BGFX_COMMON submodules/bgfx/bgfx/examples/common/font/*.cpp
   submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
-add_executable(main ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
-target_compile_options(main PRIVATE -Wall)
-target_link_libraries(main bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
+add_executable(studio ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
+target_compile_options(studio PRIVATE -Wall)
+target_link_libraries(studio bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
 add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
 target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
 
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)
-add_shaders(main SHADERS ${SHADER_FILES})
+add_shaders(studio SHADERS ${SHADER_FILES})
 
-add_dependencies(main shaders)
+add_dependencies(studio shaders)
 add_dependencies(preview shaders)
 
 enable_testing()
 add_subdirectory(test EXCLUDE_FROM_ALL)
 
+install(TARGETS studio DESTINATION bin)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/compiled_shaders DESTINATION share/stray)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION share/stray)
 

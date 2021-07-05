@@ -18,19 +18,29 @@ const bgfx::Memory* loadMemory(bx::FileReaderI* _reader, const char* _filePath) 
 
 bgfx::ShaderHandle loadShader(bx::FileReader* reader, const char* _name) {
   char filePath[512];
-  const char* shaderPath = "";
+  std::string shaderPath = "";
+  if (std::filesystem::exists("compiled_shaders")) {
+    shaderPath = "compiled_shaders/";
+  } else {
+    if (std::filesystem::exists("/usr/local/share/stray/compiled_shaders")) {
+      shaderPath = "/usr/local/share/stray/compiled_shaders/";
+    } else {
+      std::cout << "Can't find shader directory." << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
   switch (bgfx::getRendererType()) {
   case bgfx::RendererType::Noop:
   case bgfx::RendererType::OpenGL:
-    shaderPath = "compiled_shaders/glsl/";
+    shaderPath.append("glsl/");
     break;
   case bgfx::RendererType::Metal:
-    shaderPath = "compiled_shaders/metal/";
+    shaderPath.append("metal/");
     break;
   default:
     BX_ASSERT(false, "Shader for renderer type not available.");
   }
-  bx::strCopy(filePath, BX_COUNTOF(filePath), shaderPath);
+  bx::strCopy(filePath, BX_COUNTOF(filePath), shaderPath.c_str());
   bx::strCat(filePath, BX_COUNTOF(filePath), _name);
   bx::strCat(filePath, BX_COUNTOF(filePath), ".bin");
 

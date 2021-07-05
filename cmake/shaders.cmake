@@ -37,6 +37,6 @@ macro(add_shaders ARG_TARGET)
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Compiling shaders")
 
-  target_sources(main PRIVATE ${SHADER_SOURCE_FILES})
-  add_dependencies(main shaders)
+  target_sources(${ARG_TARGET} PRIVATE ${SHADER_SOURCE_FILES})
+  add_dependencies(${ARG_TARGET} shaders)
 endmacro()
