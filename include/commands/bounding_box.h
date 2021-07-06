@@ -26,16 +26,20 @@ private:
   BBox bbox;
   const Vector3f oldPosition;
   const Vector3f newPosition;
+  const Quaternionf oldOrientation;
+  const Quaternionf newOrientation;
 
 public:
-  MoveBBoxCommand(const BBox& box, const Vector3f& position) : bbox(box), oldPosition(bbox.position), newPosition(position) {}
+  MoveBBoxCommand(const BBox& box, const Vector3f& position, const Quaternionf& orientation) : bbox(box), oldPosition(bbox.position), newPosition(position), oldOrientation(bbox.orientation), newOrientation(orientation) {}
   void execute(SceneModel& sceneModel) override {
     bbox.position = newPosition;
+    bbox.orientation = newOrientation;
     sceneModel.updateBoundingBox(bbox);
     sceneModel.activeBBox = bbox.id;
   };
   void undo(SceneModel& sceneModel) override {
     bbox.position = oldPosition;
+    bbox.orientation = oldOrientation;
     sceneModel.updateBoundingBox(bbox);
     sceneModel.activeBBox = bbox.id;
   };
