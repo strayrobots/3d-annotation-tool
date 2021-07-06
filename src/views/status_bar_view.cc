@@ -5,11 +5,12 @@
 #include <bgfx/platform.h>
 #include <sstream>
 #include "views/status_bar_view.h"
+#include "asset_utils.h"
 
 const uint32_t TextColor = 0xffffffff;
 const uint32_t StatusBarColor = 0x222222ff;
-static const char* fontCandidates[] = {
-    "../assets/SourceSansPro.ttf"};
+const std::string fontCandidates[] = {
+    "SourceSansPro.ttf"};
 
 static bx::DefaultAllocator allocator;
 
@@ -47,14 +48,16 @@ StatusBarView::StatusBarView(const SceneModel& model) : views::View3D(viewId), m
   fontManager = new FontManager(512);
   bufferManager = new TextBufferManager(fontManager);
 
-  auto path = std::find_if(std::begin(fontCandidates), std::end(fontCandidates), [](const char* path) {
-    return std::filesystem::exists(path);
+  std::string assetDir = asset_utils::findAssetDirectory();
+  auto path = std::find_if(std::begin(fontCandidates), std::end(fontCandidates), [&](const std::string& path) {
+    return std::filesystem::exists(assetDir + path);
   });
   if (path == std::end(fontCandidates)) {
     std::cout << "Can't find a single font." << std::endl;
     exit(1);
   }
-  TrueTypeHandle fontFile = loadTtf(fontManager, *path);
+  std::string fontPath = assetDir + *path;
+  TrueTypeHandle fontFile = loadTtf(fontManager, fontPath.c_str());
   fontHandle = fontManager->createFontByPixelSize(fontFile, 0, StatusBarFontSize, FONT_TYPE_DISTANCE);
   fontManager->preloadGlyph(fontHandle, L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:. \n");
   fontManager->destroyTtf(fontFile);
