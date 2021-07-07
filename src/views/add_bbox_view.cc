@@ -11,12 +11,10 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : vi
     Quaternionf newRotation;
     newRotation = transform.rotation();
     if (bbox.has_value()) {
-      bbox->position = transform.translation();
       bbox->orientation = newRotation;
       sceneModel.updateBoundingBox(bbox.value());
       sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
       sizeControl->setOrientation(newRotation);
-      translateControl->setPosition(bbox->position);
       translateControl->setOrientation(newRotation);
       position = bbox->position;
       orientation = bbox->orientation;

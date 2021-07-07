@@ -77,7 +77,8 @@ bool RotateControl::leftButtonDown(const ViewContext3D& viewContext) {
 
   dragDirection = 0;
   if (activeAxis != -1) {
-    dragPoint = cameraOrigin_F + smallestDist * rayDirection_F;
+    float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
+    dragPoint = cameraOrigin_F + t * rayDirection_F;
     return true;
   } else {
     return false;
