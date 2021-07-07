@@ -34,9 +34,11 @@ private:
   bgfx::ProgramHandle program;
   bgfx::UniformHandle u_color, u_lightDir;
   int activeAxis = -1;
-  // Point on the chosen axis that is being dragged.
+
+  Vector3f rotationAxis;
   Vector3f dragPoint;
-  Vector3f focusPoint;
+  Vector3f dragCrossProduct;
+  int dragDirection;
 
 public:
   RotateControl(int viewId, std::function<void(const Transform<float, 3, Eigen::Affine>&)> cb);

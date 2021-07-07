@@ -41,32 +41,38 @@ RotateControl::~RotateControl() {
 
 bool RotateControl::leftButtonDown(const ViewContext3D& viewContext) {
   activeAxis = -1;
-  const Vector3f& cameraOrigin = (viewContext.camera.getPosition() - currentTransform_WF.translation());
-  const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
-                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
+  const Vector3f& cameraOrigin_W = (viewContext.camera.getPosition() - currentTransform_WF.translation());
+  const Vector3f& rayDirection_W = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
+                                                                      viewContext.mousePositionX, viewContext.mousePositionY);
+  const Vector3f& cameraOrigin_F = currentTransform_WF.rotation().transpose() * cameraOrigin_W;
+  const Vector3f& rayDirection_F = currentTransform_WF.rotation().transpose() * rayDirection_W;
 
-  auto hitX = rtDiskMesh->traceRay(transform_Wx.rotation().transpose() * cameraOrigin, transform_Wx.rotation().transpose() * rayDirection);
+  auto hitX = rtDiskMesh->traceRay(transform_Wx.rotation().transpose() * cameraOrigin_W, transform_Wx.rotation().transpose() * rayDirection_W);
   if (hitX.has_value()) {
     activeAxis = 0;
-    dragPoint = hitX.value()[0] * Vector3f::UnitX();
-    focusPoint = hitX.value()[1] * Vector3f::UnitY() - hitX.value()[0] * Vector3f::UnitZ();
-    std::cout << "Hit value " << hitX.value() << std::endl;
-    std::cout << "Focuspoint " << focusPoint << std::endl;
+    rotationAxis = Vector3f::UnitX();
   }
 
-  auto hitY = rtDiskMesh->traceRay(transform_Wy.rotation().transpose() * cameraOrigin, transform_Wy.rotation().transpose() * rayDirection);
+  auto hitY = rtDiskMesh->traceRay(transform_Wy.rotation().transpose() * cameraOrigin_W, transform_Wy.rotation().transpose() * rayDirection_W);
   if (hitY.has_value()) {
     activeAxis = 1;
-    dragPoint = hitY.value()[0] * Vector3f::UnitY();
+    rotationAxis = Vector3f::UnitY();
   }
 
-  auto hitZ = rtDiskMesh->traceRay(transform_Wz.rotation().transpose() * cameraOrigin, transform_Wz.rotation().transpose() * rayDirection);
+  auto hitZ = rtDiskMesh->traceRay(transform_Wz.rotation().transpose() * cameraOrigin_W, transform_Wz.rotation().transpose() * rayDirection_W);
   if (hitZ.has_value()) {
     activeAxis = 2;
-    dragPoint = hitZ.value()[0] * Vector3f::UnitZ();
+    rotationAxis = Vector3f::UnitZ();
   }
 
-  return activeAxis != -1;
+  if (activeAxis != -1) {
+    float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
+    dragPoint = cameraOrigin_F + t * rayDirection_F;
+    dragDirection = 0;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool RotateControl::leftButtonUp(const ViewContext3D& viewContext) {
@@ -80,26 +86,34 @@ bool RotateControl::mouseMoved(const ViewContext3D& viewContext) {
   const Vector3f& cameraOrigin_F = currentTransform_WF.rotation().transpose() * (viewContext.camera.getPosition() - currentTransform_WF.translation());
   const Vector3f& rayDirection_F = currentTransform_WF.rotation().transpose() * viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
                                                                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
-  Vector3f change;
   Quaternionf rotation;
   Quaternionf currentRotation_WF;
 
   currentRotation_WF = currentTransform_WF.rotation();
 
-  if (activeAxis == 0) {
-    Vector3f pointOnYZPlane = cameraOrigin_F + rayDirection_F * currentTransform_WF.translation().norm();
-    pointOnYZPlane[0] = 0.0;
-    auto angle = std::acos(pointOnYZPlane.normalized().dot(focusPoint.normalized()));
+  float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
+  Vector3f newDragPoint = cameraOrigin_F + t * rayDirection_F;
 
-    std::cout << "Focus close " << pointOnYZPlane << std::endl;
-    std::cout << "Angle " << angle << std::endl;
-    focusPoint = pointOnYZPlane;
-    rotation = AngleAxisf(angle / 2.0, Vector3f::UnitX());
-  } else if (activeAxis == 1) {
-    rotation = AngleAxisf(0.01 * M_PI, Vector3f::UnitY());
-  } else if (activeAxis == 2) {
-    rotation = AngleAxisf(0.01 * M_PI, Vector3f::UnitZ());
+  if (dragDirection == 0) {
+    dragCrossProduct = dragPoint.cross(newDragPoint);
+    if (dragCrossProduct.dot(rotationAxis) < 0.0) {
+      dragDirection = -1;
+    } else {
+      dragDirection = 1;
+    }
   }
+
+  auto angle = std::acos(newDragPoint.normalized().dot(dragPoint.normalized()));
+
+  Vector3f newDragCrossProduct = dragPoint.cross(newDragPoint);
+
+  if (dragCrossProduct.dot(newDragCrossProduct) < 0.0) {
+    dragDirection = -dragDirection;
+  }
+
+  dragCrossProduct = newDragCrossProduct;
+  dragPoint = newDragPoint;
+  rotation = AngleAxisf(dragDirection * angle / 2, rotationAxis);
 
   setOrientation(currentRotation_WF * rotation);
   callback(currentTransform_WF);

@@ -82,7 +82,7 @@ bool TranslateControl::mouseMoved(const ViewContext3D& viewContext) {
     float displacement = pointOnXYPlane[1];
     change = (displacement - dragPoint[1]) * Vector3f::UnitY();
   } else if (activeAxis == 2) {
-    float t = -cameraOrigin[0] / rayDirection[0];
+    float t = -cameraOrigin[1] / rayDirection[1];
     Vector3f pointOnXZPlane = cameraOrigin + t * rayDirection;
     float displacement = pointOnXZPlane[2];
     change = (displacement - dragPoint[2]) * Vector3f::UnitZ();
