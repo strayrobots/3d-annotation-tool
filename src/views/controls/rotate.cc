@@ -48,27 +48,36 @@ bool RotateControl::leftButtonDown(const ViewContext3D& viewContext) {
   const Vector3f& rayDirection_F = currentTransform_WF.rotation().transpose() * rayDirection_W;
 
   auto hitX = rtDiskMesh->traceRay(transform_Wx.rotation().transpose() * cameraOrigin_W, transform_Wx.rotation().transpose() * rayDirection_W);
+  auto hitY = rtDiskMesh->traceRay(transform_Wy.rotation().transpose() * cameraOrigin_W, transform_Wy.rotation().transpose() * rayDirection_W);
+  auto hitZ = rtDiskMesh->traceRay(transform_Wz.rotation().transpose() * cameraOrigin_W, transform_Wz.rotation().transpose() * rayDirection_W);
+  float smallestDist = std::numeric_limits<float>::max();
   if (hitX.has_value()) {
+    smallestDist = -cameraOrigin_F[0] / rayDirection_F[0];
     activeAxis = 0;
     rotationAxis = Vector3f::UnitX();
   }
 
-  auto hitY = rtDiskMesh->traceRay(transform_Wy.rotation().transpose() * cameraOrigin_W, transform_Wy.rotation().transpose() * rayDirection_W);
   if (hitY.has_value()) {
-    activeAxis = 1;
-    rotationAxis = Vector3f::UnitY();
+    float dist = -cameraOrigin_F[1] / rayDirection_F[1];
+    if (dist < smallestDist) {
+      activeAxis = 1;
+      smallestDist = dist;
+      rotationAxis = Vector3f::UnitY();
+    }
   }
 
-  auto hitZ = rtDiskMesh->traceRay(transform_Wz.rotation().transpose() * cameraOrigin_W, transform_Wz.rotation().transpose() * rayDirection_W);
   if (hitZ.has_value()) {
-    activeAxis = 2;
-    rotationAxis = Vector3f::UnitZ();
+    float dist = -cameraOrigin_F[2] / rayDirection_F[2];
+    if (dist < smallestDist) {
+      activeAxis = 2;
+      smallestDist = dist;
+      rotationAxis = Vector3f::UnitZ();
+    }
   }
 
+  dragDirection = 0;
   if (activeAxis != -1) {
-    float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
-    dragPoint = cameraOrigin_F + t * rayDirection_F;
-    dragDirection = 0;
+    dragPoint = cameraOrigin_F + smallestDist * rayDirection_F;
     return true;
   } else {
     return false;
@@ -113,7 +122,11 @@ bool RotateControl::mouseMoved(const ViewContext3D& viewContext) {
 
   dragCrossProduct = newDragCrossProduct;
   dragPoint = newDragPoint;
-  rotation = AngleAxisf(dragDirection * angle / 2, rotationAxis);
+
+  if (std::isnan(angle) || std::abs(angle) > 0.5) {
+    angle = 0.0;
+  }
+  rotation = AngleAxisf(dragDirection * angle / 1.5, rotationAxis);
 
   setOrientation(currentRotation_WF * rotation);
   callback(currentTransform_WF);
