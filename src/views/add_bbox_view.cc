@@ -14,7 +14,6 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : vi
       bbox->position = transform.translation();
       bbox->orientation = newRotation;
       sceneModel.updateBoundingBox(bbox.value());
-
       sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
       sizeControl->setOrientation(newRotation);
       translateControl->setPosition(bbox->position);
@@ -31,12 +30,10 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : vi
       sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
       rotateControl->setPosition(bbox->position);
       position = bbox->position;
-      orientation = bbox->orientation;
     }
   });
   sizeControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPos_W) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
-    std::cout << "SIZE SET ORI" << std::endl;
     if (bbox.has_value()) {
       Vector3f diff_W = newPos_W - (bbox->position + bbox->orientation * bbox->dimensions * 0.5);
       Vector3f pos_W = bbox->position + diff_W * 0.5;
@@ -44,7 +41,6 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : vi
       bbox->dimensions = newDims_B;
       bbox->position = pos_W;
       position = pos_W;
-      orientation = bbox->orientation;
       dimensions = newDims_B;
       translateControl->setPosition(pos_W);
       rotateControl->setPosition(pos_W);
@@ -58,8 +54,13 @@ void AddBBoxView::refresh() {
   if (bbox.has_value()) {
     bboxStart = bbox.value();
     rotateControl->setPosition(bbox->position);
+    rotateControl->setOrientation(bbox->orientation);
+
     translateControl->setPosition(bbox->position);
+    translateControl->setOrientation(bbox->orientation);
+
     sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+    sizeControl->setOrientation(bbox->orientation);
   } else {
     bboxStart.id = -1;
   }

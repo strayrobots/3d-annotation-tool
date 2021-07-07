@@ -79,8 +79,8 @@ public:
   ChangeBBoxInstanceIdCommand(const BBox bbox, const int newInstanceId) : newInstanceId(newInstanceId){};
   void execute(SceneModel& model) {
     BBox updated = bbox;
-    bbox.instanceId = newInstanceId;
-    model.updateBoundingBox(bbox);
+    updated.instanceId = newInstanceId;
+    model.updateBoundingBox(updated);
   }
 
   void undo(SceneModel& model) {
