@@ -6,12 +6,27 @@ namespace views {
 using namespace geometry;
 
 AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline) {
+  rotateControl = std::make_shared<views::controls::RotateControl>(viewId, [&](const Transform<float, 3, Eigen::Affine>& transform) {
+    auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
+    Quaternionf newRotation;
+    newRotation = transform.rotation();
+    if (bbox.has_value()) {
+      bbox->orientation = newRotation;
+      sceneModel.updateBoundingBox(bbox.value());
+      sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+      sizeControl->setOrientation(newRotation);
+      translateControl->setOrientation(newRotation);
+      position = bbox->position;
+      orientation = bbox->orientation;
+    }
+  });
   translateControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPosition) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     if (bbox.has_value()) {
       bbox->position = newPosition;
       sceneModel.updateBoundingBox(bbox.value());
       sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+      rotateControl->setPosition(bbox->position);
       position = bbox->position;
     }
   });
@@ -26,6 +41,7 @@ AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : vi
       position = pos_W;
       dimensions = newDims_B;
       translateControl->setPosition(pos_W);
+      rotateControl->setPosition(pos_W);
       sceneModel.updateBoundingBox(bbox.value());
     }
   });
@@ -35,14 +51,30 @@ void AddBBoxView::refresh() {
   auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
   if (bbox.has_value()) {
     bboxStart = bbox.value();
+    rotateControl->setPosition(bbox->position);
+    rotateControl->setOrientation(bbox->orientation);
+
     translateControl->setPosition(bbox->position);
+    translateControl->setOrientation(bbox->orientation);
+
     sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
+    sizeControl->setOrientation(bbox->orientation);
   } else {
     bboxStart.id = -1;
   }
 }
 
 bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
+  if (rotateControl->leftButtonUp(viewContext)) {
+    auto command = std::make_unique<commands::MoveBBoxCommand>(bboxStart, position, orientation);
+    timeline.pushCommand(std::move(command));
+    auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
+    if (bbox.has_value()) {
+      bboxStart = bbox.value();
+    }
+    return true;
+  }
+
   if (sizeControl->leftButtonUp(viewContext)) {
     auto command = std::make_unique<commands::ResizeBBoxCommand>(bboxStart, dimensions, position);
     timeline.pushCommand(std::move(command));
@@ -53,7 +85,7 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
     return true;
   }
   if (translateControl->leftButtonUp(viewContext)) {
-    auto command = std::make_unique<commands::MoveBBoxCommand>(bboxStart, position);
+    auto command = std::make_unique<commands::MoveBBoxCommand>(bboxStart, position, orientation);
     timeline.pushCommand(std::move(command));
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     if (bbox.has_value()) {
@@ -72,6 +104,8 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
                  .dimensions = Vector3f(0.2, 0.2, 0.2)};
     translateControl->setPosition(bbox.position);
     translateControl->setOrientation(bbox.orientation);
+    rotateControl->setPosition(bbox.position);
+    rotateControl->setOrientation(bbox.orientation);
     Vector3f sizePos = bbox.position + (bbox.orientation * bbox.dimensions) * 0.5;
     sizeControl->setOrientation(bbox.orientation);
     sizeControl->setPosition(sizePos);
@@ -87,15 +121,16 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
 }
 
 bool AddBBoxView::leftButtonDown(const ViewContext3D& context) {
-  return sizeControl->leftButtonDown(context) || translateControl->leftButtonDown(context);
+  return rotateControl->leftButtonDown(context) || sizeControl->leftButtonDown(context) || translateControl->leftButtonDown(context);
 }
 
 bool AddBBoxView::mouseMoved(const ViewContext3D& context) {
-  return sizeControl->mouseMoved(context) || translateControl->mouseMoved(context);
+  return rotateControl->mouseMoved(context) || sizeControl->mouseMoved(context) || translateControl->mouseMoved(context);
 }
 
 void AddBBoxView::render(const ViewContext3D& context) const {
   if (bboxStart.id != -1) {
+    rotateControl->render(context.camera);
     translateControl->render(context.camera);
     sizeControl->render(context.camera);
   }

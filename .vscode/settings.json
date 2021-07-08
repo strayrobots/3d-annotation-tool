@@ -67,7 +67,13 @@
         "valarray": "cpp",
         "bit": "cpp",
         "cwctype": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "csignal": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp",
+        "typeindex": "cpp"
     },
     "editor.defaultFormatter": "ms-vscode.cpptools"
 }
