@@ -37,8 +37,6 @@ private:
 
   Vector3f rotationAxis;
   Vector3f dragPoint;
-  Vector3f dragCrossProduct;
-  int dragDirection;
 
 public:
   RotateControl(int viewId, std::function<void(const Transform<float, 3, Eigen::Affine>&)> cb);

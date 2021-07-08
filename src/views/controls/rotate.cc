@@ -75,7 +75,6 @@ bool RotateControl::leftButtonDown(const ViewContext3D& viewContext) {
     }
   }
 
-  dragDirection = 0;
   if (activeAxis != -1) {
     float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
     dragPoint = cameraOrigin_F + t * rayDirection_F;
@@ -104,33 +103,26 @@ bool RotateControl::mouseMoved(const ViewContext3D& viewContext) {
   float t = -cameraOrigin_F[activeAxis] / rayDirection_F[activeAxis];
   Vector3f newDragPoint = cameraOrigin_F + t * rayDirection_F;
 
-  if (dragDirection == 0) {
-    dragCrossProduct = dragPoint.cross(newDragPoint);
-    if (dragCrossProduct.dot(rotationAxis) < 0.0) {
-      dragDirection = -1;
-    } else {
-      dragDirection = 1;
-    }
-  }
-
   auto angle = std::acos(newDragPoint.normalized().dot(dragPoint.normalized()));
-
-  Vector3f newDragCrossProduct = dragPoint.cross(newDragPoint);
-
-  if (dragCrossProduct.dot(newDragCrossProduct) < 0.0) {
-    dragDirection = -dragDirection;
-  }
-
-  dragCrossProduct = newDragCrossProduct;
-  dragPoint = newDragPoint;
 
   if (std::isnan(angle) || std::abs(angle) > 0.5) {
     angle = 0.0;
   }
+
+  int dragDirection;
+  Vector3f dragCrossProduct = dragPoint.cross(newDragPoint);
+  if (dragCrossProduct.dot(rotationAxis) < 0.0) {
+    dragDirection = -1;
+  } else {
+    dragDirection = 1;
+  }
+
   rotation = AngleAxisf(dragDirection * angle / 1.5, rotationAxis);
 
   setOrientation(currentRotation_WF * rotation);
   callback(currentTransform_WF);
+
+  dragPoint = newDragPoint;
   return true;
 }
 
