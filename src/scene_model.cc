@@ -123,6 +123,10 @@ std::pair<int, int> SceneModel::imageSize() const {
 
 std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
   auto trajectoryLogPath = datasetPath / "scene" / "trajectory.log";
+  if (!std::filesystem::exists(trajectoryLogPath)) {
+    std::cout << "Camera trajectory does not exist at " << trajectoryLogPath.string() << std::endl;
+    exit(1);
+  }
   std::fstream in;
   in.open(trajectoryLogPath.string(), std::ios::in);
   if (in.fail()) return {};
