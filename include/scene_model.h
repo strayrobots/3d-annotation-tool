@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include <filesystem>
+#include <map>
 #include "geometry/mesh.h"
 #include "geometry/ray_trace_mesh.h"
 #include "camera.h"
@@ -23,6 +24,16 @@ struct BBox {
   Vector3f position;
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Ones() * 0.2;
+};
+
+struct InstanceMetadata {
+  std::string name = "";
+  Vector3f size = Vector3f::Ones() * 0.2;
+};
+
+struct DatasetMetadata {
+  int numClasses = 10;
+  std::map<int, InstanceMetadata> instanceMetadata;
 };
 
 enum ActiveTool {
@@ -50,6 +61,7 @@ public:
   int activeBBox = -1;
   int currentInstanceId = 0;
   ActiveTool activeToolId = AddKeypointToolId;
+  DatasetMetadata datasetMetadata;
 
   SceneModel(const std::string& datasetFolder, bool rayTracing = true);
 
@@ -84,5 +96,6 @@ public:
 private:
   void initRayTracing();
   void loadCameraParams();
+  void loadSceneMetadata();
 };
 #endif
