@@ -5,9 +5,13 @@
 #include "scene_model.h"
 #include "3rdparty/json.hpp"
 
+namespace fs = std::filesystem;
+using json = nlohmann::json;
+
 SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : datasetPath(datasetFolder),
                                                                             keypoints(), boundingBoxes() {
   loadCameraParams();
+  loadSceneMetadata();
   if (rayTracing) {
     initRayTracing();
   }
@@ -246,3 +250,37 @@ void SceneModel::loadCameraParams() {
   imageHeight = json["height"];
   imageWidth = json["width"];
 }
+
+void SceneModel::loadSceneMetadata() {
+  auto metadataPath = datasetPath.parent_path() / "metadata.json";
+  if (fs::exists(metadataPath)) {
+    std::ifstream file(metadataPath.string());
+    json jsonData;
+    file >> jsonData;
+    datasetMetadata.numClasses = jsonData.contains("num_classes") ? jsonData["num_classes"].get<int>() : 10;
+    for (auto& instance : jsonData["instances"]) {
+      int instanceId = instance["instance_id"].get<int>();
+      InstanceMetadata instanceMetadata;
+      if (instance.contains("name")) {
+        instanceMetadata.name = instance["name"].get<std::string>();
+      } else {
+        std::stringstream stream;
+        stream << "Instance " << instanceId;
+        instanceMetadata.name = stream.str();
+      }
+      if (instance.contains("size")) {
+        Vector3f size(instance["size"][0].get<float>(), instance["size"][1].get<float>(), instance["size"][2].get<float>());
+        instanceMetadata.size = size;
+      }
+      datasetMetadata.instanceMetadata[instanceId] = instanceMetadata;
+    }
+    for (int i=0; i < datasetMetadata.numClasses; i++) {
+      if (!datasetMetadata.instanceMetadata.contains(i)) {
+        std::stringstream stream;
+        stream << "Instance " << i;
+        datasetMetadata.instanceMetadata[i] = { .name = stream.str() };
+      }
+    }
+  }
+}
+

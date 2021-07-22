@@ -111,6 +111,10 @@ private:
   void listImages() {
     auto colorDir = datasetPath / "color";
     for (auto& p : fs::directory_iterator(colorDir)) {
+      // Skip if dotfile.
+      if (p.path().filename().string().at(0) == '.') {
+        continue;
+      }
       colorImages.push_back(p.path());
     }
     std::sort(colorImages.begin(), colorImages.end());

@@ -131,8 +131,10 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
   } else if ('0' <= character && character <= '9') {
     const int codePoint0Char = 48;
     int integerValue = int(character) - codePoint0Char;
-    sceneModel.currentInstanceId = integerValue;
-    getActiveToolView().keypress(character, mod);
+    if (integerValue < sceneModel.datasetMetadata.numClasses) {
+      sceneModel.currentInstanceId = integerValue;
+      getActiveToolView().keypress(character, mod);
+    }
   }
   return false;
 }
