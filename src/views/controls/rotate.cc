@@ -7,6 +7,7 @@
 #include "views/controls/control.h"
 #include "shader_utils.h"
 #include "geometry/mesh.h"
+#include "asset_utils.h"
 #include <iostream>
 
 namespace views::controls {
@@ -24,7 +25,8 @@ RotateControl::RotateControl(int viewId, std::function<void(const Transform<floa
   transform_Wy.rotate(rotation_Fy);
   transform_Wz.rotate(rotation_Fz);
 
-  auto diskMesh = std::make_shared<geometry::Mesh>("../assets/disk.ply", Matrix4f::Identity(), 0.001);
+  std::filesystem::path assetDir = asset_utils::findAssetDirectory();
+  auto diskMesh = std::make_shared<geometry::Mesh>((assetDir / "disk.ply").string(), Matrix4f::Identity(), 0.001);
   diskDrawable = std::make_shared<views::MeshDrawable>(diskMesh);
   rtDiskMesh = std::make_unique<geometry::RayTraceMesh>(diskMesh);
 

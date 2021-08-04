@@ -19,8 +19,8 @@ TranslateControl::TranslateControl(int viewId, std::function<void(const Vector3f
   yTransform.rotate(yRotation);
   zTransform.rotate(zRotation);
 
-  std::string assetDir = asset_utils::findAssetDirectory();
-  auto xAxisMesh = std::make_shared<geometry::Mesh>(assetDir + "x_axis.ply", Matrix4f::Identity(), 0.5);
+  std::filesystem::path assetDir = asset_utils::findAssetDirectory();
+  auto xAxisMesh = std::make_shared<geometry::Mesh>((assetDir / "x_axis.ply").string(), Matrix4f::Identity(), 0.5);
   xAxisDrawable = std::make_shared<views::MeshDrawable>(xAxisMesh);
   rtAxisMesh = std::make_unique<geometry::RayTraceMesh>(xAxisMesh);
 

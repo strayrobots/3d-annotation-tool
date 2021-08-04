@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
+#include <filesystem>
 
 namespace asset_utils {
-std::string findAssetDirectory();
+std::filesystem::path findAssetDirectory();
 };
