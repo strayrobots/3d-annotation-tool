@@ -1,8 +1,18 @@
 #!/bin/bash
 
 set -e
-# tmp_dir="$(mktemp -d)"
-tmp_dir="$(pwd)"
+
+delete_build_dir=0
+# Create a temporary directory if the script is not run from the build or project folder with an existing build folder.
+# Saves time to not have to build from scratch.
+if [ -f "$(pwd)/CMakeCache.txt" ]; then
+  tmp_dir=$(pwd)
+elif [ -f "$(pwd)/build/CMakeCache.txt" ]; then
+  tmp_dir="$(pwd)/build"
+else
+  tmp_dir="$(mktemp -d)"
+  delete_build_dir=1
+fi
 source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo "building $source_dir in $tmp_dir"
@@ -31,5 +41,7 @@ s3cmd setacl $destination --acl-public
 
 popd
 
-# rm -rf $tmp_dir
+if [ $delete_build_dir = 1 ]; then
+  rm -rf $tmp_dir
+fi
 

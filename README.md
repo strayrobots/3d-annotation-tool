@@ -43,3 +43,10 @@ Install clang-format on Ubuntu:
 
  There's a script that runs formatting on all .h and .cc files based on the .clang-format file. Usage: `./run_formatting`
 
+## Deploying
+
+To deploy package the package, first install `s3cmd` with `brew install s3cmd` or `sudo apt-get install s3cmd`. Then follow the instructions [here](https://docs.digitalocean.com/products/spaces/resources/s3cmd/) to configure it to with your access key to access the stray-build bucket.
+
+Deploy by running the script `./deploy.sh`. It will build the project from scratch and upload the binary to Digital Ocean for the current platform and machine architecture.
+
+
