@@ -9,7 +9,7 @@ find_package(PkgConfig)
 pkg_search_module(Eigen3 REQUIRED eigen3)
 find_package(glfw3 REQUIRED)
 find_package(OpenMP REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
@@ -26,17 +26,18 @@ include(cmake/shaders.cmake)
 
 include_directories("submodules/bgfx/bgfx/examples")
 include_directories("submodules/bgfx/bgfx/3rdparty")
+link_directories(${Boost_LIBRARY_DIRS})
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cc)
 file(GLOB_RECURSE BGFX_COMMON submodules/bgfx/bgfx/examples/common/font/*.cpp
   submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
 add_executable(studio ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
 target_compile_options(studio PRIVATE -Wall)
-target_link_libraries(studio bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
+target_link_libraries(studio bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX ${Boost_LIBRARIES})
 
 add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
-target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX)
+target_link_libraries(preview bgfx bx bimg glfw ${eigen3_LIBRARIES} OpenMP::OpenMP_CXX ${Boost_LIBRARIES})
 
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)
 add_shaders(studio SHADERS ${SHADER_FILES})

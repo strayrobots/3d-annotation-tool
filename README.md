@@ -7,7 +7,7 @@ System package dependecies are:
 - eigen3
 - OpenMP
 
-On Ubuntu these can be installed with `sudo apt-get libeigen3-dev libglfw3-dev libomp-dev`.
+On Ubuntu these can be installed with `sudo apt-get install libeigen3-dev libglfw3-dev libomp-dev`.
 
 Initialize submodules with `git submodule update --init --recursive`. Initialize git large file storage using `git lfs install`.
 
