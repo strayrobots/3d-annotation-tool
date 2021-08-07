@@ -1,8 +1,11 @@
 #include <filesystem>
 #include "shader_utils.h"
 #include <iostream>
+#include <boost/dll.hpp>
 
 namespace shader_utils {
+
+namespace fs = std::filesystem;
 
 const bgfx::Memory* loadMemory(bx::FileReaderI* _reader, const char* _filePath) {
   if (bx::open(_reader, _filePath)) {
@@ -22,8 +25,10 @@ bgfx::ShaderHandle loadShader(bx::FileReader* reader, const char* _name) {
   if (std::filesystem::exists("compiled_shaders")) {
     shaderPath = "compiled_shaders/";
   } else {
-    if (std::filesystem::exists("/usr/local/share/stray/compiled_shaders")) {
-      shaderPath = "/usr/local/share/stray/compiled_shaders/";
+    fs::path currentPath(boost::dll::program_location().string());
+    auto sharePath = currentPath.parent_path().parent_path() / "share" / "stray";
+    if (std::filesystem::exists(sharePath)) {
+      shaderPath = (sharePath / "compiled_shaders/").string();
     } else {
       std::cout << "Can't find shader directory." << std::endl;
       exit(EXIT_FAILURE);
