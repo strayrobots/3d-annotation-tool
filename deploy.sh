@@ -36,8 +36,8 @@ echo "architecture: $arch"
 destination="s3://stray-builds/studio/$platform/$arch/latest/studio.tar.gz"
 echo "Uploading to $destination"
 
-# s3cmd put $archive_name $destination
-# s3cmd setacl $destination --acl-public
+s3cmd put $archive_name $destination
+s3cmd setacl $destination --acl-public
 
 popd
 
