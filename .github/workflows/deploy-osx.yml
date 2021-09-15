@@ -1,0 +1,31 @@
+name: Deploy MacOS
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Deploy:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: true
+      - name: Get submodules
+        run: git submodule update --init --recursive
+      - name: Install dependencies
+        run: |
+          brew install cmake ninja glfw libomp eigen boost googletest s3cmd
+      - name: Create s3cmd config
+        run: |
+          echo "[default]" >> $HOME/.s3cfg
+          echo "access_key = ${{ secrets.SPACES_ACCESS_KEY }}" >> $HOME/.s3cfg
+          echo "host_base = ams3.digitaloceanspaces.com" >> $HOME/.s3cfg
+          echo "host_bucket = %(bucket)s.ams3.digitaloceanspaces.com" >> $HOME/.s3cfg
+          echo "secret_key = ${{ secrets.SPACES_SECRET_KEY }}" >> $HOME/.s3cfg
+
+      - name: Deploy project
+        run: |
+          ./deploy.sh
+
