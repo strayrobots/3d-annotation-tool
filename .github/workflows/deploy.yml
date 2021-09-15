@@ -1,0 +1,23 @@
+name: Run tests
+on:
+  push:
+    branches:
+      - test
+jobs:
+  Run-Tests:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: true
+      - name: Get submodules
+        run: git submodule update --init --recursive
+      - name: Install dependencies
+        run: |
+          brew install cmake ninja-build eigen boost
+      - name: Deploy project
+        run: |
+          ./deploy.sh
+
