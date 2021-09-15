@@ -1,5 +1,5 @@
 name: Run tests
-on: [pull-request]
+on: [push]
 jobs:
   Run-Tests:
     runs-on: ubuntu-latest

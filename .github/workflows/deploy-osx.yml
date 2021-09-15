@@ -1,8 +1,8 @@
-name: Deploy binaries
+name: Deploy MacOS
 on:
   push:
     branches:
-      - test
+      - main
 jobs:
   Deploy:
     runs-on: macos-latest
