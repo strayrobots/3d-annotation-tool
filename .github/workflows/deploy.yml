@@ -4,7 +4,7 @@ on:
     branches:
       - test
 jobs:
-  Run-Tests:
+  Deploy:
     runs-on: macos-latest
     steps:
       - name: Check out repository code
@@ -16,7 +16,7 @@ jobs:
         run: git submodule update --init --recursive
       - name: Install dependencies
         run: |
-          brew install cmake ninja glfw libomp eigen boost s3cmd
+          brew install cmake ninja glfw libomp eigen boost googletest s3cmd
       - name: Deploy project
         run: |
           ./deploy.sh
