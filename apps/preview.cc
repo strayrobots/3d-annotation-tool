@@ -50,7 +50,7 @@ public:
       scene(folder, false),
       viewContext(scene.sceneCamera()),
       annotationView(scene, 1) {
-    listImages();
+    colorImages = scene.imagePaths();
     scene.load();
     cameraPoses = scene.cameraTrajectory();
     imageView = std::make_unique<views::ImagePane>(colorImages[0], 0);
@@ -105,19 +105,6 @@ public:
     bgfx::frame();
     glfwWaitEventsTimeout(0.025);
     return !glfwWindowShouldClose(window);
-  }
-
-private:
-  void listImages() {
-    auto colorDir = datasetPath / "color";
-    for (auto& p : fs::directory_iterator(colorDir)) {
-      // Skip if dotfile.
-      if (p.path().filename().string().at(0) == '.') {
-        continue;
-      }
-      colorImages.push_back(p.path());
-    }
-    std::sort(colorImages.begin(), colorImages.end());
   }
 };
 

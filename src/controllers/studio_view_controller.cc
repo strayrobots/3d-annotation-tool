@@ -2,13 +2,16 @@
 #include <cassert>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
+#include "id.h"
 
 using namespace commands;
+using namespace views;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl, int viewId) : viewId(viewId), sceneModel(model),
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
                                                                                           viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
                                                                                           addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
-                                                                                          statusBarView(model) {}
+                                                                                          statusBarView(model, IdFactory::getInstance().getId()),
+                                                                                          preview(model, IdFactory::getInstance().getId()) {}
 
 void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
@@ -17,6 +20,8 @@ void StudioViewController::viewWillAppear(int width, int height) {
   viewContext.height = height - views::StatusBarHeight;
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+  preview.viewWillAppear(width, height);
+  setViewRects();
 }
 
 views::View3D& StudioViewController::getActiveToolView() {
@@ -48,14 +53,19 @@ void StudioViewController::render() const {
   } else {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
-  views::Rect rect = {.x = 0, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
-  statusBarView.render(rect);
+  statusBarView.render();
+  preview.render();
 }
 
 // Input handling.
 bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+
+  if (preview.leftButtonDown(viewContext)) {
+    return true;
+  }
+
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
@@ -70,6 +80,9 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
+    if (preview.leftButtonUp(viewContext)) {
+      return true;
+    }
     if (getActiveToolView().leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
@@ -116,6 +129,23 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
 void StudioViewController::resize(int width, int height, InputModifier mod) {
   viewContext.width = width;
   viewContext.height = height - views::StatusBarHeight;
+  setViewRects();
+}
+
+void StudioViewController::setViewRects() {
+  views::Rect statusBarRect = {.x = 0, .y = float(viewContext.height),
+    .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+  statusBarView.setRect(statusBarRect);
+
+  float previewWidth = 0.25 * viewContext.width;
+  float previewHeight = 0.75 * previewWidth;
+  Rect previewRect = {
+    .x = float(viewContext.width - previewWidth),
+    .y = 0.0,
+    .width = previewWidth,
+    .height = previewHeight
+  };
+  preview.setRect(previewRect);
 }
 
 bool StudioViewController::keypress(char character, InputModifier mod) {

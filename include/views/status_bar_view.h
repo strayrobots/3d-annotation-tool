@@ -9,7 +9,7 @@ namespace views {
 const int StatusBarFontSize = 16;
 const int StatusBarHeight = 24;
 
-class StatusBarView : public views::View3D {
+class StatusBarView : public views::View {
 private:
   const SceneModel& model;
   FontManager* fontManager;
@@ -20,8 +20,8 @@ private:
   int instanceTextWidth;
 
 public:
-  StatusBarView(const SceneModel& model);
+  StatusBarView(const SceneModel& model, int viewId);
   ~StatusBarView();
-  void render(const Rect& rect) const;
+  void render() const;
 };
 } // namespace views

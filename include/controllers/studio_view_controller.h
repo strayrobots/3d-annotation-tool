@@ -6,7 +6,7 @@
 #include "scene_model.h"
 #include "view_context_3d.h"
 #include "glfw_app.h"
-#include "controllers/controller.h"
+#include "controllers/preview_controller.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
 #include "views/move_keypoint_view.h"
@@ -32,8 +32,10 @@ private:
   views::AddBBoxView addBBoxView;
   views::StatusBarView statusBarView;
 
+  // Sub-controllers
+  controllers::PreviewController preview;
 public:
-  StudioViewController(SceneModel& model, Timeline& timeline, int viewId);
+  StudioViewController(SceneModel& model, Timeline& timeline);
   void viewWillAppear(int width, int height);
 
   void render() const;
@@ -48,4 +50,5 @@ public:
 
 private:
   views::View3D& getActiveToolView();
+  void setViewRects();
 };

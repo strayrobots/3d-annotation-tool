@@ -42,9 +42,11 @@ enum ActiveTool {
   BBoxToolId
 };
 
+namespace fs = std::filesystem;
+
 class SceneModel {
 private:
-  std::filesystem::path datasetPath;
+  fs::path datasetPath;
 
   std::shared_ptr<geometry::TriangleMesh> mesh;
   std::optional<geometry::RayTraceMesh> rtMesh;
@@ -88,6 +90,7 @@ public:
 
   Camera sceneCamera() const;
   std::pair<int, int> imageSize() const;
+  std::vector<fs::path> imagePaths() const;
   std::vector<Matrix4f> cameraTrajectory() const;
 
   void save() const;
