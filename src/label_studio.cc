@@ -84,7 +84,7 @@ void LabelStudio::scroll(double xoffset, double yoffset) {
 void LabelStudio::resize(int newWidth, int newHeight) {
   GLFWApp::resize(newWidth, newHeight);
   views::Rect rect = { 0.0f, 0.0f, float(newWidth), float(newHeight) };
-  studioViewController.resize(rect, inputModifier);
+  studioViewController.resize(rect);
 }
 
 bool LabelStudio::update() const {

@@ -6,6 +6,7 @@
 #include "scene_model.h"
 #include "view_context_3d.h"
 #include "glfw_app.h"
+#include "controllers/controller.h"
 #include "controllers/preview_controller.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
@@ -13,7 +14,7 @@
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
 
-class StudioViewController {
+class StudioViewController : public controllers::Controller {
 private:
   int viewId;
   SceneModel& sceneModel;
@@ -33,10 +34,10 @@ private:
   views::StatusBarView statusBarView;
 
   // Sub-controllers
-  controllers::PreviewController preview;
+  std::shared_ptr<controllers::PreviewController> preview;
 public:
   StudioViewController(SceneModel& model, Timeline& timeline);
-  void viewWillAppear(const views::Rect& r);
+  void viewWillAppear(const views::Rect& r) override;
 
   void render() const;
   void refresh();
@@ -45,8 +46,8 @@ public:
   bool leftButtonUp(double x, double y, InputModifier mod);
   bool mouseMoved(double x, double y, InputModifier mod);
   bool scroll(double xoffset, double yoffset, InputModifier mod);
-  bool keypress(char character, InputModifier mod);
-  void resize(const views::Rect& r, InputModifier mod);
+  bool keypress(char character, const InputModifier mod) override;
+  void resize(const views::Rect& r) override;
 private:
   views::View3D& getActiveToolView();
   views::Rect previewRect() const;

@@ -17,7 +17,7 @@ PreviewController::PreviewController(const SceneModel& scene, int viewId) : view
 }
 
 void PreviewController::viewWillAppear(const views::Rect& rect) {
-  Controller::viewWillAppear(rect);
+  Controller3D::viewWillAppear(rect);
   viewContext.width = rect.width;
   viewContext.height = rect.height;
   bgfx::setViewClear(viewId, BGFX_CLEAR_DEPTH, 1.0f);
@@ -34,6 +34,14 @@ bool PreviewController::leftButtonUp(const ViewContext3D& viewContext) {
 
 bool PreviewController::leftButtonDown(const ViewContext3D& viewContext) {
   return rect.hit(viewContext);
+}
+
+bool PreviewController::keypress(char keypress, const InputModifier mod) {
+  if (keypress == 'R' && mod == ModNone) {
+    setRandomImage();
+    return true;
+  }
+  return false;
 }
 
 void PreviewController::setRandomImage() {

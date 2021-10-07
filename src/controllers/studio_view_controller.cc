@@ -10,8 +10,10 @@ using namespace views;
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
                                                                                           viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
                                                                                           addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
-                                                                                          statusBarView(model, IdFactory::getInstance().getId()),
-                                                                                          preview(model, IdFactory::getInstance().getId()) {}
+                                                                                          statusBarView(model, IdFactory::getInstance().getId()) {
+  preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
+  addSubController(std::static_pointer_cast<controllers::Controller>(preview));
+}
 
 void StudioViewController::viewWillAppear(const views::Rect& rect) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
@@ -20,7 +22,7 @@ void StudioViewController::viewWillAppear(const views::Rect& rect) {
   viewContext.height = rect.height - views::StatusBarHeight;
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-  preview.viewWillAppear(previewRect());
+  preview->viewWillAppear(previewRect());
   statusBarView.setRect(statusBarRect());
 }
 
@@ -54,7 +56,7 @@ void StudioViewController::render() const {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
   statusBarView.render();
-  preview.render();
+  preview->render();
 }
 
 // Input handling.
@@ -62,7 +64,7 @@ bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod)
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
 
-  if (preview.leftButtonDown(viewContext)) {
+  if (preview->leftButtonDown(viewContext)) {
     return true;
   }
 
@@ -80,7 +82,7 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
-    if (preview.leftButtonUp(viewContext)) {
+    if (preview->leftButtonUp(viewContext)) {
       return true;
     }
     if (getActiveToolView().leftButtonUp(viewContext)) {
@@ -126,14 +128,15 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
   return true;
 }
 
-void StudioViewController::resize(const views::Rect& rect, InputModifier mod) {
+void StudioViewController::resize(const views::Rect& rect) {
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
-  preview.resize(previewRect());
+  preview->resize(previewRect());
   statusBarView.setRect(statusBarRect());
 }
 
-bool StudioViewController::keypress(char character, InputModifier mod) {
+bool StudioViewController::keypress(char character, const InputModifier mod) {
+  Controller::keypress(character, mod);
   if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
