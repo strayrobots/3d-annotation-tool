@@ -1,4 +1,6 @@
 #pragma once
+#include <list>
+#include <memory>
 #include "view_context_3d.h"
 #include "id.h"
 #include "input.h"

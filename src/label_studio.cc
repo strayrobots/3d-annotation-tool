@@ -52,7 +52,8 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 80
     }
   });
 
-  studioViewController.viewWillAppear(width, height);
+  views::Rect rect = { 0.0f, 0.0f, float(width), float(height) };
+  studioViewController.viewWillAppear(rect);
   loadState();
 }
 
@@ -82,7 +83,8 @@ void LabelStudio::scroll(double xoffset, double yoffset) {
 
 void LabelStudio::resize(int newWidth, int newHeight) {
   GLFWApp::resize(newWidth, newHeight);
-  studioViewController.resize(newWidth, newHeight, inputModifier);
+  views::Rect rect = { 0.0f, 0.0f, float(newWidth), float(newHeight) };
+  studioViewController.resize(rect, inputModifier);
 }
 
 bool LabelStudio::update() const {

@@ -4,10 +4,9 @@
 
 namespace views {
 
-AnnotationView::AnnotationView(SceneModel& model, int id) : View3D(id), sceneModel(model),
+AnnotationView::AnnotationView(const SceneModel& model, int id) : View3D(id), sceneModel(model),
                                                             sphereDrawable(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01), viewId),
-                                                            bboxView(viewId) {
-}
+                                                            bboxView(viewId) {}
 
 void AnnotationView::render(const ViewContext3D& context) const {
   const auto keypoints = sceneModel.getKeypoints();

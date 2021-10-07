@@ -8,14 +8,14 @@ namespace views {
 
 class AnnotationView : public views::View3D {
 private:
-  SceneModel& sceneModel;
+  const SceneModel& sceneModel;
   views::MeshDrawable sphereDrawable;
   BBoxView bboxView;
 
   Vector4f lightDir = Vector4f(0.0, 1.0, -1.0, 1.0);
 
 public:
-  AnnotationView(SceneModel& model, int viewId = -1);
+  AnnotationView(const SceneModel& model, int viewId = -1);
   void render(const ViewContext3D& context) const;
 };
 } // namespace views

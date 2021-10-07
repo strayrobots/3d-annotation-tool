@@ -36,7 +36,7 @@ private:
   controllers::PreviewController preview;
 public:
   StudioViewController(SceneModel& model, Timeline& timeline);
-  void viewWillAppear(int width, int height);
+  void viewWillAppear(const views::Rect& r);
 
   void render() const;
   void refresh();
@@ -46,9 +46,9 @@ public:
   bool mouseMoved(double x, double y, InputModifier mod);
   bool scroll(double xoffset, double yoffset, InputModifier mod);
   bool keypress(char character, InputModifier mod);
-  void resize(int width, int height, InputModifier mod);
-
+  void resize(const views::Rect& r, InputModifier mod);
 private:
   views::View3D& getActiveToolView();
-  void setViewRects();
+  views::Rect previewRect() const;
+  views::Rect statusBarRect() const;
 };

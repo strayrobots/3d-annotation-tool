@@ -13,15 +13,15 @@ StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : vi
                                                                                           statusBarView(model, IdFactory::getInstance().getId()),
                                                                                           preview(model, IdFactory::getInstance().getId()) {}
 
-void StudioViewController::viewWillAppear(int width, int height) {
+void StudioViewController::viewWillAppear(const views::Rect& rect) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
-  viewContext.width = width;
-  viewContext.height = height - views::StatusBarHeight;
+  viewContext.width = rect.width;
+  viewContext.height = rect.height - views::StatusBarHeight;
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-  preview.viewWillAppear(width, height);
-  setViewRects();
+  preview.viewWillAppear(previewRect());
+  statusBarView.setRect(statusBarRect());
 }
 
 views::View3D& StudioViewController::getActiveToolView() {
@@ -126,26 +126,11 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
   return true;
 }
 
-void StudioViewController::resize(int width, int height, InputModifier mod) {
-  viewContext.width = width;
-  viewContext.height = height - views::StatusBarHeight;
-  setViewRects();
-}
-
-void StudioViewController::setViewRects() {
-  views::Rect statusBarRect = {.x = 0, .y = float(viewContext.height),
-    .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
-  statusBarView.setRect(statusBarRect);
-
-  float previewWidth = 0.25 * viewContext.width;
-  float previewHeight = 0.75 * previewWidth;
-  Rect previewRect = {
-    .x = float(viewContext.width - previewWidth),
-    .y = 0.0,
-    .width = previewWidth,
-    .height = previewHeight
-  };
-  preview.setRect(previewRect);
+void StudioViewController::resize(const views::Rect& rect, InputModifier mod) {
+  viewContext.width = rect.width;
+  viewContext.height = rect.height - views::StatusBarHeight;
+  preview.resize(previewRect());
+  statusBarView.setRect(statusBarRect());
 }
 
 bool StudioViewController::keypress(char character, InputModifier mod) {
@@ -168,3 +153,20 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
   }
   return false;
 }
+
+views::Rect StudioViewController::previewRect() const {
+  float previewWidth = 0.25 * viewContext.width;
+  float previewHeight = 0.75 * previewWidth;
+  return {
+    .x = float(viewContext.width - previewWidth),
+    .y = 0.0,
+    .width = previewWidth,
+    .height = previewHeight
+  };
+}
+
+views::Rect StudioViewController::statusBarRect() const {
+  return {.x = 0, .y = float(viewContext.height),
+    .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+}
+

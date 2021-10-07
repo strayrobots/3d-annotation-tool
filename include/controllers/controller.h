@@ -14,7 +14,11 @@ public:
    * Controllers are then managed in a hierarchy, where the parents
    * are free to choose how to route and handle events.
    */
-  virtual void viewWillAppear(int width, int height){};
+  virtual void viewWillAppear(const views::Rect& r) { setRect(r); };
+  /*
+   * Should be called on resize and on appear. Basically, whenever
+   * the rect changes.
+   */
   void setRect(const views::Rect& newRect) {
     rect = newRect;
   };
@@ -32,5 +36,7 @@ public:
   virtual bool mouseMoved(const ViewContext3D& viewContext) { return false; };
   virtual bool scroll(double xoffset, double yoffset) { return false; };
   virtual bool keypress(char character) { return false; };
+
+  virtual void resize(const views::Rect& r) { setRect(r); };
 };
 } // namespace controllers
