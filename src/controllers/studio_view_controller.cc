@@ -11,6 +11,7 @@ StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : vi
                                                                                           viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
                                                                                           addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
                                                                                           statusBarView(model, IdFactory::getInstance().getId()) {
+  imageSize = model.imageSize();
   preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
   addSubController(std::static_pointer_cast<controllers::Controller>(preview));
 }
@@ -158,8 +159,9 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
 }
 
 views::Rect StudioViewController::previewRect() const {
+  float aspectRatio = float(imageSize.second) / float(imageSize.first);
   float previewWidth = 0.25 * viewContext.width;
-  float previewHeight = 0.75 * previewWidth;
+  float previewHeight = aspectRatio * previewWidth;
   return {
     .x = float(viewContext.width - previewWidth),
     .y = 0.0,

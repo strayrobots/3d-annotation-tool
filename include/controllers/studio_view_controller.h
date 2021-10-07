@@ -18,6 +18,7 @@ class StudioViewController : public controllers::Controller {
 private:
   int viewId;
   SceneModel& sceneModel;
+  std::pair<int, int> imageSize;
 
   // Changing view point.
   double prevX, prevY;
