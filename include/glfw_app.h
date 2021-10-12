@@ -17,8 +17,8 @@ protected:
   int height = 600;
 
 public:
-  GLFWApp(std::string name);
-  ~GLFWApp();
+  GLFWApp(std::string name, int width = 800, int height = 600);
+  virtual ~GLFWApp();
   virtual void resize(int newWidth, int newHeight);
   void setView(std::shared_ptr<views::View> v);
   virtual bool update() const = 0;

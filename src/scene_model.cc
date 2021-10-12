@@ -92,6 +92,20 @@ std::optional<BBox> SceneModel::getBoundingBox(int id) const {
   return {};
 }
 
+std::vector<fs::path> SceneModel::imagePaths() const {
+  std::vector<fs::path> colorImages;
+  auto colorDir = datasetPath / "color";
+  for (auto& p : fs::directory_iterator(colorDir)) {
+    // Skip if dotfile.
+    if (p.path().filename().string().at(0) == '.') {
+      continue;
+    }
+    colorImages.push_back(p.path());
+  }
+  std::sort(colorImages.begin(), colorImages.end());
+  return colorImages;
+}
+
 void SceneModel::addBoundingBox(BBox& bbox) {
   bbox.id = boundingBoxes.size() + 1;
   boundingBoxes.push_back(bbox);

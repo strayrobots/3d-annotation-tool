@@ -44,7 +44,7 @@ TrueTypeHandle loadTtf(FontManager* fontManager, const char* filePath) {
   return invalid;
 }
 
-StatusBarView::StatusBarView(const SceneModel& model) : views::View3D(viewId), model(model) {
+StatusBarView::StatusBarView(const SceneModel& model, int viewId) : views::View(viewId), model(model) {
   fontManager = new FontManager(512);
   bufferManager = new TextBufferManager(fontManager);
 
@@ -76,7 +76,7 @@ StatusBarView::StatusBarView(const SceneModel& model) : views::View3D(viewId), m
 StatusBarView::~StatusBarView() {
 }
 
-void StatusBarView::render(const Rect& rect) const {
+void StatusBarView::render() const {
   const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
   const bx::Vec3 eye = {0.0f, 0.0f, -1.0f};
   float view[16];

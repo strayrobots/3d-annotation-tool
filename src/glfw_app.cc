@@ -44,7 +44,7 @@ static void errorCb(int _error, const char* _description) {
   std::cout << "GLFW error " << _error << ":" << _description << std::endl;
 }
 
-GLFWApp::GLFWApp(std::string name) {
+GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
   glfwSetErrorCallback(errorCb);
   if (!glfwInit()) {
     std::cout << "Could not initialize glfw" << std::endl;

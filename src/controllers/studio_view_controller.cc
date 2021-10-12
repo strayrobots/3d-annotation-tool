@@ -2,21 +2,29 @@
 #include <cassert>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
+#include "id.h"
 
 using namespace commands;
+using namespace views;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl, int viewId) : viewId(viewId), sceneModel(model),
+StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
                                                                                           viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
                                                                                           addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
-                                                                                          statusBarView(model) {}
+                                                                                          statusBarView(model, IdFactory::getInstance().getId()) {
+  imageSize = model.imageSize();
+  preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
+  addSubController(std::static_pointer_cast<controllers::Controller>(preview));
+}
 
-void StudioViewController::viewWillAppear(int width, int height) {
+void StudioViewController::viewWillAppear(const views::Rect& rect) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
-  viewContext.width = width;
-  viewContext.height = height - views::StatusBarHeight;
+  viewContext.width = rect.width;
+  viewContext.height = rect.height - views::StatusBarHeight;
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+  preview->viewWillAppear(previewRect());
+  statusBarView.setRect(statusBarRect());
 }
 
 views::View3D& StudioViewController::getActiveToolView() {
@@ -48,14 +56,19 @@ void StudioViewController::render() const {
   } else {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
   }
-  views::Rect rect = {.x = 0, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
-  statusBarView.render(rect);
+  statusBarView.render();
+  preview->render();
 }
 
 // Input handling.
 bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+
+  if (preview->leftButtonDown(viewContext)) {
+    return true;
+  }
+
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
@@ -70,6 +83,9 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
   if (!moved) {
+    if (preview->leftButtonUp(viewContext)) {
+      return true;
+    }
     if (getActiveToolView().leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
@@ -113,12 +129,15 @@ bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier 
   return true;
 }
 
-void StudioViewController::resize(int width, int height, InputModifier mod) {
-  viewContext.width = width;
-  viewContext.height = height - views::StatusBarHeight;
+void StudioViewController::resize(const views::Rect& rect) {
+  viewContext.width = rect.width;
+  viewContext.height = rect.height - views::StatusBarHeight;
+  preview->resize(previewRect());
+  statusBarView.setRect(statusBarRect());
 }
 
-bool StudioViewController::keypress(char character, InputModifier mod) {
+bool StudioViewController::keypress(char character, const InputModifier mod) {
+  Controller::keypress(character, mod);
   if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
@@ -138,3 +157,21 @@ bool StudioViewController::keypress(char character, InputModifier mod) {
   }
   return false;
 }
+
+views::Rect StudioViewController::previewRect() const {
+  float aspectRatio = float(imageSize.second) / float(imageSize.first);
+  float previewWidth = 0.25 * viewContext.width;
+  float previewHeight = aspectRatio * previewWidth;
+  return {
+    .x = float(viewContext.width - previewWidth),
+    .y = 0.0,
+    .width = previewWidth,
+    .height = previewHeight
+  };
+}
+
+views::Rect StudioViewController::statusBarRect() const {
+  return {.x = 0, .y = float(viewContext.height),
+    .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+}
+
