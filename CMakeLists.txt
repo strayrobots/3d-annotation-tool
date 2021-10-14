@@ -16,12 +16,18 @@ set(BGFX_BUILD_EXAMPLES OFF)
 
 find_package(PkgConfig)
 pkg_search_module(Eigen3 REQUIRED eigen3)
-find_package(glfw3 REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
 find_package(OpenMP REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 
+if (APPLE)
+  find_library(COCOA_LIBRARY Cocoa)
+  find_library(CF_LIBRARY CoreFoundation)
+  find_library(IOKIT_LIBRARY IOKit)
+  set(EXTRA_LIBS ${COCOA_LIBRARY} ${CF_LIBRARY} ${IOKIT_LIBRARY})
+endif(APPLE)
 
-include_directories(include ${eigen3_INCLUDE_DIRS} ${boost_INCLUDE_DIRS})
+include_directories(include ${GLFW_INCLUDE_DIRS} ${eigen3_INCLUDE_DIRS} ${boost_INCLUDE_DIRS})
 add_subdirectory(submodules/bgfx)
 include(cmake/shaders.cmake)
 
@@ -34,11 +40,11 @@ file(GLOB_RECURSE BGFX_COMMON submodules/bgfx/bgfx/examples/common/font/*.cpp
   submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
 add_executable(studio ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
 target_compile_options(studio PRIVATE -Wall)
-target_link_libraries(studio PRIVATE bgfx bx bimg glfw ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(studio PRIVATE bgfx bx bimg ${GLFW_STATIC_LIBRARIES} ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES} ${EXTRA_LIBS})
 
 add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
-target_link_libraries(preview PRIVATE bgfx bx bimg glfw ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(preview PRIVATE bgfx bx bimg ${GLFW_STATIC_LIBRARIES} ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES} ${EXTRA_LIBS})
 
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)
 add_shaders(studio SHADERS ${SHADER_FILES})
