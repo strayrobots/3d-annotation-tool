@@ -10,7 +10,7 @@ file(GLOB_RECURSE BGFX_COMMON ${CMAKE_SOURCE_DIR}/submodules/bgfx/bgfx/examples/
   ${CMAKE_SOURCE_DIR}/submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
 
 add_library(shared_lib ${LIB_FILES} ${BGFX_COMMON})
-target_link_libraries(shared_lib bgfx bx bimg ${eigen3_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(shared_lib bgfx bx bimg ${GLFW_STATIC_LIBRARIES} ${eigen3_LIBRARIES} ${Boost_LIBRARIES} ${EXTRA_LIBS})
 
 add_custom_target(build_tests)
 add_dependencies(build_tests shaders)
