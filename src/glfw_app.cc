@@ -52,8 +52,8 @@ GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
   }
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #else
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
