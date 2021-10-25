@@ -58,10 +58,12 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 80
 }
 
 void LabelStudio::setInputModifier(int mods) {
+  inputModifier = ModNone;
   if (mods == CommandModifier) {
     inputModifier = inputModifier | ModCommand; //Only set bits of inputModifier
-  } else {
-    inputModifier = ModNone;
+  }
+  if (mods == ShiftModifer) {
+    inputModifier = inputModifier | ModShift;
   }
 }
 

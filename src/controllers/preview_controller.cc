@@ -37,7 +37,7 @@ bool PreviewController::leftButtonDown(const ViewContext3D& viewContext) {
 }
 
 bool PreviewController::keypress(char keypress, const InputModifier mod) {
-  if (keypress == 'R' && mod == ModNone) {
+  if (keypress == 'R' && mod == ModCommand) {
     setRandomImage();
     return true;
   }

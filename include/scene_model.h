@@ -39,7 +39,8 @@ struct DatasetMetadata {
 enum ActiveTool {
   AddKeypointToolId,
   MoveKeypointToolId,
-  BBoxToolId
+  BBoxToolId,
+  AddRectangleToolId
 };
 
 namespace fs = std::filesystem;
