@@ -55,7 +55,10 @@ void StudioViewController::render() const {
     moveKeypointView.render(viewContext);
   } else if (sceneModel.activeToolId == BBoxToolId) {
     addBBoxView.render(viewContext);
+  } else if (sceneModel.activeToolId == AddRectangleToolId) {
+    addRectangleView.render(viewContext);
   }
+
   if (sceneModel.activeToolId == AddKeypointToolId || sceneModel.activeToolId == AddRectangleToolId) {
     sceneMeshView.render(viewContext);
   } else {
