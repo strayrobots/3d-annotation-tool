@@ -4,11 +4,16 @@
 
 namespace views {
 
-static const uint16_t indices[] = { 0, 2, 1, 1, 3, 0 };
+static const uint16_t indices[] = {
+  0, 1, 2,
+  0, 2, 1,
+  0, 2, 3,
+  0, 3, 2,
+}; // Render triangles both front and back.
 static const float textureCoordinates[4][2] = {
-  {0.0f, 0.0f},
   {1.0f, 1.0f},
   {1.0f, 0.0f},
+  {0.0f, 0.0f},
   {0.0f, 1.0f},
 };
 
@@ -53,7 +58,13 @@ void RectangleView::render(const ViewContext3D& context) const {
 
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
-  bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_BLEND_ALPHA);
+  bgfx::setState(BGFX_STATE_DEFAULT
+      | BGFX_STATE_WRITE_RGB
+      | BGFX_STATE_WRITE_A
+      | BGFX_STATE_WRITE_Z
+      | BGFX_STATE_DEPTH_TEST_LESS
+      | BGFX_STATE_BLEND_ALPHA
+      | BGFX_STATE_MSAA);
   bgfx::submit(viewId, program);
 }
 
