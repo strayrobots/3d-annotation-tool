@@ -111,14 +111,20 @@ void SceneModel::addBoundingBox(BBox& bbox) {
   boundingBoxes.push_back(bbox);
 }
 
-void SceneModel::removeBoundingBox(int id) {
-  if (boundingBoxes.empty()) return;
-  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
-    return bbox.id == id;
+
+template<class T>
+void removeAnnotation(std::vector<T>& entities, int id) {
+  if (entities.empty()) return;
+  auto iterator = std::find_if(entities.begin(), entities.end(), [&](const T& annotation) {
+    return annotation.id == id;
   });
-  if (iterator != boundingBoxes.end()) {
-    boundingBoxes.erase(iterator);
+  if (iterator != entities.end()) {
+    entities.erase(iterator);
   }
+}
+
+void SceneModel::removeBoundingBox(int id) {
+  removeAnnotation(boundingBoxes, id);
 }
 
 void SceneModel::updateBoundingBox(const BBox& updated) {
@@ -129,6 +135,15 @@ void SceneModel::updateBoundingBox(const BBox& updated) {
   if (iterator != boundingBoxes.end()) {
     *iterator = updated;
   }
+}
+
+void SceneModel::addRectangle(Rectangle& rectangle) {
+  rectangle.id = rectangles.size() + 1;
+  rectangles.push_back(rectangle);
+}
+
+void SceneModel::removeRectangle(int id) {
+  removeAnnotation(rectangles, id);
 }
 
 Camera SceneModel::sceneCamera() const {
