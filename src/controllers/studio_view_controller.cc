@@ -59,7 +59,7 @@ void StudioViewController::render() const {
     addRectangleView.render(viewContext);
   }
 
-  if (sceneModel.activeToolId == AddKeypointToolId || sceneModel.activeToolId == AddRectangleToolId) {
+  if (sceneModel.activeToolId == AddKeypointToolId) {
     sceneMeshView.render(viewContext);
   } else {
     sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.5));
@@ -149,7 +149,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
-  } else if (character == 'V') {
+  } else if (character == 'V' && mod == ModNone) {
     sceneModel.activeToolId = MoveKeypointToolId;
     return true;
   } else if (character == 'B') {
