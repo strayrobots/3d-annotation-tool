@@ -58,8 +58,8 @@ void Camera::updateViewMatrix() {
 
 Vector3f Camera::computeRayWorld(float width, float height, double x, double y) const {
   float aspectRatio = width / height;
-  float pX = (2.0f * (x / width) - 1.0f) * std::tan(fov / 2.0f * M_PI / 180) * aspectRatio;
-  float pY = (1.0f - 2.0f * (y / height)) * std::tan(fov / 2.0f * M_PI / 180);
+  float pX = (2.0f * ((x + 0.5f) / width) - 1.0f) * std::tan(fov / 2.0f * M_PI / 180) * aspectRatio;
+  float pY = (1.0f - 2.0f * ((y + 0.5f) / height)) * std::tan(fov / 2.0f * M_PI / 180);
   Vector3f ray_C(pX, pY, -1.0f);
   return orientation * ray_C.normalized();
 }
