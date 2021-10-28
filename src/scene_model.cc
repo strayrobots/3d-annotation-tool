@@ -192,6 +192,13 @@ nlohmann::json serialize(const Vector3f& v) {
   return out;
 }
 
+nlohmann::json serialize(const Vector2f& v) {
+  auto out = nlohmann::json::array();
+  out[0] = v[0];
+  out[1] = v[1];
+  return out;
+}
+
 nlohmann::json serialize(const Keypoint& keypoint) {
   auto out = nlohmann::json::object();
   out["instance_id"] = keypoint.instanceId;
@@ -212,20 +219,43 @@ nlohmann::json serialize(const BBox& bbox) {
   return obj;
 }
 
+nlohmann::json serialize(const Rectangle& rectangle) {
+  auto obj = nlohmann::json::object();
+  obj["center"] = serialize(rectangle.center);
+  obj["orientation"] = {
+      {"w", rectangle.orientation.w()},
+      {"x", rectangle.orientation.x()},
+      {"y", rectangle.orientation.y()},
+      {"z", rectangle.orientation.z()}};
+  obj["size"] = serialize(rectangle.size);
+  obj["class_id"] = rectangle.classId;
+  return obj;
+}
+
 void SceneModel::save() const {
   auto annotationPath = datasetPath / "annotations.json";
   nlohmann::json json = nlohmann::json::object();
-  json["keypoints"] = nlohmann::json::array();
-  for (size_t i = 0; i < keypoints.size(); i++) {
-    json["keypoints"][i] = serialize(keypoints[i]);
+  if (!keypoints.empty()) {
+    json["keypoints"] = nlohmann::json::array();
+    for (size_t i = 0; i < keypoints.size(); i++) {
+      json["keypoints"][i] = serialize(keypoints[i]);
+    }
   }
-  json["bounding_boxes"] = nlohmann::json::array();
-  for (size_t i = 0; i < boundingBoxes.size(); i++) {
-    const auto& bbox = boundingBoxes[i];
-    json["bounding_boxes"][i] = serialize(bbox);
+  if (!boundingBoxes.empty()) {
+    json["bounding_boxes"] = nlohmann::json::array();
+    for (size_t i = 0; i < boundingBoxes.size(); i++) {
+      const auto& bbox = boundingBoxes[i];
+      json["bounding_boxes"][i] = serialize(bbox);
+    }
+  }
+  if (!rectangles.empty()) {
+    json["rectangles"] = nlohmann::json::array();
+    for (size_t i=0; i < rectangles.size(); i++) {
+      json["rectangles"][i] = serialize(rectangles[i]);
+    }
   }
   std::ofstream file(annotationPath.string());
-  file << json;
+  file << json.dump(4);
   std::cout << "Saved annotations to " << annotationPath.string() << std::endl;
 }
 
@@ -342,6 +372,9 @@ Rectangle::Rectangle(const std::array<Vector3f, 4>& vertices) {
   classId = 0;
   size = Vector2f(edge1.norm(), edge2.norm());
 }
+
+Rectangle::Rectangle(int id, int classId, Vector3f center, Quaternionf orientation, Vector2f size) :
+  id(id), classId(classId), center(center), orientation(orientation), size(size) {}
 
 float Rectangle::width() const { return size[0]; }
 float Rectangle::height() const { return size[1]; }

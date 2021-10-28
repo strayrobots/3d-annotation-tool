@@ -9,11 +9,12 @@ namespace commands {
 using namespace Eigen;
 class AddRectangleCommand : public Command {
 private:
-  const std::array<Vector3f, 4> vertices;
-  int classId, bottomRightIndex;
   Rectangle rectangle;
+  int classId, bottomRightIndex;
 public:
-  AddRectangleCommand(const std::array<Vector3f, 4> vs, int classId) : vertices(vs), classId(classId), rectangle(vs) {
+  AddRectangleCommand(const Rectangle& rectangle) : rectangle(rectangle), classId(rectangle.classId) {
+  };
+  AddRectangleCommand(const std::array<Vector3f, 4> vs, int classId) : rectangle(Rectangle(vs)), classId(classId) {
   };
 
   void execute(SceneModel& sceneModel) override {
