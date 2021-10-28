@@ -18,13 +18,15 @@ TEST(TestApplyUndoAddRectangle, BasicCase) {
     Vector3f(1.0f, 0.0f, 0.0f),
     Vector3f(1.0f, 1.0f, 0.0f),
   };
-  auto command = std::make_unique<AddRectangleCommand>(vertices);
+  auto command = std::make_unique<AddRectangleCommand>(vertices, 1);
   timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getRectangles().size(), 1);
 
-  ASSERT_TRUE(sceneModel.getRectangles()[0].topLeft == vertices[0]);
-  ASSERT_TRUE(sceneModel.getRectangles()[0].bottomRight == vertices[3]);
-  ASSERT_TRUE(sceneModel.getRectangles()[0].normal == Vector3f::UnitZ());
+  auto center = Vector3f(0.5f, 0.5f, 0.0f);
+  ASSERT_TRUE(sceneModel.getRectangles()[0].center == center);
+  ASSERT_TRUE(sceneModel.getRectangles()[0].orientation.w() == 1.0f);
+  ASSERT_TRUE(sceneModel.getRectangles()[0].normal() == Vector3f::UnitZ());
+  ASSERT_EQ(sceneModel.getRectangles()[0].classId, 1);
 
   // Check undo.
   timeline.undoCommand();

@@ -3,7 +3,7 @@
 
 namespace views {
 
-const float PointRadius = 0.025;
+const float PointRadius = 0.01;
 const uint16_t InstanceStride = sizeof(float) * 8;
 const float PointColor[3] = { 0.5f, 1.0f, 0.5f };
 

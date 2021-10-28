@@ -28,10 +28,17 @@ struct BBox {
 
 struct Rectangle {
   int id;
-  Vector3f topLeft;
-  Vector3f bottomRight;
-  Vector3f normal;
+  int classId;
+  Vector3f center;
+  // Rotation from canonical world coordinates to local coordinates.
+  Quaternionf orientation;
+  Vector2f size; // width, height.
+  Rectangle(const std::array<Vector3f, 4>&);
+  float width() const;
+  float height() const;
+  Vector3f normal() const;
 };
+
 
 struct InstanceMetadata {
   std::string name = "";

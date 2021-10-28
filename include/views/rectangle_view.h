@@ -1,21 +1,23 @@
+#pragma once
 #include "views/view.h"
+#include "scene_model.h"
 #include <vector>
 #include <bgfx/bgfx.h>
 
 namespace views {
-class RectangleView : public views::View3D {
+class RectangleView {
 private:
-  std::vector<std::array<float, 5>> vertexData;
+  int viewId;
 
-  bgfx::DynamicVertexBufferHandle vertexBuffer;
+  bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout vertexLayout;
   bgfx::ProgramHandle program;
-  bgfx::UniformHandle u_rotation;
+  bgfx::UniformHandle u_scale;
 public:
   RectangleView(int id);
-  void clearVertices();
-  void setVertices(const std::vector<Vector3f>&);
-  void render(const ViewContext3D& context) const;
+  ~RectangleView();
+  void setVertices(const std::array<Vector3f, 4>&);
+  void render(const Rectangle& rectangle) const;
 };
 }
