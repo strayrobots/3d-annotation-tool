@@ -26,6 +26,21 @@ struct BBox {
   Vector3f dimensions = Vector3f::Ones() * 0.2;
 };
 
+struct Rectangle {
+  int id;
+  int classId;
+  Vector3f center;
+  // Rotation from canonical world coordinates to local coordinates.
+  Quaternionf orientation;
+  Vector2f size; // width, height.
+  Rectangle(const std::array<Vector3f, 4>&);
+  Rectangle(int id, int classId, Vector3f center, Quaternionf orientation, Vector2f size);
+  float width() const;
+  float height() const;
+  Vector3f normal() const;
+};
+
+
 struct InstanceMetadata {
   std::string name = "";
   Vector3f size = Vector3f::Ones() * 0.2;
@@ -39,7 +54,8 @@ struct DatasetMetadata {
 enum ActiveTool {
   AddKeypointToolId,
   MoveKeypointToolId,
-  BBoxToolId
+  BBoxToolId,
+  AddRectangleToolId
 };
 
 namespace fs = std::filesystem;
@@ -54,6 +70,7 @@ private:
   // Annotations.
   std::vector<Keypoint> keypoints;
   std::vector<BBox> boundingBoxes;
+  std::vector<Rectangle> rectangles;
   int imageWidth;
   int imageHeight;
   Matrix3f cameraMatrix;
@@ -87,6 +104,11 @@ public:
   void removeBoundingBox(int id);
   void updateBoundingBox(const BBox& bbox);
   const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
+
+  // Rectangle.
+  const std::vector<Rectangle>& getRectangles() const { return rectangles; };
+  void addRectangle(Rectangle& rectangle);
+  void removeRectangle(int id);
 
   Camera sceneCamera() const;
   std::pair<int, int> imageSize() const;

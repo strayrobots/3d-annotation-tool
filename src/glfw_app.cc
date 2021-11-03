@@ -2,7 +2,6 @@
 #include <bgfx/platform.h>
 #include <bx/handlealloc.h>
 #include <bx/thread.h>
-#include <bx/mutex.h>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 #if BX_PLATFORM_OSX

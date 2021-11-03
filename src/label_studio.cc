@@ -6,6 +6,8 @@
 #include "3rdparty/json.hpp"
 #include "commands/keypoints.h"
 #include "commands/bounding_box.h"
+#include "commands/rectangle.h"
+#include "utils/serialize.h"
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 800),
                                                       sceneModel(folder), studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
@@ -58,10 +60,12 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 80
 }
 
 void LabelStudio::setInputModifier(int mods) {
+  inputModifier = ModNone;
   if (mods == CommandModifier) {
     inputModifier = inputModifier | ModCommand; //Only set bits of inputModifier
-  } else {
-    inputModifier = ModNone;
+  }
+  if (mods == ShiftModifer) {
+    inputModifier = inputModifier | ModShift;
   }
 }
 
@@ -123,10 +127,20 @@ void LabelStudio::loadState() {
     auto instanceId = bbox["instance_id"];
     BBox box = {
         .instanceId = instanceId,
-        .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+        .position = utils::serialize::toVector3(p),
         .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
-        .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
+        .dimensions = utils::serialize::toVector3(d),
+    };
     std::unique_ptr<Command> command = std::make_unique<commands::AddBBoxCommand>(box);
+    timeline.pushCommand(std::move(command));
+  }
+  for (auto& rectangle : json["rectangles"]) {
+    Rectangle rect(0, rectangle["class_id"],
+        utils::serialize::toVector3(rectangle["center"]),
+        utils::serialize::toQuaternion(rectangle["orientation"]),
+        utils::serialize::toVector2(rectangle["size"])
+      );
+    std::unique_ptr<Command> command = std::make_unique<commands::AddRectangleCommand>(rect);
     timeline.pushCommand(std::move(command));
   }
 }

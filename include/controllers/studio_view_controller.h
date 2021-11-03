@@ -13,6 +13,7 @@
 #include "views/move_keypoint_view.h"
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
+#include "views/add_rectangle_view.h"
 
 class StudioViewController : public controllers::Controller {
 private:
@@ -32,6 +33,8 @@ private:
   views::AddKeypointView addKeypointView;
   views::MoveKeypointView moveKeypointView;
   views::AddBBoxView addBBoxView;
+  views::AddRectangleView addRectangleView;
+
   views::StatusBarView statusBarView;
 
   // Sub-controllers

@@ -9,7 +9,10 @@ using namespace views;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
                                                                                           viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
-                                                                                          addKeypointView(model, tl, viewId), moveKeypointView(model, tl, viewId), addBBoxView(model, tl, viewId),
+                                                                                          addKeypointView(model, tl, viewId),
+                                                                                          moveKeypointView(model, tl, viewId),
+                                                                                          addBBoxView(model, tl, viewId),
+                                                                                          addRectangleView(model, tl, viewId),
                                                                                           statusBarView(model, IdFactory::getInstance().getId()) {
   imageSize = model.imageSize();
   preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
@@ -32,8 +35,10 @@ views::View3D& StudioViewController::getActiveToolView() {
     return addKeypointView;
   } else if (sceneModel.activeToolId == MoveKeypointToolId) {
     return moveKeypointView;
-  } else {
+  } else if (sceneModel.activeToolId == BBoxToolId) {
     return addBBoxView;
+  } else {
+    return addRectangleView;
   }
 }
 
@@ -50,11 +55,14 @@ void StudioViewController::render() const {
     moveKeypointView.render(viewContext);
   } else if (sceneModel.activeToolId == BBoxToolId) {
     addBBoxView.render(viewContext);
+  } else if (sceneModel.activeToolId == AddRectangleToolId) {
+    addRectangleView.render(viewContext);
   }
+
   if (sceneModel.activeToolId == AddKeypointToolId) {
     sceneMeshView.render(viewContext);
   } else {
-    sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.35));
+    sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.5));
   }
   statusBarView.render();
   preview->render();
@@ -141,11 +149,14 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
-  } else if (character == 'V') {
+  } else if (character == 'V' && mod == ModNone) {
     sceneModel.activeToolId = MoveKeypointToolId;
     return true;
   } else if (character == 'B') {
     sceneModel.activeToolId = BBoxToolId;
+    return true;
+  } else if (character == 'R' && mod == ModNone) {
+    sceneModel.activeToolId = AddRectangleToolId;
     return true;
   } else if ('0' <= character && character <= '9') {
     const int codePoint0Char = 48;

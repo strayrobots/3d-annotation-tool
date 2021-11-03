@@ -54,7 +54,7 @@ void SceneModel::removeKeypoint(const Keypoint& kp) {
 }
 
 std::optional<Keypoint> SceneModel::getKeypoint(int id) const {
-  for (int i = 0; i < keypoints.size(); i++) {
+  for (unsigned int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
       return keypoints[i];
     }
@@ -73,7 +73,7 @@ void SceneModel::setKeypoint(const Keypoint& updated) {
 
 void SceneModel::updateKeypoint(int id, Keypoint kp) {
   assert(kp.id == id && "Keypoint needs to be the same as the one being updated.");
-  for (int i = 0; i < keypoints.size(); i++) {
+  for (unsigned int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
       keypoints[i] = kp;
       return;
@@ -111,14 +111,20 @@ void SceneModel::addBoundingBox(BBox& bbox) {
   boundingBoxes.push_back(bbox);
 }
 
-void SceneModel::removeBoundingBox(int id) {
-  if (boundingBoxes.empty()) return;
-  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
-    return bbox.id == id;
+
+template<class T>
+void removeAnnotation(std::vector<T>& entities, int id) {
+  if (entities.empty()) return;
+  auto iterator = std::find_if(entities.begin(), entities.end(), [&](const T& annotation) {
+    return annotation.id == id;
   });
-  if (iterator != boundingBoxes.end()) {
-    boundingBoxes.erase(iterator);
+  if (iterator != entities.end()) {
+    entities.erase(iterator);
   }
+}
+
+void SceneModel::removeBoundingBox(int id) {
+  removeAnnotation(boundingBoxes, id);
 }
 
 void SceneModel::updateBoundingBox(const BBox& updated) {
@@ -129,6 +135,15 @@ void SceneModel::updateBoundingBox(const BBox& updated) {
   if (iterator != boundingBoxes.end()) {
     *iterator = updated;
   }
+}
+
+void SceneModel::addRectangle(Rectangle& rectangle) {
+  rectangle.id = rectangles.size() + 1;
+  rectangles.push_back(rectangle);
+}
+
+void SceneModel::removeRectangle(int id) {
+  removeAnnotation(rectangles, id);
 }
 
 Camera SceneModel::sceneCamera() const {
@@ -177,6 +192,13 @@ nlohmann::json serialize(const Vector3f& v) {
   return out;
 }
 
+nlohmann::json serialize(const Vector2f& v) {
+  auto out = nlohmann::json::array();
+  out[0] = v[0];
+  out[1] = v[1];
+  return out;
+}
+
 nlohmann::json serialize(const Keypoint& keypoint) {
   auto out = nlohmann::json::object();
   out["instance_id"] = keypoint.instanceId;
@@ -197,20 +219,43 @@ nlohmann::json serialize(const BBox& bbox) {
   return obj;
 }
 
+nlohmann::json serialize(const Rectangle& rectangle) {
+  auto obj = nlohmann::json::object();
+  obj["center"] = serialize(rectangle.center);
+  obj["orientation"] = {
+      {"w", rectangle.orientation.w()},
+      {"x", rectangle.orientation.x()},
+      {"y", rectangle.orientation.y()},
+      {"z", rectangle.orientation.z()}};
+  obj["size"] = serialize(rectangle.size);
+  obj["class_id"] = rectangle.classId;
+  return obj;
+}
+
 void SceneModel::save() const {
   auto annotationPath = datasetPath / "annotations.json";
   nlohmann::json json = nlohmann::json::object();
-  json["keypoints"] = nlohmann::json::array();
-  for (size_t i = 0; i < keypoints.size(); i++) {
-    json["keypoints"][i] = serialize(keypoints[i]);
+  if (!keypoints.empty()) {
+    json["keypoints"] = nlohmann::json::array();
+    for (size_t i = 0; i < keypoints.size(); i++) {
+      json["keypoints"][i] = serialize(keypoints[i]);
+    }
   }
-  json["bounding_boxes"] = nlohmann::json::array();
-  for (size_t i = 0; i < boundingBoxes.size(); i++) {
-    const auto& bbox = boundingBoxes[i];
-    json["bounding_boxes"][i] = serialize(bbox);
+  if (!boundingBoxes.empty()) {
+    json["bounding_boxes"] = nlohmann::json::array();
+    for (size_t i = 0; i < boundingBoxes.size(); i++) {
+      const auto& bbox = boundingBoxes[i];
+      json["bounding_boxes"][i] = serialize(bbox);
+    }
+  }
+  if (!rectangles.empty()) {
+    json["rectangles"] = nlohmann::json::array();
+    for (size_t i=0; i < rectangles.size(); i++) {
+      json["rectangles"][i] = serialize(rectangles[i]);
+    }
   }
   std::ofstream file(annotationPath.string());
-  file << json;
+  file << json.dump(4);
   std::cout << "Saved annotations to " << annotationPath.string() << std::endl;
 }
 
@@ -296,5 +341,45 @@ void SceneModel::loadSceneMetadata() {
       }
     }
   }
+}
+
+Rectangle::Rectangle(const std::array<Vector3f, 4>& vertices) {
+  std::array<Vector3f, 4> copy(vertices);
+  Vector3f topLeft = vertices[0];
+  std::vector<float> distances;
+  std::transform(vertices.begin() + 1, vertices.end(), std::back_inserter(distances), [&](const Vector3f& v) -> float {
+    return -(v - topLeft).norm();
+  });
+  int bottomRightIndex = std::min_element(distances.begin(), distances.end()) - distances.begin() + 1;
+  // Move bottom right to last position.
+  std::swap(copy[bottomRightIndex], copy[3]);
+
+  Vector3f edge1 = (copy[2] - copy[0]);
+  Vector3f edge2 = (copy[1] - copy[0]);
+  Vector3f bottomRight = copy[3];
+
+  center = (topLeft + bottomRight) / 2.0f;
+  Vector3f normal = edge1.cross(edge2);
+  normal = normal / normal.norm();
+
+  Eigen::Matrix3f R_RW;
+  R_RW.row(0) = edge1 / edge1.norm();
+  R_RW.row(1) = edge2 / edge2.norm();
+  R_RW.row(2) = normal;
+  orientation = Quaternionf(R_RW);
+
+  id = 0;
+  classId = 0;
+  size = Vector2f(edge1.norm(), edge2.norm());
+}
+
+Rectangle::Rectangle(int id, int classId, Vector3f center, Quaternionf orientation, Vector2f size) :
+  id(id), classId(classId), center(center), orientation(orientation), size(size) {}
+
+float Rectangle::width() const { return size[0]; }
+float Rectangle::height() const { return size[1]; }
+
+Vector3f Rectangle::normal() const {
+  return orientation * Vector3f::UnitZ();
 }
 

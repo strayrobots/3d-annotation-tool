@@ -6,7 +6,7 @@ namespace views {
 
 AnnotationView::AnnotationView(const SceneModel& model, int id) : View3D(id), sceneModel(model),
                                                             sphereDrawable(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01), viewId),
-                                                            bboxView(viewId) {}
+                                                            bboxView(viewId), rectangleView(viewId) {}
 
 void AnnotationView::render(const ViewContext3D& context) const {
   const auto keypoints = sceneModel.getKeypoints();
@@ -21,6 +21,10 @@ void AnnotationView::render(const ViewContext3D& context) const {
   for (auto& bbox : sceneModel.getBoundingBoxes()) {
     setCameraTransform(context);
     bboxView.render(bbox);
+  }
+  for (auto& rectangle : sceneModel.getRectangles()) {
+    setCameraTransform(context);
+    rectangleView.render(rectangle);
   }
 }
 } // namespace views

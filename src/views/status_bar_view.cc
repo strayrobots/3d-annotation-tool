@@ -112,6 +112,9 @@ void StatusBarView::render() const {
   case BBoxToolId:
     bufferManager->appendText(toolText, fontHandle, "Bounding Box");
     break;
+  case AddRectangleToolId:
+    bufferManager->appendText(toolText, fontHandle, "Rectangle");
+    break;
   }
   bufferManager->submitTextBuffer(toolText, viewId);
   bufferManager->clearTextBuffer(instanceIdText);

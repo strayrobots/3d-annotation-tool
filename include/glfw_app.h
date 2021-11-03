@@ -8,6 +8,7 @@ const unsigned int CommandModifier = GLFW_MOD_SUPER;
 #else
 const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 #endif
+const unsigned int ShiftModifer = GLFW_MOD_SHIFT;
 
 class GLFWApp {
 protected:
