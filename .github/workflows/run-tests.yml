@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential ninja-build libeigen3-dev libgtest-dev libboost-all-dev libomp-dev libxi-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y cmake build-essential ninja-build libeigen3-dev libgtest-dev libboost-all-dev libomp-dev libxi-dev libxcursor-dev libxinerama-dev libgl-dev
       - name: Build project
         run: |
           mkdir build && cd build
