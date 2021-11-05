@@ -109,6 +109,7 @@ public:
   const std::vector<Rectangle>& getRectangles() const { return rectangles; };
   void addRectangle(Rectangle& rectangle);
   void removeRectangle(int id);
+  void updateRectangle(const Rectangle& rectangle);
 
   Camera sceneCamera() const;
   std::pair<int, int> imageSize() const;

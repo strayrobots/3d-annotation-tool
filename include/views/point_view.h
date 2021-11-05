@@ -14,6 +14,7 @@ private:
   bgfx::UniformHandle u_rotation;
 public:
   PointView(int id);
+  ~PointView();
   void clearPoints();
   void addPoint(const Vector3f& point);
   void render(const ViewContext3D& context) const;

@@ -11,8 +11,6 @@
 
 LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 800),
                                                       sceneModel(folder), studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
-  loadState();
-
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
     double x, y;
     glfwGetCursorPos(window, &x, &y);

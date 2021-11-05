@@ -74,6 +74,8 @@ StatusBarView::StatusBarView(const SceneModel& model, int viewId) : views::View(
 }
 
 StatusBarView::~StatusBarView() {
+  delete fontManager;
+  delete bufferManager;
 }
 
 void StatusBarView::render() const {

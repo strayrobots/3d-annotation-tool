@@ -10,5 +10,7 @@ public:
   double height = 600;
   double mousePositionX = 0.0;
   double mousePositionY = 0.0;
+
+  Vector3f rayWorld() const;
 };
 

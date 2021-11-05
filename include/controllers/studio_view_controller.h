@@ -9,7 +9,7 @@
 #include "controllers/preview_controller.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
-#include "views/move_keypoint_view.h"
+#include "views/move_tool_view.h"
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
 #include "views/add_rectangle_view.h"
@@ -30,7 +30,7 @@ private:
 
   // Tool views.
   views::AddKeypointView addKeypointView;
-  views::MoveKeypointView moveKeypointView;
+  views::MoveToolView moveToolView;
   views::AddBBoxView addBBoxView;
   views::AddRectangleView addRectangleView;
 

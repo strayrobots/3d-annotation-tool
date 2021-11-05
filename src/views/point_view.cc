@@ -29,6 +29,13 @@ PointView::PointView(int id) : views::View3D(id), points() {
   program = shader_utils::loadProgram("vs_points", "fs_points");
 }
 
+PointView::~PointView() {
+  bgfx::destroy(u_rotation);
+  bgfx::destroy(vertexBuffer);
+  bgfx::destroy(indexBuffer);
+  bgfx::destroy(program);
+}
+
 void PointView::clearPoints() {
   points.clear();
 }

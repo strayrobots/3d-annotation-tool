@@ -33,13 +33,14 @@ RectangleView::~RectangleView() {
   bgfx::destroy(indexBuffer);
   bgfx::destroy(vertexBuffer);
   bgfx::destroy(program);
+  bgfx::destroy(u_scale);
 }
 
 const Vector3f defaultNormal(0.0f, 0.0f, 1.0f);
 void RectangleView::render(const Rectangle& rectangle) const {
   auto center = rectangle.center;
   Eigen::Matrix4f transform = Matrix4f::Identity();
-  Eigen::Matrix3f rotation(rectangle.orientation.inverse());
+  Eigen::Matrix3f rotation(rectangle.orientation);
   transform.block<3, 3>(0, 0) = rotation;
   transform.block<3, 1>(0, 3) = center;
 

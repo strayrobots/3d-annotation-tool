@@ -111,7 +111,6 @@ void SceneModel::addBoundingBox(BBox& bbox) {
   boundingBoxes.push_back(bbox);
 }
 
-
 template<class T>
 void removeAnnotation(std::vector<T>& entities, int id) {
   if (entities.empty()) return;
@@ -122,19 +121,25 @@ void removeAnnotation(std::vector<T>& entities, int id) {
     entities.erase(iterator);
   }
 }
+template <class T>
+void updateAnnotation(std::vector<T>& annotations, const T& updated) {
+  auto iterator = std::find_if(annotations.begin(), annotations.end(), [&](const T& annotation) {
+    return annotation.id == updated.id;
+  });
+
+  if (iterator != annotations.end()) {
+    *iterator = updated;
+  } else {
+    std::cout << "could not find annotation: " << updated.id << std::endl;
+  }
+}
 
 void SceneModel::removeBoundingBox(int id) {
   removeAnnotation(boundingBoxes, id);
 }
 
 void SceneModel::updateBoundingBox(const BBox& updated) {
-  auto iterator = std::find_if(boundingBoxes.begin(), boundingBoxes.end(), [&](const BBox& bbox) {
-    return bbox.id == updated.id;
-  });
-
-  if (iterator != boundingBoxes.end()) {
-    *iterator = updated;
-  }
+  updateAnnotation(boundingBoxes, updated);
 }
 
 void SceneModel::addRectangle(Rectangle& rectangle) {
@@ -144,6 +149,10 @@ void SceneModel::addRectangle(Rectangle& rectangle) {
 
 void SceneModel::removeRectangle(int id) {
   removeAnnotation(rectangles, id);
+}
+
+void SceneModel::updateRectangle(const Rectangle& updated) {
+  updateAnnotation(rectangles, updated);
 }
 
 Camera SceneModel::sceneCamera() const {
@@ -366,7 +375,7 @@ Rectangle::Rectangle(const std::array<Vector3f, 4>& vertices) {
   R_RW.row(0) = edge1 / edge1.norm();
   R_RW.row(1) = edge2 / edge2.norm();
   R_RW.row(2) = normal;
-  orientation = Quaternionf(R_RW);
+  orientation = Quaternionf(R_RW.transpose());
 
   id = 0;
   classId = 0;
