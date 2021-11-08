@@ -3,11 +3,11 @@
 
 using namespace Eigen;
 
+namespace geometry {
+
 using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using RowMatrixi = Eigen::Matrix<uint32_t, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using TriangleFace = Eigen::Matrix<uint32_t, 1, 3, Eigen::RowMajor>;
-
-namespace geometry {
 
 class TriangleMesh {
 protected:

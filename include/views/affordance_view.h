@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include "commands/rectangle.h"
 #include "views/view.h"
 #include "scene_model.h"
 
@@ -10,22 +11,23 @@ using TMatrix = Eigen::Transform<float, 3, Eigen::Affine>;
 class RectangleAffordances : public views::View3D {
 private:
   struct Dragging {
-    Rectangle rectangle;
+    Rectangle oldRectangle;
+    Rectangle newRectangle;
     Vector3f dragPoint_R; // drag point in local coordinates.
-    Vector3f originalCenter_W;
   };
   SceneModel& scene;
+  Timeline& timeline;
   std::optional<Dragging> dragging;
 public:
-  RectangleAffordances(SceneModel& sceneModel) : scene(sceneModel) {}
+  RectangleAffordances(SceneModel& sceneModel, Timeline& tl) : scene(sceneModel), timeline(tl) {}
   bool leftButtonDown(const ViewContext3D& viewContext) {
     for (auto& rect : scene.getRectangles()) {
       if (hitTest(viewContext, rect)) {
         auto point = intersectionLocal(viewContext, rect);
         dragging = {
-          .rectangle = rect,
+          .oldRectangle = rect,
+          .newRectangle = rect,
           .dragPoint_R = point,
-          .originalCenter_W = rect.center
         };
         return true;
       }
@@ -36,12 +38,11 @@ public:
   bool mouseMoved(const ViewContext3D& viewContext) {
     if (isActive()) {
       Dragging& d = dragging.value();
-      Rectangle rect = d.rectangle;
-      auto intersection_R = intersectionLocal(viewContext, rect);
-      auto T_RW = computeT_RW(rect);
+      auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
+      auto T_RW = computeT_RW(d.oldRectangle);
       Vector3f diff_R = intersection_R - d.dragPoint_R;
-      rect.center = d.originalCenter_W + T_RW.rotation().transpose() * diff_R;
-      scene.updateRectangle(rect);
+      d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R;
+      scene.updateRectangle(d.newRectangle);
       return true;
     }
     return false;
@@ -49,6 +50,12 @@ public:
 
   bool leftButtonUp(const ViewContext3D& viewContext) {
     if (isActive()) {
+      auto& d = dragging.value();
+      auto command = std::make_unique<commands::MoveRectangleCommand>(
+          d.newRectangle,
+          d.oldRectangle.center,
+          d.newRectangle.center);
+      timeline.pushCommand(std::move(command));
       dragging.reset();
       return true;
     }
@@ -100,10 +107,12 @@ private:
 class AffordanceView : public views::View3D {
 private:
   SceneModel& sceneModel;
+  Timeline& timeline;
   RectangleAffordances rectangleAffordances;
 public:
-  AffordanceView(SceneModel& model, int viewId) : views::View3D(viewId), sceneModel(model),
-    rectangleAffordances(sceneModel) {
+  AffordanceView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId),
+    sceneModel(model), timeline(timeline),
+    rectangleAffordances(sceneModel, timeline) {
 
   }
 

@@ -7,7 +7,7 @@ namespace views {
 MoveToolView::MoveToolView(SceneModel& model, Timeline& tl, int viewId) : views::View3D(viewId),
     sceneModel(model), timeline(tl),
     rtKeypointSphere(std::make_shared<geometry::Sphere>(Matrix4f::Identity(), 0.01)),
-    affordanceView(sceneModel, viewId) {
+    affordanceView(sceneModel, timeline, viewId) {
   translateControl = std::make_shared<views::controls::TranslateControl>(viewId, [&](const Vector3f& newPosition) {
     if (!isActive()) return;
     auto kp = sceneModel.getKeypoint(currentKeypoint.value().id);
