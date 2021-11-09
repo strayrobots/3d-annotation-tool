@@ -1,4 +1,5 @@
 #include <array>
+#include <vector>
 #include <algorithm>
 #include "model/rectangle.h"
 
