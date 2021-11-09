@@ -8,9 +8,11 @@ using namespace commands;
 using namespace views;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
-                                                                                          viewContext(sceneModel.sceneCamera()), annotationView(model, viewId), sceneMeshView(model.getMesh(), viewId),
+                                                                                          viewContext(sceneModel.sceneCamera()),
+                                                                                          annotationView(model, viewId),
+                                                                                          sceneMeshView(model.getMesh(), viewId),
                                                                                           addKeypointView(model, tl, viewId),
-                                                                                          moveKeypointView(model, tl, viewId),
+                                                                                          moveToolView(model, tl, viewId),
                                                                                           addBBoxView(model, tl, viewId),
                                                                                           addRectangleView(model, tl, viewId),
                                                                                           statusBarView(model, IdFactory::getInstance().getId()) {
@@ -34,7 +36,7 @@ views::View3D& StudioViewController::getActiveToolView() {
   if (sceneModel.activeToolId == AddKeypointToolId) {
     return addKeypointView;
   } else if (sceneModel.activeToolId == MoveKeypointToolId) {
-    return moveKeypointView;
+    return moveToolView;
   } else if (sceneModel.activeToolId == BBoxToolId) {
     return addBBoxView;
   } else {
@@ -44,7 +46,7 @@ views::View3D& StudioViewController::getActiveToolView() {
 
 void StudioViewController::refresh() {
   addBBoxView.refresh();
-  moveKeypointView.refresh();
+  moveToolView.refresh();
 }
 
 void StudioViewController::render() const {
@@ -52,7 +54,7 @@ void StudioViewController::render() const {
   annotationView.render(viewContext);
 
   if (sceneModel.activeToolId == MoveKeypointToolId) {
-    moveKeypointView.render(viewContext);
+    moveToolView.render(viewContext);
   } else if (sceneModel.activeToolId == BBoxToolId) {
     addBBoxView.render(viewContext);
   } else if (sceneModel.activeToolId == AddRectangleToolId) {
@@ -109,6 +111,7 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
 bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+
   if (getActiveToolView().mouseMoved(viewContext)) {
     return true;
   }

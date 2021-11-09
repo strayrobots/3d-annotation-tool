@@ -3,15 +3,15 @@
 #include <eigen3/Eigen/Dense>
 #include <bgfx/bgfx.h>
 #include "scene_model.h"
-#include "views/move_keypoint_view.h"
+#include "views/move_tool_view.h"
 #include "commands/keypoints.h"
 
 std::string datasetPath;
 
-TEST(TestMoveKeypointView, BasicCase) {
+TEST(TestMoveToolView, BasicCase) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
-  views::MoveKeypointView view(sceneModel, timeline);
+  views::MoveToolView view(sceneModel, timeline);
 
   Camera camera;
   camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0));

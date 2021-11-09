@@ -4,6 +4,7 @@
 #include <optional>
 #include <filesystem>
 #include <map>
+#include "model/rectangle.h"
 #include "geometry/mesh.h"
 #include "geometry/ray_trace_mesh.h"
 #include "camera.h"
@@ -25,21 +26,6 @@ struct BBox {
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Ones() * 0.2;
 };
-
-struct Rectangle {
-  int id;
-  int classId;
-  Vector3f center;
-  // Rotation from canonical world coordinates to local coordinates.
-  Quaternionf orientation;
-  Vector2f size; // width, height.
-  Rectangle(const std::array<Vector3f, 4>&);
-  Rectangle(int id, int classId, Vector3f center, Quaternionf orientation, Vector2f size);
-  float width() const;
-  float height() const;
-  Vector3f normal() const;
-};
-
 
 struct InstanceMetadata {
   std::string name = "";
@@ -109,6 +95,7 @@ public:
   const std::vector<Rectangle>& getRectangles() const { return rectangles; };
   void addRectangle(Rectangle& rectangle);
   void removeRectangle(int id);
+  void updateRectangle(const Rectangle& rectangle);
 
   Camera sceneCamera() const;
   std::pair<int, int> imageSize() const;

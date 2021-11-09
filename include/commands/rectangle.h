@@ -27,4 +27,27 @@ public:
   };
 };
 
+class MoveRectangleCommand : public Command {
+private:
+  const Rectangle rectangle;
+  Vector3f oldPosition;
+  Vector3f newPostion;
+public:
+  MoveRectangleCommand(Rectangle rectangle, Vector3f oldCenter, Vector3f newCenter) :
+    rectangle(rectangle), oldPosition(oldCenter), newPostion(newCenter) {}
+
+  void execute(SceneModel& sceneModel) override {
+    Rectangle rect(rectangle);
+    rect.center = newPostion;
+    sceneModel.updateRectangle(rect);
+  }
+
+  void undo(SceneModel& sceneModel) override {
+    Rectangle rect(rectangle);
+    rect.center = oldPosition;
+    sceneModel.updateRectangle(rect);
+  }
+
+};
+
 } // namespace commands

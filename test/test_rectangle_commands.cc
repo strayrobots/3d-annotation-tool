@@ -8,16 +8,17 @@ std::string datasetPath;
 
 using namespace commands;
 
+const std::array<Vector3f, 4> vertices = {
+  Vector3f(0.0f, 0.0f, 0.0f),
+  Vector3f(0.0f, 1.0f, 0.0f),
+  Vector3f(1.0f, 0.0f, 0.0f),
+  Vector3f(1.0f, 1.0f, 0.0f),
+};
+
 TEST(TestApplyUndoAddRectangle, BasicCase) {
   SceneModel sceneModel(datasetPath);
   Timeline timeline(sceneModel);
 
-  std::array<Vector3f, 4> vertices = {
-    Vector3f(0.0f, 0.0f, 0.0f),
-    Vector3f(0.0f, 1.0f, 0.0f),
-    Vector3f(1.0f, 0.0f, 0.0f),
-    Vector3f(1.0f, 1.0f, 0.0f),
-  };
   auto command = std::make_unique<AddRectangleCommand>(vertices, 1);
   timeline.pushCommand(std::move(command));
   ASSERT_EQ(sceneModel.getRectangles().size(), 1);
@@ -31,6 +32,27 @@ TEST(TestApplyUndoAddRectangle, BasicCase) {
   // Check undo.
   timeline.undoCommand();
   ASSERT_EQ(sceneModel.getRectangles().size(), 0);
+}
+
+TEST(TestApplyUndoMoveRectangle, BasicCase) {
+  SceneModel sceneModel(datasetPath);
+  Timeline timeline(sceneModel);
+
+  auto command = std::make_unique<AddRectangleCommand>(vertices, 1);
+  timeline.pushCommand(std::move(command));
+
+  auto rectangle = sceneModel.getRectangles()[0];
+  auto oldCenter = Vector3f(0.5f, 0.5f, 0.0f);
+  auto newCenter = Vector3f(1., -1.0f, -0.5f);
+  auto moveCommand = std::make_unique<MoveRectangleCommand>(rectangle, rectangle.center, newCenter);
+  timeline.pushCommand(std::move(moveCommand));
+
+  const auto& rectangles = sceneModel.getRectangles();
+  ASSERT_EQ(rectangles[0].center, newCenter);
+  timeline.undoCommand();
+  ASSERT_EQ(rectangles[0].center, oldCenter);
+  timeline.undoCommand();
+  ASSERT_EQ(rectangles.size(), 0);
 }
 
 int main(int argc, char **argv) {
