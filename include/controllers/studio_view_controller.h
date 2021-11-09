@@ -5,7 +5,6 @@
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
-#include "glfw_app.h"
 #include "controllers/controller.h"
 #include "controllers/preview_controller.h"
 #include "views/annotation_view.h"

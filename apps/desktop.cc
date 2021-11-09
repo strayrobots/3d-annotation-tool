@@ -1,4 +1,3 @@
-#include <memory>
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -35,13 +34,11 @@ int main(int argc, char* argv[]) {
   validateFlags(flags);
   std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
 
-  auto window = std::make_shared<LabelStudio>(dataset);
+  LabelStudio window(dataset);
 
-  while (window->update()) {
+  while (window.update()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
-
-  window = nullptr;
 
   return 0;
 }

@@ -56,6 +56,7 @@ GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
 #else
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
+  glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
   window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
   if (!window) {
     std::cout << "Failed to create window." << std::endl;
@@ -91,9 +92,9 @@ GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
 
 GLFWApp::~GLFWApp() {
   view = nullptr;
+  bgfx::shutdown();
   glfwDestroyWindowImpl(window);
   glfwTerminate();
-  bgfx::shutdown();
 }
 
 void GLFWApp::setView(std::shared_ptr<views::View> v) { view = v; }
