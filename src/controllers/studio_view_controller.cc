@@ -72,8 +72,7 @@ void StudioViewController::render() const {
 
 // Input handling.
 bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
-  viewContext.mousePositionX = x;
-  viewContext.mousePositionY = y;
+  updateViewContext(x, y, mod);
 
   if (preview->leftButtonDown(viewContext)) {
     return true;
@@ -90,8 +89,8 @@ bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod)
 }
 
 bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
-  viewContext.mousePositionX = x;
-  viewContext.mousePositionY = y;
+  updateViewContext(x, y, mod);
+
   if (!moved) {
     if (preview->leftButtonUp(viewContext)) {
       return true;
@@ -109,8 +108,7 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
 }
 
 bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
-  viewContext.mousePositionX = x;
-  viewContext.mousePositionY = y;
+  updateViewContext(x, y, mod);
 
   if (getActiveToolView().mouseMoved(viewContext)) {
     return true;
@@ -187,5 +185,11 @@ views::Rect StudioViewController::previewRect() const {
 views::Rect StudioViewController::statusBarRect() const {
   return {.x = 0, .y = float(viewContext.height),
     .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+}
+
+void StudioViewController::updateViewContext(double x, double y, InputModifier mod) {
+  viewContext.modifiers = mod;
+  viewContext.mousePositionX = x;
+  viewContext.mousePositionY = y;
 }
 

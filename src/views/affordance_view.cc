@@ -1,4 +1,5 @@
 #include "views/affordance_view.h"
+#include "id.h"
 
 namespace views {
 
@@ -29,11 +30,27 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
   for (auto& rect : scene.getRectangles()) {
     if (hitTest(viewContext, rect)) {
       auto point = intersectionLocal(viewContext, rect);
-      dragging = {
-        .oldRectangle = rect,
-        .newRectangle = rect,
-        .dragPoint_R = point,
-      };
+
+      if (viewContext.modifiers == ModAlt) {
+        Rectangle newRect(rect);
+        newRect.id = IdFactory::nextId();
+        auto command = std::make_unique<commands::AddRectangleCommand>(newRect);
+        timeline.pushCommand(std::move(command));
+
+        dragging = {
+          .oldRectangle = newRect,
+          .newRectangle = newRect,
+          .dragPoint_R = point,
+          .copying = true
+        };
+      } else {
+        dragging = {
+          .oldRectangle = rect,
+          .newRectangle = rect,
+          .dragPoint_R = point,
+          .copying = false
+        };
+      }
       return true;
     }
   }
@@ -56,11 +73,13 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
 bool RectangleAffordances::leftButtonUp(const ViewContext3D& viewContext) {
   if (isActive()) {
     auto& d = dragging.value();
-    auto command = std::make_unique<commands::MoveRectangleCommand>(
-        d.newRectangle,
-        d.oldRectangle.center,
-        d.newRectangle.center);
-    timeline.pushCommand(std::move(command));
+    if (!d.copying) {
+      auto command = std::make_unique<commands::MoveRectangleCommand>(
+          d.newRectangle,
+          d.oldRectangle.center,
+          d.newRectangle.center);
+      timeline.pushCommand(std::move(command));
+    }
     dragging.reset();
     return true;
   }

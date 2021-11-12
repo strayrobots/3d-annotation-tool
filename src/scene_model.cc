@@ -143,7 +143,6 @@ void SceneModel::updateBoundingBox(const BBox& updated) {
 }
 
 void SceneModel::addRectangle(Rectangle& rectangle) {
-  rectangle.id = rectangles.size() + 1;
   rectangles.push_back(rectangle);
 }
 

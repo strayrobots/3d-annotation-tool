@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "model/rectangle.h"
+#include "id.h"
 
 Rectangle::Rectangle(const Rectangle& rect) {
   id = rect.id;
@@ -36,7 +37,7 @@ Rectangle::Rectangle(const std::array<Vector3f, 4>& vertices) {
   R_RW.row(2) = normal;
   orientation = Quaternionf(R_RW.transpose());
 
-  id = 0;
+  id = IdFactory::getInstance().getId();
   classId = 0;
   size = Vector2f(edge1.norm(), edge2.norm());
 }
