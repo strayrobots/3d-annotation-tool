@@ -55,4 +55,5 @@ private:
   views::View3D& getActiveToolView();
   views::Rect previewRect() const;
   views::Rect statusBarRect() const;
+  void updateViewContext(double x, double y, InputModifier mod);
 };

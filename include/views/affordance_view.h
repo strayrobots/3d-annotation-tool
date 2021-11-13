@@ -15,6 +15,7 @@ private:
     Rectangle oldRectangle;
     Rectangle newRectangle;
     Vector3f dragPoint_R; // drag point in local coordinates.
+    bool copying = false;
   };
   SceneModel& scene;
   Timeline& timeline;

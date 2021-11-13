@@ -9,6 +9,10 @@ public:
     static IdFactory instance;
     return instance;
   }
+  static int nextId() {
+    return getInstance().getId();
+  }
+
   IdFactory(IdFactory const&) = delete;
   void operator=(IdFactory const&) = delete;
   int getId() {
