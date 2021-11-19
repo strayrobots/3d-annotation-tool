@@ -11,11 +11,17 @@ using TMatrix = Eigen::Transform<float, 3, Eigen::Affine>;
 
 class RectangleAffordances : public views::View3D {
 private:
+  enum HitType {
+    none,
+    rectangle,
+    rotate
+  };
   struct Dragging {
     Rectangle oldRectangle;
     Rectangle newRectangle;
     Vector3f dragPoint_R; // drag point in local coordinates.
     bool copying = false;
+    bool rotating = false;
   };
   SceneModel& scene;
   Timeline& timeline;
@@ -28,7 +34,7 @@ public:
 
 private:
   bool isActive() const;
-  bool hitTest(const ViewContext3D& viewContext, const Rectangle& rectangle);
+  HitType hitTest(const ViewContext3D& viewContext, const Rectangle& rectangle);
 };
 
 class AffordanceView : public views::View3D {

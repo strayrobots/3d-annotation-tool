@@ -28,8 +28,10 @@ RectangleAffordances::RectangleAffordances(SceneModel& sceneModel, Timeline& tl)
 
 bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
   for (auto& rect : scene.getRectangles()) {
-    if (hitTest(viewContext, rect)) {
+    auto hitType = hitTest(viewContext, rect);
+    if (hitType > none) {
       auto point = intersectionLocal(viewContext, rect);
+      bool rotating = hitType == HitType::rotate;
 
       if (viewContext.modifiers == ModAlt) {
         Rectangle newRect(rect);
@@ -41,14 +43,16 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
           .oldRectangle = newRect,
           .newRectangle = newRect,
           .dragPoint_R = point,
-          .copying = true
+          .copying = true,
+          .rotating = rotating
         };
       } else {
         dragging = {
           .oldRectangle = rect,
           .newRectangle = rect,
           .dragPoint_R = point,
-          .copying = false
+          .copying = false,
+          .rotating = rotating
         };
       }
       return true;
@@ -61,11 +65,25 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
   if (isActive()) {
     Dragging& d = dragging.value();
     auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
-    auto T_RW = computeT_RW(d.oldRectangle);
-    Vector3f diff_R = intersection_R - d.dragPoint_R;
-    d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R;
+    if (d.rotating) {
+      auto rotation_R = Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R);
+      d.newRectangle.orientation = rotation_R * d.oldRectangle.orientation;
+    } else {
+      auto T_RW = computeT_RW(d.oldRectangle);
+      Vector3f diff_R = intersection_R - d.dragPoint_R;
+      d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R;
+    }
     scene.updateRectangle(d.newRectangle);
     return true;
+  } else {
+    for (auto& rect : scene.getRectangles()) {
+      auto hitType = hitTest(viewContext, rect);
+      if (hitType > none) {
+        rect.rotateControl = true;
+      } else {
+        rect.rotateControl = false;
+      }
+    }
   }
   return false;
 }
@@ -88,7 +106,7 @@ bool RectangleAffordances::leftButtonUp(const ViewContext3D& viewContext) {
 
 bool RectangleAffordances::isActive() const { return dragging.has_value(); }
 
-bool RectangleAffordances::hitTest(const ViewContext3D& viewContext, const Rectangle& rectangle) {
+RectangleAffordances::HitType RectangleAffordances::hitTest(const ViewContext3D& viewContext, const Rectangle& rectangle) {
   TMatrix T_RW = computeT_RW(rectangle);
 
   Vector3f o_W = viewContext.camera.getPosition();
@@ -100,11 +118,13 @@ bool RectangleAffordances::hitTest(const ViewContext3D& viewContext, const Recta
   Vector3f intersection_R = o_R + t * ray_R;
   float halfWidth = rectangle.width() * 0.5f;
   float halfHeight = rectangle.height() * 0.5f;
-  if (intersection_R[0] > -halfWidth && intersection_R[0] < halfWidth &&
+  if (intersection_R.norm() / std::min(rectangle.width(), rectangle.height()) < 0.125f) {
+    return HitType::rotate;
+  } else if (intersection_R[0] > -halfWidth && intersection_R[0] < halfWidth &&
     intersection_R[1] > -halfHeight && intersection_R[1] < halfHeight) {
-    return true;
+    return HitType::rectangle;
   }
-  return false;
+  return HitType::none;
 }
 
 AffordanceView::AffordanceView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId),

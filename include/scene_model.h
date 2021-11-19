@@ -92,6 +92,7 @@ public:
   const std::vector<BBox>& getBoundingBoxes() const { return boundingBoxes; };
 
   // Rectangle.
+  std::vector<Rectangle>& getRectangles() { return rectangles; };
   const std::vector<Rectangle>& getRectangles() const { return rectangles; };
   void addRectangle(Rectangle& rectangle);
   void removeRectangle(int id);

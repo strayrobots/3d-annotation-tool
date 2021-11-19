@@ -36,7 +36,6 @@ RectangleView::~RectangleView() {
   bgfx::destroy(u_scale);
 }
 
-const Vector3f defaultNormal(0.0f, 0.0f, 1.0f);
 void RectangleView::render(const Rectangle& rectangle) const {
   auto center = rectangle.center;
   Eigen::Matrix4f transform = Matrix4f::Identity();
@@ -45,9 +44,12 @@ void RectangleView::render(const Rectangle& rectangle) const {
   transform.block<3, 1>(0, 3) = center;
 
   // Canonical rectangle vertices are actually 2m x 2m.
-  float ratioX = rectangle.width() / 2.0f;
-  float ratioY = rectangle.height() / 2.0f;
-  Vector4f scale(ratioX, ratioY, 0.0f, 0.0f);
+  float ratioX = rectangle.width() * 0.5f;
+  float ratioY = rectangle.height() * 0.5f;
+  Vector4f scale(ratioX, ratioY, 0.0f, -1.0f);
+  if (rectangle.rotateControl) {
+    scale[3] = 1.0f;
+  }
   bgfx::setUniform(u_scale, scale.data(), 1);
 
   bgfx::setTransform(transform.data());
