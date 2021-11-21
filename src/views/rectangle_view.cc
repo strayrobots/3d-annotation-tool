@@ -17,7 +17,7 @@ static const float vertexData[] = {
    1.0f,  1.0f, 0.0f,
 };
 
-RectangleView::RectangleView(int id) : viewId(id) {
+RectangleView::RectangleView(int id) : views::View3D(id) {
   vertexLayout.begin()
     .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
     .end();
@@ -36,7 +36,8 @@ RectangleView::~RectangleView() {
   bgfx::destroy(u_scale);
 }
 
-void RectangleView::render(const Rectangle& rectangle) const {
+void RectangleView::render(const ViewContext3D& context, const Rectangle& rectangle) const {
+  setCameraTransform(context);
   auto center = rectangle.center;
   Eigen::Matrix4f transform = Matrix4f::Identity();
   Eigen::Matrix3f rotation(rectangle.orientation);

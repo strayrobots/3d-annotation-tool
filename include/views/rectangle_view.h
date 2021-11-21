@@ -1,14 +1,13 @@
 #pragma once
-#include "views/view.h"
-#include "scene_model.h"
 #include <vector>
 #include <bgfx/bgfx.h>
+#include "views/view.h"
+#include "view_context_3d.h"
+#include "scene_model.h"
 
 namespace views {
-class RectangleView {
+class RectangleView : views::View3D{
 private:
-  int viewId;
-
   bgfx::VertexBufferHandle vertexBuffer;
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout vertexLayout;
@@ -18,6 +17,6 @@ public:
   RectangleView(int id);
   ~RectangleView();
   void setVertices(const std::array<Vector3f, 4>&);
-  void render(const Rectangle& rectangle) const;
+  void render(const ViewContext3D& context, const Rectangle& rectangle) const;
 };
 }

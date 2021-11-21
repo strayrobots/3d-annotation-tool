@@ -1,3 +1,5 @@
+#pragma once
+
 #include "views/view.h"
 #include <vector>
 #include <bgfx/bgfx.h>

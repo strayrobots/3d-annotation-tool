@@ -44,7 +44,9 @@ TEST(TestApplyUndoMoveRectangle, BasicCase) {
   auto rectangle = sceneModel.getRectangles()[0];
   auto oldCenter = Vector3f(0.5f, 0.5f, 0.0f);
   auto newCenter = Vector3f(1., -1.0f, -0.5f);
-  auto moveCommand = std::make_unique<MoveRectangleCommand>(rectangle, rectangle.center, newCenter);
+  Rectangle newRectangle(rectangle);
+  newRectangle.center = newCenter;
+  auto moveCommand = std::make_unique<EditRectangleCommand>(rectangle, newRectangle);
   timeline.pushCommand(std::move(moveCommand));
 
   const auto& rectangles = sceneModel.getRectangles();

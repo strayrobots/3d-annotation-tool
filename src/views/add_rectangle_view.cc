@@ -97,8 +97,7 @@ void AddRectangleView::render(const ViewContext3D& context) const {
   pointView.render(context);
   if (hasRectangle()) {
     Rectangle rectangle(vertices);
-    setCameraTransform(context);
-    rectangleView.render(rectangle);
+    rectangleView.render(context, rectangle);
   }
 }
 } // namespace views

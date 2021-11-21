@@ -29,9 +29,8 @@ RectangleAffordances::RectangleAffordances(SceneModel& sceneModel, Timeline& tl)
 bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
   for (auto& rect : scene.getRectangles()) {
     auto hitType = hitTest(viewContext, rect);
-    if (hitType > none) {
+    if (hitType > None) {
       auto point = intersectionLocal(viewContext, rect);
-      bool rotating = hitType == HitType::rotate;
 
       if (viewContext.modifiers == ModAlt) {
         Rectangle newRect(rect);
@@ -44,7 +43,7 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
           .newRectangle = newRect,
           .dragPoint_R = point,
           .copying = true,
-          .rotating = rotating
+          .dragType = hitType
         };
       } else {
         dragging = {
@@ -52,7 +51,7 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
           .newRectangle = rect,
           .dragPoint_R = point,
           .copying = false,
-          .rotating = rotating
+          .dragType = hitType
         };
       }
       return true;
@@ -65,9 +64,16 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
   if (isActive()) {
     Dragging& d = dragging.value();
     auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
-    if (d.rotating) {
+    if (d.dragType == HitType::Rotate) {
       auto rotation_R = Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R);
       d.newRectangle.orientation = rotation_R * d.oldRectangle.orientation;
+    } else if (d.dragType == HitType::Resize) {
+      // Compute diff in upper right quadrant.
+      auto sizeDiff = intersection_R.array().abs().matrix() - d.dragPoint_R.array().abs().matrix();
+      d.newRectangle.size = d.oldRectangle.size + sizeDiff.head<2>();
+      auto T_RW = computeT_RW(d.oldRectangle);
+      auto diff_R = intersection_R - d.dragPoint_R;
+      d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R * 0.5;
     } else {
       auto T_RW = computeT_RW(d.oldRectangle);
       Vector3f diff_R = intersection_R - d.dragPoint_R;
@@ -78,7 +84,7 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
   } else {
     for (auto& rect : scene.getRectangles()) {
       auto hitType = hitTest(viewContext, rect);
-      if (hitType > none) {
+      if (hitType > None) {
         rect.rotateControl = true;
       } else {
         rect.rotateControl = false;
@@ -92,10 +98,9 @@ bool RectangleAffordances::leftButtonUp(const ViewContext3D& viewContext) {
   if (isActive()) {
     auto& d = dragging.value();
     if (!d.copying) {
-      auto command = std::make_unique<commands::MoveRectangleCommand>(
-          d.newRectangle,
-          d.oldRectangle.center,
-          d.newRectangle.center);
+      auto command = std::make_unique<commands::EditRectangleCommand>(
+          d.oldRectangle,
+          d.newRectangle);
       timeline.pushCommand(std::move(command));
     }
     dragging.reset();
@@ -116,15 +121,25 @@ RectangleAffordances::HitType RectangleAffordances::hitTest(const ViewContext3D&
   Vector3f ray_R = T_RW.rotation() * ray_W;
   float t = -o_R[2] / ray_R[2];
   Vector3f intersection_R = o_R + t * ray_R;
-  float halfWidth = rectangle.width() * 0.5f;
-  float halfHeight = rectangle.height() * 0.5f;
-  if (intersection_R.norm() / std::min(rectangle.width(), rectangle.height()) < 0.125f) {
-    return HitType::rotate;
+  float width = rectangle.width();
+  float height = rectangle.height();
+  float halfWidth = width * 0.5f;
+  float halfHeight = height * 0.5f;
+
+
+  if (intersection_R.norm() / std::min(width, height) < 0.125f) {
+    return HitType::Rotate;
   } else if (intersection_R[0] > -halfWidth && intersection_R[0] < halfWidth &&
     intersection_R[1] > -halfHeight && intersection_R[1] < halfHeight) {
-    return HitType::rectangle;
+
+    Vector2f upperRightQuadrantPoint = Vector2f(intersection_R[0], intersection_R[1]).array().abs();
+    auto canonicalCorner = Vector2f(halfWidth, halfHeight);
+    if ((upperRightQuadrantPoint - canonicalCorner).norm() < 0.2 * std::min(height, width)) {
+      return HitType::Resize;
+    }
+    return HitType::Move;
   }
-  return HitType::none;
+  return HitType::None;
 }
 
 AffordanceView::AffordanceView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId),

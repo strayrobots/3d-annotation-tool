@@ -3,6 +3,7 @@
 #include <eigen3/Eigen/Dense>
 #include "commands/command.h"
 #include "scene_model.h"
+#include <cassert>
 
 namespace commands {
 
@@ -27,25 +28,22 @@ public:
   };
 };
 
-class MoveRectangleCommand : public Command {
+class EditRectangleCommand : public Command {
 private:
-  const Rectangle rectangle;
-  Vector3f oldPosition;
-  Vector3f newPostion;
+  const Rectangle oldRectangle;
+  const Rectangle newRectangle;
 public:
-  MoveRectangleCommand(Rectangle rectangle, Vector3f oldCenter, Vector3f newCenter) :
-    rectangle(rectangle), oldPosition(oldCenter), newPostion(newCenter) {}
+  EditRectangleCommand(Rectangle rectangle, Rectangle newRectangle) :
+    oldRectangle(rectangle), newRectangle(newRectangle) {
+      assert(rectangle.id == newRectangle.id);
+    }
 
   void execute(SceneModel& sceneModel) override {
-    Rectangle rect(rectangle);
-    rect.center = newPostion;
-    sceneModel.updateRectangle(rect);
+    sceneModel.updateRectangle(newRectangle);
   }
 
   void undo(SceneModel& sceneModel) override {
-    Rectangle rect(rectangle);
-    rect.center = oldPosition;
-    sceneModel.updateRectangle(rect);
+    sceneModel.updateRectangle(oldRectangle);
   }
 
 };
