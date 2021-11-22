@@ -4,9 +4,9 @@ $input v_texcoord0
 
 const float borderWidth = 0.05;
 
-const vec4 innerColor = vec4(0.4, 1.0, 0.5, 1.0);
-const vec4 outerColor = vec4(0.0, 0.8, 0.0, 1.0);
-const vec4 circleColor = vec4(0.8, 1.0, 0.8, 1.0);
+const vec4 innerColor = vec4(0.4, 1.0, 0.5, 0.75);
+const vec4 outerColor = vec4(0.0, 0.8, 0.0, 0.75);
+const vec4 circleColor = vec4(0.8, 1.0, 0.8, 0.75);
 
 uniform vec4 u_scale;
 

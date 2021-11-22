@@ -22,5 +22,7 @@ public:
   void render() const;
 private:
   void setRandomImage();
+  void setImage(float t);
+  void setImage(int i);
 };
 }
