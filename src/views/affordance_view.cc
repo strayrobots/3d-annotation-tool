@@ -65,7 +65,12 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
     Dragging& d = dragging.value();
     auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
     if (d.dragType == HitType::Rotate) {
-      auto rotation_R = Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R);
+      AngleAxisf rotation_R = AngleAxisf(Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R));
+      if (viewContext.modifiers == ModShift) {
+        // If shift key is held down, make the rotation relative to the amount dragged.
+
+        rotation_R.angle() = ((intersection_R - d.dragPoint_R).norm() / d.oldRectangle.width()) * 0.2 * M_PI;
+      }
       d.newRectangle.orientation = rotation_R * d.oldRectangle.orientation;
     } else if (d.dragType == HitType::Resize) {
       // Compute diff in upper right quadrant.

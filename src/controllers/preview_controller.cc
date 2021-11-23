@@ -26,7 +26,8 @@ void PreviewController::viewWillAppear(const views::Rect& rect) {
 
 bool PreviewController::leftButtonUp(const ViewContext3D& viewContext) {
   if (rect.hit(viewContext)) {
-    setRandomImage();
+    float t = (viewContext.mousePositionX - rect.x) / rect.width;
+    setImage(t);
     return true;
   }
   return false;
@@ -48,22 +49,28 @@ void PreviewController::setRandomImage() {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::mt19937 rng(seed);
   auto images = model.imagePaths();
-  std::vector<fs::path> sampled;
-  std::sample(images.begin(),
-      images.end(),
-      std::back_inserter(sampled),
-      1,
-      rng);
+  std::uniform_int_distribution<> distribution(0, images.size());
+  int sampled = distribution(rng);
+  setImage(sampled);
+}
 
-  fs::path imagePath = sampled[0];
-  int imageIndex = std::stoi(imagePath.stem());
-  Matrix4f T_CW = model.cameraTrajectory()[imageIndex];
+void PreviewController::setImage(float t) {
+  auto images = model.imagePaths();
+  int imageCount = images.size();
+  t = std::clamp(t, 0.0f, 1.0f);
+  int imageIndex = std::floor(t * float(imageCount));
+  setImage(imageIndex);
+}
+
+void PreviewController::setImage(int i) {
+  auto images = model.imagePaths();
+  Matrix4f T_CW = model.cameraTrajectory()[i];
   Vector3f p_C = T_CW.block<3, 1>(0, 3);
   Quaternionf R_C(T_CW.block<3, 3>(0, 0));
   auto R_WC = AngleAxisf(M_PI, Vector3f::UnitX());
   viewContext.camera.setOrientation((R_C * R_WC).normalized());
   viewContext.camera.setPosition(p_C);
-  imageView = std::make_unique<views::ImagePane>(sampled[0], viewId);
+  imageView = std::make_unique<views::ImagePane>(images[i], viewId);
 }
 
 void PreviewController::render() const {
