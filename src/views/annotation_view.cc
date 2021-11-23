@@ -23,8 +23,7 @@ void AnnotationView::render(const ViewContext3D& context) const {
     bboxView.render(bbox);
   }
   for (auto& rectangle : sceneModel.getRectangles()) {
-    setCameraTransform(context);
-    rectangleView.render(rectangle);
+    rectangleView.render(context, rectangle);
   }
 }
 } // namespace views

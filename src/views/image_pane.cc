@@ -15,6 +15,7 @@ static const float vertices[] = {
 static const uint16_t indices[] = {
     0, 3, 1,
     0, 2, 3};
+
 ImagePane::ImagePane(const std::string& path, int viewId) : View(viewId) {
   bgfx::VertexLayout layout;
   layout.begin()

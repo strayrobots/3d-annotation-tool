@@ -10,6 +10,7 @@ Rectangle::Rectangle(const Rectangle& rect) {
   center = rect.center;
   orientation = rect.orientation;
   size = rect.size;
+  rotateControl = rect.rotateControl;
 }
 
 Rectangle::Rectangle(const std::array<Vector3f, 4>& vertices) {

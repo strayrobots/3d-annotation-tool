@@ -10,6 +10,8 @@ struct Rectangle {
   // Rotation from canonical world coordinates to local coordinates.
   Quaternionf orientation;
   Vector2f size; // width, height.
+  bool rotateControl = false;
+
   Rectangle();
   Rectangle(const Rectangle& rectangle);
   Rectangle(const std::array<Vector3f, 4>&);
