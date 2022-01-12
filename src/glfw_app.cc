@@ -1,9 +1,8 @@
 #include "glfw_app.h"
 #include <bgfx/platform.h>
-#include <bx/handlealloc.h>
-#include <bx/thread.h>
+//#include <bx/handlealloc.h>
 #include <iostream>
-#include <eigen3/Eigen/Dense>
+#include "eigen.h"
 #if BX_PLATFORM_OSX
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
@@ -21,6 +20,7 @@ static void* glfwNativeWindowHandle(GLFWwindow* _window) {
   return glfwGetCocoaWindow(_window);
 #elif BX_PLATFORM_WINDOWS
   return glfwGetWin32Window(_window);
+#elif
 #endif // BX_PLATFORM_
 }
 
@@ -49,20 +49,20 @@ GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
     std::cout << "Could not initialize glfw" << std::endl;
     return;
   }
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-#else
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#endif
-  glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
+// #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+//   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+//   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+// #else
+//   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+// #endif
+//   glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
   window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
   if (!window) {
     std::cout << "Failed to create window." << std::endl;
   }
 
-  glfwSetWindowUserPointer(window, this);
+  //glfwSetWindowUserPointer(window, this);
 
   bgfx::renderFrame();
 
@@ -81,13 +81,12 @@ GLFWApp::GLFWApp(std::string name, int w, int h) : width(w), height(h) {
   glfwGetWindowSize(window, &width, &height);
   init.resolution.width = (uint32_t)width;
   init.resolution.height = (uint32_t)height;
-  init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_HIDPI;
+  //init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_HIDPI;
 
   if (!bgfx::init(init)) {
     std::cout << "Could not init bgfx!" << std::endl;
   }
-  glfwShowWindow(window);
-  glfwGetWindowSize(window, &width, &height);
+  //glfwShowWindow(window);
 }
 
 GLFWApp::~GLFWApp() {

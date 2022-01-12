@@ -1,5 +1,5 @@
 #pragma once
-#include <eigen3/Eigen/Dense>
+#include "eigen.h"
 
 using namespace Eigen;
 

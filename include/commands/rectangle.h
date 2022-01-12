@@ -1,6 +1,6 @@
 #pragma once
 #include <algorithm>
-#include <eigen3/Eigen/Dense>
+#include "eigen.h"
 #include "commands/command.h"
 #include "scene_model.h"
 #include <cassert>

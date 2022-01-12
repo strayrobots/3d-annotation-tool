@@ -1,6 +1,6 @@
 #include <omp.h>
 #include <3rdparty/happly.h>
-#include <eigen3/Eigen/Dense>
+#include "eigen.h"
 #include <bx/math.h>
 #include "views/view.h"
 #include "shader_utils.h"

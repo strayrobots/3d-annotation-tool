@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 #include <bgfx/bgfx.h>
-#include <eigen3/Eigen/Geometry>
+#include "eigen.h"
 #include "geometry/mesh.h"
 #include "geometry/ray_trace_mesh.h"
 #include "views/mesh_view.h"

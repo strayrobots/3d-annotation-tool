@@ -1,7 +1,7 @@
 
 #include <3rdparty/happly.h>
-#include <eigen3/Eigen/Dense>
-#include <omp.h>
+//#include <omp.h>
+#include "eigen.h"
 #include "views/view.h"
 #include "shader_utils.h"
 #include "views/mesh_view.h"

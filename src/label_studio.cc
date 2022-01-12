@@ -135,13 +135,15 @@ void LabelStudio::loadState() {
     std::unique_ptr<Command> command = std::make_unique<commands::AddBBoxCommand>(box);
     timeline.pushCommand(std::move(command));
   }
+  int i = 0;
   for (auto& rectangle : json["rectangles"]) {
-    Rectangle rect(0, rectangle["class_id"],
+    Rectangle rect(i, rectangle["class_id"],
         utils::serialize::toVector3(rectangle["center"]),
         utils::serialize::toQuaternion(rectangle["orientation"]),
         utils::serialize::toVector2(rectangle["size"])
       );
     std::unique_ptr<Command> command = std::make_unique<commands::AddRectangleCommand>(rect);
     timeline.pushCommand(std::move(command));
+    i++;
   }
 }

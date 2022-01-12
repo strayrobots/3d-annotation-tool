@@ -1,6 +1,8 @@
 #include "views/affordance_view.h"
 #include "id.h"
 
+#include <iostream>
+
 namespace views {
 
 using TMatrix = Eigen::Transform<float, 3, Eigen::Affine>;
@@ -66,10 +68,13 @@ bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
     auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
     if (d.dragType == HitType::Rotate) {
       AngleAxisf rotation_R = AngleAxisf(Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R));
+      std::cout << "modifier: " << viewContext.modifiers << std::endl;
       if (viewContext.modifiers == ModShift) {
         // If shift key is held down, make the rotation relative to the amount dragged.
+        rotation_R = AngleAxisf(0.0f, Vector3f::UnitZ());
 
-        rotation_R.angle() = ((intersection_R - d.dragPoint_R).norm() / d.oldRectangle.width()) * 0.2 * M_PI;
+        rotation_R.angle() = ((intersection_R - d.dragPoint_R).sum() / d.oldRectangle.width()) * 0.1 * M_PI;
+        std::cout << "angle: " << rotation_R.angle() << std::endl;
       }
       d.newRectangle.orientation = rotation_R * d.oldRectangle.orientation;
     } else if (d.dragType == HitType::Resize) {

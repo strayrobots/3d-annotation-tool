@@ -1,6 +1,5 @@
-#ifndef H_MESH_VIEW
-#define H_MESH_VIEW
-#include <eigen3/Eigen/Dense>
+#pragma once
+#include "eigen.h"
 #include <bgfx/bgfx.h>
 #include <vector>
 #include <memory>
@@ -38,4 +37,3 @@ public:
 };
 
 } // namespace views
-#endif
