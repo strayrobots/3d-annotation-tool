@@ -155,6 +155,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   if (mod == ModShift && character == '1') {
     sceneModel.activeView = active_view::MeshView;
   } else if (mod == ModShift && character == '2') {
+    pointCloudView.loadPointCloud();
     sceneModel.activeView = active_view::PointCloudView;
   } else if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
