@@ -6,6 +6,7 @@
 #include <map>
 #include "model/rectangle.h"
 #include "geometry/mesh.h"
+#include "geometry/point_cloud.h"
 #include "geometry/ray_trace_mesh.h"
 #include "camera.h"
 
@@ -44,6 +45,13 @@ enum ActiveTool {
   AddRectangleToolId
 };
 
+namespace active_view {
+enum ActiveView {
+  MeshView,
+  PointCloudView
+};
+}
+
 namespace fs = std::filesystem;
 
 class SceneModel {
@@ -51,6 +59,7 @@ private:
   fs::path datasetPath;
 
   std::shared_ptr<geometry::TriangleMesh> mesh;
+  std::shared_ptr<geometry::PointCloud> pointCloud;
   std::optional<geometry::RayTraceMesh> rtMesh;
 
   // Annotations.
@@ -65,12 +74,14 @@ public:
   int activeKeypoint = -1;
   int activeBBox = -1;
   int currentInstanceId = 0;
+  active_view::ActiveView activeView = active_view::MeshView;
   ActiveTool activeToolId = AddKeypointToolId;
   DatasetMetadata datasetMetadata;
 
   SceneModel(const std::string& datasetFolder, bool rayTracing = true);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh() const;
+  std::shared_ptr<geometry::PointCloud> getPointCloud();
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction);
   geometry::Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction);
 
@@ -110,5 +121,6 @@ private:
   void initRayTracing();
   void loadCameraParams();
   void loadSceneMetadata();
+  void loadPointCloud();
 };
 #endif

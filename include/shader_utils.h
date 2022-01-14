@@ -1,5 +1,4 @@
-#ifndef H_SHADER_UTILS
-#define H_SHADER_UTILS
+#pragma once
 #include <bgfx/bgfx.h>
 #include <bx/file.h>
 
@@ -10,4 +9,3 @@ bgfx::ShaderHandle loadShader(bx::FileReader* reader, const char* _name);
 bgfx::ProgramHandle loadProgram(const char* vertexShader, const char* fragmentShader);
 
 } // namespace shader_utils
-#endif

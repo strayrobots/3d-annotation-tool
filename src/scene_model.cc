@@ -19,6 +19,13 @@ SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : data
 
 std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
 
+std::shared_ptr<geometry::PointCloud> SceneModel::getPointCloud() {
+  if (pointCloud == nullptr) {
+    loadPointCloud();
+  }
+  return pointCloud;
+}
+
 std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vector3f& direction) {
   if (!rtMesh.has_value()) return {};
   return rtMesh->traceRay(origin, direction);
@@ -350,3 +357,9 @@ void SceneModel::loadSceneMetadata() {
     }
   }
 }
+
+void SceneModel::loadPointCloud() {
+  pointCloud = std::make_shared<geometry::PointCloud>((datasetPath / "scene" / "cloud.ply").string());
+}
+
+

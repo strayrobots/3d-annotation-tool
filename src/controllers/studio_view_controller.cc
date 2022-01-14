@@ -11,6 +11,7 @@ StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : vi
                                                                                           viewContext(sceneModel.sceneCamera()),
                                                                                           annotationView(model, viewId),
                                                                                           sceneMeshView(model.getMesh(), viewId),
+                                                                                          pointCloudView(model, viewId),
                                                                                           addKeypointView(model, tl, viewId),
                                                                                           moveToolView(model, tl, viewId),
                                                                                           addBBoxView(model, tl, viewId),
@@ -61,10 +62,14 @@ void StudioViewController::render() const {
     addRectangleView.render(viewContext);
   }
 
-  if (sceneModel.activeToolId == AddKeypointToolId) {
-    sceneMeshView.render(viewContext);
+  if (sceneModel.activeView == active_view::MeshView) {
+    if (sceneModel.activeToolId == AddKeypointToolId) {
+      sceneMeshView.render(viewContext);
+    } else {
+      sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.5));
+    }
   } else {
-    sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.5));
+    pointCloudView.render(viewContext);
   }
   statusBarView.render();
   preview->render();
@@ -147,7 +152,11 @@ void StudioViewController::resize(const views::Rect& rect) {
 
 bool StudioViewController::keypress(char character, const InputModifier mod) {
   Controller::keypress(character, mod);
-  if (character == 'K') {
+  if (mod == ModShift && character == '1') {
+    sceneModel.activeView = active_view::MeshView;
+  } else if (mod == ModShift && character == '2') {
+    sceneModel.activeView = active_view::PointCloudView;
+  } else if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
   } else if (character == 'V' && mod == ModNone) {
