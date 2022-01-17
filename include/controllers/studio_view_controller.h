@@ -7,6 +7,7 @@
 #include "view_context_3d.h"
 #include "controllers/controller.h"
 #include "controllers/preview_controller.h"
+#include "views/point_cloud_view.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
 #include "views/move_tool_view.h"
@@ -27,6 +28,7 @@ private:
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
   views::MeshDrawable sceneMeshView;
+  views::PointCloudView pointCloudView;
 
   // Tool views.
   views::AddKeypointView addKeypointView;
