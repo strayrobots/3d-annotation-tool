@@ -1,4 +1,4 @@
-import undoable from 'redux-undo';
+import undoable, { excludeAction } from 'redux-undo';
 import { createSlice } from '@reduxjs/toolkit';
 
 export const pointSlice = createSlice({
@@ -42,6 +42,8 @@ export const pointSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const { addPoint, setFrame, setFrames } = pointSlice.actions;
 
-const undoablePoints = undoable(pointSlice.reducer);
+const undoablePoints = undoable(pointSlice.reducer, {
+  filter: excludeAction(['points/setFrames'])
+});
 
 export default undoablePoints;
