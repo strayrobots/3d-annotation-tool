@@ -8,6 +8,7 @@
 #include "geometry/mesh.h"
 #include "geometry/point_cloud.h"
 #include "geometry/ray_trace_mesh.h"
+#include "geometry/ray_trace_cloud.h"
 #include "camera.h"
 
 struct Keypoint {
@@ -61,6 +62,7 @@ private:
   std::shared_ptr<geometry::TriangleMesh> mesh;
   std::shared_ptr<geometry::PointCloud> pointCloud;
   std::optional<geometry::RayTraceMesh> rtMesh;
+  std::optional<geometry::RayTraceCloud> rtPointCloud;
 
   // Annotations.
   std::vector<Keypoint> keypoints;
