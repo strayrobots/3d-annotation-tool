@@ -44,13 +44,18 @@ void PointCloudView::loadPointCloud() {
   initialized = true;
 }
 
+void PointCloudView::changeSize(float diff) {
+  pointSize = std::clamp(pointSize + diff, 1.0f, 10.0f);
+}
+
 void PointCloudView::render(const ViewContext3D& context) const {
   if (!initialized) return;
   setCameraTransform(context);
+  unsigned int size = std::round(pointSize);
   bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_POINTS
       | BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A
       | BGFX_STATE_BLEND_ALPHA
-      | BGFX_STATE_POINT_SIZE(1));
+      | BGFX_STATE_POINT_SIZE(size));
   bgfx::setVertexBuffer(0, vertexBuffer);
   bgfx::setIndexBuffer(indexBuffer);
   bgfx::submit(viewId, program);

@@ -152,6 +152,15 @@ void StudioViewController::resize(const views::Rect& rect) {
 
 bool StudioViewController::keypress(char character, const InputModifier mod) {
   Controller::keypress(character, mod);
+  if (sceneModel.activeView == active_view::PointCloudView) {
+    if (mod & ModCtrl && (character == '+' || character == '=')) {
+      pointCloudView.changeSize(1.0f);
+      return true;
+    } else if (mod & ModCtrl && character == '-') {
+      pointCloudView.changeSize(-1.0f);
+      return true;
+    }
+  }
   if (mod == ModShift && character == '1') {
     sceneModel.activeView = active_view::MeshView;
   } else if (mod == ModShift && character == '2') {

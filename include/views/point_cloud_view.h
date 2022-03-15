@@ -20,9 +20,11 @@ private:
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
   bool initialized = false;
+  float pointSize = 1.0f;
 public:
   PointCloudView(SceneModel& model, int viewId);
   ~PointCloudView();
+  void changeSize(float diff);
   void loadPointCloud();
   void packVertexData();
   void render(const ViewContext3D& context) const;

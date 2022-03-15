@@ -68,6 +68,9 @@ void LabelStudio::setInputModifier(int mods) {
   if (mods & AltModifier) {
     inputModifier = inputModifier | ModAlt;
   }
+  if (mods & CtrlModifier) {
+    inputModifier = inputModifier | ModCtrl;
+  }
 }
 
 void LabelStudio::leftButtonDown(double x, double y) {
