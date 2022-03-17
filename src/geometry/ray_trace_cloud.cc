@@ -5,7 +5,7 @@ using namespace particle_tracing;
 
 using RowMatrixf = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
-RayTraceCloud::RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc) : pointCloud(pc) {
+RayTraceCloud::RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc, float& size) : pointCloud(pc), pointSize(size) {
   nanort::BVHBuildOptions<float> options;
   options.cache_bbox = false;
   RowMatrixf vertices = pointCloud->points;
@@ -27,7 +27,7 @@ Intersection RayTraceCloud::traceRayIntersection(const Vector3f& origin, const V
   ray.dir[1] = direction[1];
   ray.dir[2] = direction[2];
 
-  float pointRadius = 0.025f;
+  float pointRadius = 0.01f * pointSize;
   const float* points = &pointCloud->points.data()[0];
   SphereIntersector<SphereIntersection> intersector(points, pointRadius);
   SphereIntersection intersection;

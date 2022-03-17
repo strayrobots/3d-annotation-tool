@@ -370,7 +370,7 @@ void SceneModel::loadSceneMetadata() {
 
 void SceneModel::loadPointCloud() {
   pointCloud = std::make_shared<geometry::PointCloud>((datasetPath / "scene" / "cloud.ply").string());
-  rtPointCloud.emplace(pointCloud);
+  rtPointCloud.emplace(pointCloud, pointCloudPointSize);
 }
 
 

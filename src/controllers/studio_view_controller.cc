@@ -150,6 +150,7 @@ void StudioViewController::resize(const views::Rect& rect) {
   statusBarView.setRect(statusBarRect());
 }
 
+
 bool StudioViewController::keypress(char character, const InputModifier mod) {
   Controller::keypress(character, mod);
   if (sceneModel.activeView == active_view::PointCloudView) {

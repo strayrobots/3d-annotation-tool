@@ -11,8 +11,9 @@ class RayTraceCloud {
 private:
   std::shared_ptr<PointCloud> pointCloud;
   nanort::BVHAccel<float> bvh;
+  float& pointSize;
 public:
-  RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc);
+  RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc, float& pointCloudPointSize);
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction) const;
   Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const;
 };
