@@ -95,6 +95,13 @@ const App = () => {
       });
   };
 
+
+  const handleSave = () => {
+    axios
+      .post(baseURL + 'save')
+      .catch(error => console.log("Error: ", error))
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -122,7 +129,7 @@ const App = () => {
         )}
         <StatusBar>
           <InstanceIdPicker handleCategoryIdChange={handleCategoryIdChange} categoryId={categoryId} />
-          <Controls handleTriangulate={handleTriangulate} />
+          <Controls handleSave={handleSave} handleTriangulate={handleTriangulate} />
           <Box sx={{display: 'flex'}}>
             <Undo />
             <Redo />

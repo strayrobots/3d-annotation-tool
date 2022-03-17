@@ -3,7 +3,7 @@ from flask.views import MethodView
 import os
 from flask_cors import CORS
 import json
-from straylib.scene import Scene
+from stray.scene import Scene, Keypoint
 import cv2
 import numpy as np
 
@@ -61,6 +61,7 @@ class PathView(MethodView):
 
             projected = []
 
+
             camera = scene.camera().scale((640,480))
             files = [os.path.basename(path) for path in scene.get_image_filepaths()]
 
@@ -83,6 +84,10 @@ class PathView(MethodView):
         else:
             res = make_response('Not found', 404)
         return res
+
+        
+        
+
 
 
 path_view = PathView.as_view('path_view')

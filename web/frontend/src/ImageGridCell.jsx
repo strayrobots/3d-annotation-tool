@@ -87,7 +87,7 @@ const ImageGridCell = ({
                 key={i}
                 x={kp.x}
                 y={kp.y}
-                radius={10}
+                radius={3}
                 fill={INSTANCE_COLORS[kp.categoryId]}
                 draggable
                 onDragStart={handleDragStart}

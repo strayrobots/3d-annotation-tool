@@ -60,10 +60,11 @@ Redo = connect(mapStateToProps)(Redo);
 
 const Controls = ({
   handleTriangulate,
+  handleSave
 }) => {
   return (
     <FormControl sx={{ m: 1, minWidth: 120 }}>
-      <Button variant="text">Save</Button>
+      <Button onClick={handleSave} variant="text">Save</Button>
       <Button onClick={handleTriangulate} variant="text">
         Apply to all
       </Button>
