@@ -18,8 +18,6 @@ private:
   SceneModel& sceneModel;
   Timeline& timeline;
   std::vector<Eigen::Vector3f> points;
-  std::optional<Vector3f> pointingAt;
-  std::optional<Vector3f> pointingAtNormal;
   std::vector<Vector3f> rectangleCorners;
   std::vector<Vector3f> normals;
 
@@ -34,7 +32,7 @@ public:
   void render(const ViewContext3D& context) const;
 private:
   bool hasRectangle() const;
-  void computeVertices();
+  void computeVertices(const ViewContext3D& context);
   void commit();
 };
 } // namespace views

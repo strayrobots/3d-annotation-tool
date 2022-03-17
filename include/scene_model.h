@@ -76,7 +76,7 @@ public:
   int activeKeypoint = -1;
   int activeBBox = -1;
   int currentInstanceId = 0;
-  float pointCloudPointSize = 1.0f;
+  float pointCloudPointSize = 3.0f;
   active_view::ActiveView activeView = active_view::MeshView;
   ActiveTool activeToolId = AddKeypointToolId;
   DatasetMetadata datasetMetadata;

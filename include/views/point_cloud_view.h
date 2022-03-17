@@ -19,6 +19,7 @@ private:
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
+  bgfx::UniformHandle u_activePoint;
   bool initialized = false;
 public:
   PointCloudView(SceneModel& model, int viewId);

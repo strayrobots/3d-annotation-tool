@@ -211,5 +211,16 @@ void StudioViewController::updateViewContext(double x, double y, InputModifier m
   viewContext.modifiers = mod;
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+
+  const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
+                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
+  auto intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
+  if (intersection.hit) {
+    viewContext.pointingAt = intersection.point;
+    viewContext.pointingAtNormal = intersection.normal;
+  } else {
+    viewContext.pointingAt = {};
+    viewContext.pointingAtNormal = {};
+  }
 }
 

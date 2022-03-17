@@ -27,7 +27,7 @@ Intersection RayTraceCloud::traceRayIntersection(const Vector3f& origin, const V
   ray.dir[1] = direction[1];
   ray.dir[2] = direction[2];
 
-  float pointRadius = 0.01f * pointSize;
+  float pointRadius = 0.005f * pointSize;
   const float* points = &pointCloud->points.data()[0];
   SphereIntersector<SphereIntersection> intersector(points, pointRadius);
   SphereIntersection intersection;
