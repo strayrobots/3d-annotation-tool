@@ -8,15 +8,15 @@ using namespace commands;
 using namespace views;
 
 StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
-                                                                                          viewContext(sceneModel.sceneCamera()),
-                                                                                          annotationView(model, viewId),
-                                                                                          sceneMeshView(model.getMesh(), viewId),
-                                                                                          pointCloudView(model, viewId),
-                                                                                          addKeypointView(model, tl, viewId),
-                                                                                          moveToolView(model, tl, viewId),
-                                                                                          addBBoxView(model, tl, viewId),
-                                                                                          addRectangleView(model, tl, viewId),
-                                                                                          statusBarView(model, IdFactory::getInstance().getId()) {
+                                                                              viewContext(sceneModel.sceneCamera()),
+                                                                              annotationView(model, viewId),
+                                                                              sceneMeshView(model.getMesh(), viewId),
+                                                                              pointCloudView(model, viewId),
+                                                                              addKeypointView(model, tl, viewId),
+                                                                              moveToolView(model, tl, viewId),
+                                                                              addBBoxView(model, tl, viewId),
+                                                                              addRectangleView(model, tl, viewId),
+                                                                              statusBarView(model, IdFactory::getInstance().getId()) {
   imageSize = model.imageSize();
   preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
   addSubController(std::static_pointer_cast<controllers::Controller>(preview));
@@ -185,16 +185,14 @@ views::Rect StudioViewController::previewRect() const {
   float previewWidth = 0.25 * viewContext.width;
   float previewHeight = aspectRatio * previewWidth;
   return {
-    .x = float(viewContext.width - previewWidth),
-    .y = 0.0,
-    .width = previewWidth,
-    .height = previewHeight
-  };
+      .x = float(viewContext.width - previewWidth),
+      .y = 0.0,
+      .width = previewWidth,
+      .height = previewHeight};
 }
 
 views::Rect StudioViewController::statusBarRect() const {
-  return {.x = 0, .y = float(viewContext.height),
-    .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
+  return {.x = 0, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
 }
 
 void StudioViewController::updateViewContext(double x, double y, InputModifier mod) {
@@ -203,3 +201,4 @@ void StudioViewController::updateViewContext(double x, double y, InputModifier m
   viewContext.mousePositionY = y;
 }
 
+LabelStudioViewController::LabelStudioViewController(SceneModel& model, Timeline& tl) : StudioViewController(model, tl){};

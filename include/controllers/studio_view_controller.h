@@ -40,6 +40,7 @@ private:
 
   // Sub-controllers
   std::shared_ptr<controllers::PreviewController> preview;
+
 public:
   StudioViewController(SceneModel& model, Timeline& timeline);
   void viewWillAppear(const views::Rect& r) override;
@@ -53,9 +54,15 @@ public:
   bool scroll(double xoffset, double yoffset, InputModifier mod);
   bool keypress(char character, const InputModifier mod) override;
   void resize(const views::Rect& r) override;
+
 private:
   views::View3D& getActiveToolView();
   views::Rect previewRect() const;
   views::Rect statusBarRect() const;
   void updateViewContext(double x, double y, InputModifier mod);
+};
+
+class LabelStudioViewController : public StudioViewController {
+public:
+  LabelStudioViewController(SceneModel& model, Timeline& timeline);
 };

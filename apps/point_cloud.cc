@@ -3,7 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include "3rdparty/cxxopts.h"
-#include "label_studio.h"
+#include "point_cloud_studio.h"
 
 void validateFlags(const cxxopts::ParseResult& flags) {
   bool valid = true;
@@ -26,15 +26,15 @@ void validateFlags(const cxxopts::ParseResult& flags) {
 }
 
 int main(int argc, char* argv[]) {
-  cxxopts::Options options("Studio", "Annotate the world in 3D.");
-  options.add_options()("dataset", "That path to folder of the dataset to annotate.",
+  cxxopts::Options options("Stray Point Cloud Studio", "Annotate the world.");
+  options.add_options()("dataset", "That path to the directory containing point clouds to annotate.",
                         cxxopts::value<std::vector<std::string>>());
   options.parse_positional({"dataset"});
   cxxopts::ParseResult flags = options.parse(argc, argv);
   validateFlags(flags);
   std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
 
-  LabelStudio window(dataset);
+  PointCloudStudio window(dataset);
 
   while (window.update()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));

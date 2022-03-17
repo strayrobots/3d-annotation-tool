@@ -3,16 +3,16 @@
 #include "glfw_app.h"
 #include "scene_model.h"
 #include "timeline.h"
-#include "controllers/studio_view_controller.h"
+#include "controllers/point_cloud_studio_view_controller.h"
 
 using namespace commands;
-class LabelStudio : public GLFWApp {
+class PointCloudStudio : public GLFWApp {
 public:
-  LabelStudioSceneModel sceneModel;
-  LabelStudioViewController studioViewController;
+  PointCloudStudioSceneModel sceneModel;
+  PointCloudStudioViewController studioViewController;
   InputModifier inputModifier = ModNone;
 
-  LabelStudio(const std::string& folder);
+  PointCloudStudio(const std::string& folder);
 
   void leftButtonDown(double x, double y);
   void setInputModifier(int mods);

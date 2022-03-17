@@ -1,4 +1,4 @@
-#include "label_studio.h"
+#include "point_cloud_studio.h"
 #include <memory>
 #include <filesystem>
 #include <fstream>
@@ -9,12 +9,12 @@
 #include "commands/rectangle.h"
 #include "utils/serialize.h"
 
-LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 800),
-                                                      sceneModel(folder), studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
+PointCloudStudio::PointCloudStudio(const std::string& folder) : GLFWApp("Studio", 1200, 800),
+                                                                sceneModel(folder), studioViewController(sceneModel, timeline), timeline(sceneModel), datasetFolder(folder) {
   glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
     double x, y;
     glfwGetCursorPos(window, &x, &y);
-    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    PointCloudStudio* w = (PointCloudStudio*)glfwGetWindowUserPointer(window);
     w->setInputModifier(mods);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
       w->leftButtonDown(x, y);
@@ -24,21 +24,21 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 80
   });
 
   glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
-    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    PointCloudStudio* w = (PointCloudStudio*)glfwGetWindowUserPointer(window);
     w->mouseMoved(xpos, ypos);
   });
 
   glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
-    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    PointCloudStudio* w = (PointCloudStudio*)glfwGetWindowUserPointer(window);
     w->scroll(xoffset, yoffset);
   });
   glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
-    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    PointCloudStudio* w = (PointCloudStudio*)glfwGetWindowUserPointer(window);
     w->resize(width, height);
   });
 
   glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-    LabelStudio* w = (LabelStudio*)glfwGetWindowUserPointer(window);
+    PointCloudStudio* w = (PointCloudStudio*)glfwGetWindowUserPointer(window);
     w->setInputModifier(mods);
     if (action == GLFW_PRESS) {
       if ((CommandModifier == mods) && (GLFW_KEY_S == key)) {
@@ -57,7 +57,7 @@ LabelStudio::LabelStudio(const std::string& folder) : GLFWApp("Studio", 1200, 80
   loadState();
 }
 
-void LabelStudio::setInputModifier(int mods) {
+void PointCloudStudio::setInputModifier(int mods) {
   inputModifier = ModNone;
   if (mods & CommandModifier) {
     inputModifier = inputModifier | ModCommand; // Only set bits of inputModifier
@@ -70,29 +70,29 @@ void LabelStudio::setInputModifier(int mods) {
   }
 }
 
-void LabelStudio::leftButtonDown(double x, double y) {
+void PointCloudStudio::leftButtonDown(double x, double y) {
   studioViewController.leftButtonDown(x, y, inputModifier);
 }
 
-void LabelStudio::leftButtonUp(double x, double y) {
+void PointCloudStudio::leftButtonUp(double x, double y) {
   studioViewController.leftButtonUp(x, y, inputModifier);
 }
 
-void LabelStudio::mouseMoved(double x, double y) {
+void PointCloudStudio::mouseMoved(double x, double y) {
   studioViewController.mouseMoved(x, y, inputModifier);
 }
 
-void LabelStudio::scroll(double xoffset, double yoffset) {
+void PointCloudStudio::scroll(double xoffset, double yoffset) {
   studioViewController.scroll(xoffset, yoffset, inputModifier);
 }
 
-void LabelStudio::resize(int newWidth, int newHeight) {
+void PointCloudStudio::resize(int newWidth, int newHeight) {
   GLFWApp::resize(newWidth, newHeight);
   views::Rect rect = {0.0f, 0.0f, float(newWidth), float(newHeight)};
   studioViewController.resize(rect);
 }
 
-bool LabelStudio::update() const {
+bool PointCloudStudio::update() const {
   studioViewController.render();
 
   bgfx::frame();
@@ -102,12 +102,12 @@ bool LabelStudio::update() const {
   return !glfwWindowShouldClose(window);
 }
 
-void LabelStudio::undo() {
+void PointCloudStudio::undo() {
   timeline.undoCommand();
   studioViewController.refresh();
 }
 
-void LabelStudio::loadState() {
+void PointCloudStudio::loadState() {
   std::filesystem::path annotationPath(datasetFolder / "annotations.json");
   if (!std::filesystem::exists(annotationPath))
     return;

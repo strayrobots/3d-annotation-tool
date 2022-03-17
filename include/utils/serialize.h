@@ -1,17 +1,13 @@
-#include "3rdparty/json.hpp"
+#pragma once
 
+#include "3rdparty/json.hpp"
+#include <eigen3/Eigen/Dense>
 namespace utils::serialize {
 
-Vector3f toVector3(const nlohmann::json& json) {
-  return Vector3f(json[0].get<float>(), json[1].get<float>(), json[2].get<float>());
-}
+Eigen::Vector3f toVector3(const nlohmann::json& json);
 
-Vector2f toVector2(const nlohmann::json& json) {
-  return Vector2f(json[0].get<float>(), json[1].get<float>());
-}
+Eigen::Vector2f toVector2(const nlohmann::json& json);
 
-Quaternionf toQuaternion(const nlohmann::json& json) {
-  return Quaternionf(json["w"].get<float>(), json["x"].get<float>(), json["y"].get<float>(), json["z"].get<float>());
-}
+Eigen::Quaternionf toQuaternion(const nlohmann::json& json);
 
-}
+} // namespace utils::serialize

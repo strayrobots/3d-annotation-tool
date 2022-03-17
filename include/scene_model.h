@@ -123,4 +123,11 @@ private:
   void loadSceneMetadata();
   void loadPointCloud();
 };
+
+class LabelStudioSceneModel : public SceneModel {
+};
+
+class PointCloudStudioSceneModel : public SceneModel {
+};
+
 #endif
