@@ -24,11 +24,10 @@ MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId
   packVertexData();
   createBuffers();
 
-  uniformProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
-  colorProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_colors");
-
   u_lightDir = bgfx::createUniform("u_light_dir", bgfx::UniformType::Vec4);
   u_color = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+  uniformProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_uniform");
+  colorProgram = shader_utils::loadProgram("vs_mesh", "fs_mesh_colors");
 }
 
 MeshDrawable::~MeshDrawable() {
