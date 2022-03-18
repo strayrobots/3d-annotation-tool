@@ -3,7 +3,8 @@
 #include <iostream>
 #include <filesystem>
 #include "3rdparty/cxxopts.h"
-#include "point_cloud_studio.h"
+#include "studio.h"
+#include "controllers/point_cloud_view_controller.h"
 
 void validateFlags(const cxxopts::ParseResult& flags) {
   bool valid = true;
@@ -34,7 +35,7 @@ int main(int argc, char* argv[]) {
   validateFlags(flags);
   std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
 
-  PointCloudStudio window(dataset);
+  Studio<PointCloudViewController> window(dataset);
 
   while (window.update()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));

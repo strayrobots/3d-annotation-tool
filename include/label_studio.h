@@ -8,8 +8,8 @@
 using namespace commands;
 class LabelStudio : public GLFWApp {
 public:
-  LabelStudioSceneModel sceneModel;
-  LabelStudioViewController studioViewController;
+  SceneModel sceneModel;
+  StudioViewController studioViewController;
   InputModifier inputModifier = ModNone;
 
   LabelStudio(const std::string& folder);

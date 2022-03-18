@@ -61,8 +61,3 @@ private:
   views::Rect statusBarRect() const;
   void updateViewContext(double x, double y, InputModifier mod);
 };
-
-class LabelStudioViewController : public StudioViewController {
-public:
-  LabelStudioViewController(SceneModel& model, Timeline& timeline);
-};

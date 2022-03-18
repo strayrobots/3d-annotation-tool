@@ -1,39 +1,37 @@
 #include <iostream>
 #include <cassert>
-#include "controllers/studio_view_controller.h"
+#include "controllers/point_cloud_view_controller.h"
 #include "commands/keypoints.h"
 #include "id.h"
 
 using namespace commands;
 using namespace views;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
-                                                                              viewContext(sceneModel.sceneCamera()),
-                                                                              annotationView(model, viewId),
-                                                                              sceneMeshView(model.getMesh(), viewId),
-                                                                              pointCloudView(model, viewId),
-                                                                              addKeypointView(model, tl, viewId),
-                                                                              moveToolView(model, tl, viewId),
-                                                                              addBBoxView(model, tl, viewId),
-                                                                              addRectangleView(model, tl, viewId),
-                                                                              statusBarView(model, IdFactory::getInstance().getId()) {
+PointCloudViewController::PointCloudViewController(SceneModel& model, const std::string& folder) : viewId(IdFactory::getInstance().getId()), sceneModel(model), timeline(sceneModel),
+                                                                                                   viewContext(sceneModel.sceneCamera()),
+                                                                                                   annotationView(model, viewId),
+                                                                                                   pointCloudView(model, viewId),
+                                                                                                   addKeypointView(model, timeline, viewId),
+                                                                                                   moveToolView(model, timeline, viewId),
+                                                                                                   addBBoxView(model, timeline, viewId),
+                                                                                                   addRectangleView(model, timeline, viewId),
+                                                                                                   statusBarView(model, IdFactory::getInstance().getId()) {
   imageSize = model.imageSize();
-  preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
-  addSubController(std::static_pointer_cast<controllers::Controller>(preview));
+  pointCloudView.loadPointCloud();
+  sceneModel.activeView = active_view::PointCloudView;
 }
 
-void StudioViewController::viewWillAppear(const views::Rect& rect) {
+void PointCloudViewController::viewWillAppear(const views::Rect& rect) {
   viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
 
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-  preview->viewWillAppear(previewRect());
   statusBarView.setRect(statusBarRect());
 }
 
-views::View3D& StudioViewController::getActiveToolView() {
+views::View3D& PointCloudViewController::getActiveToolView() {
   if (sceneModel.activeToolId == AddKeypointToolId) {
     return addKeypointView;
   } else if (sceneModel.activeToolId == MoveKeypointToolId) {
@@ -45,12 +43,12 @@ views::View3D& StudioViewController::getActiveToolView() {
   }
 }
 
-void StudioViewController::refresh() {
+void PointCloudViewController::refresh() {
   addBBoxView.refresh();
   moveToolView.refresh();
 }
 
-void StudioViewController::render() const {
+void PointCloudViewController::render() const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
@@ -62,26 +60,13 @@ void StudioViewController::render() const {
     addRectangleView.render(viewContext);
   }
 
-  if (sceneModel.activeView == active_view::MeshView) {
-    if (sceneModel.activeToolId == AddKeypointToolId) {
-      sceneMeshView.render(viewContext);
-    } else {
-      sceneMeshView.render(viewContext, Matrix4f::Identity(), Vector4f(0.92, 0.59, 0.2, 0.5));
-    }
-  } else {
-    pointCloudView.render(viewContext);
-  }
+  pointCloudView.render(viewContext);
   statusBarView.render();
-  preview->render();
 }
 
 // Input handling.
-bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod) {
+bool PointCloudViewController::leftButtonDown(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
-
-  if (preview->leftButtonDown(viewContext)) {
-    return true;
-  }
 
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
@@ -93,13 +78,10 @@ bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod)
   return true;
 }
 
-bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
+bool PointCloudViewController::leftButtonUp(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
   if (!moved) {
-    if (preview->leftButtonUp(viewContext)) {
-      return true;
-    }
     if (getActiveToolView().leftButtonUp(viewContext)) {
       dragging = false;
       moved = false;
@@ -112,7 +94,7 @@ bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   return false;
 }
 
-bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
+bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
   if (getActiveToolView().mouseMoved(viewContext)) {
@@ -137,20 +119,19 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
   return true;
 }
 
-bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
+bool PointCloudViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
   float diff = yoffset * 0.05;
   viewContext.camera.zoom(diff);
   return true;
 }
 
-void StudioViewController::resize(const views::Rect& rect) {
+void PointCloudViewController::resize(const views::Rect& rect) {
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
-  preview->resize(previewRect());
   statusBarView.setRect(statusBarRect());
 }
 
-bool StudioViewController::keypress(char character, const InputModifier mod) {
+bool PointCloudViewController::keypress(char character, const InputModifier mod) {
   Controller::keypress(character, mod);
   if (sceneModel.activeView == active_view::PointCloudView) {
     if (mod & ModCtrl && (character == '+' || character == '=')) {
@@ -161,12 +142,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
       return true;
     }
   }
-  if (mod == ModShift && character == '1') {
-    sceneModel.activeView = active_view::MeshView;
-  } else if (mod == ModShift && character == '2') {
-    pointCloudView.loadPointCloud();
-    sceneModel.activeView = active_view::PointCloudView;
-  } else if (character == 'K') {
+  if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
   } else if (character == 'V' && mod == ModNone) {
@@ -189,22 +165,11 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   return false;
 }
 
-views::Rect StudioViewController::previewRect() const {
-  float aspectRatio = float(imageSize.second) / float(imageSize.first);
-  float previewWidth = 0.25 * viewContext.width;
-  float previewHeight = aspectRatio * previewWidth;
-  return {
-      .x = float(viewContext.width - previewWidth),
-      .y = 0.0,
-      .width = previewWidth,
-      .height = previewHeight};
-}
-
-views::Rect StudioViewController::statusBarRect() const {
+views::Rect PointCloudViewController::statusBarRect() const {
   return {.x = 0, .y = float(viewContext.height), .width = float(viewContext.width), .height = float(views::StatusBarHeight)};
 }
 
-void StudioViewController::updateViewContext(double x, double y, InputModifier mod) {
+void PointCloudViewController::updateViewContext(double x, double y, InputModifier mod) {
   viewContext.modifiers = mod;
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;

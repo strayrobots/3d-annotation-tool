@@ -26,6 +26,7 @@ private:
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle uniformProgram;
   bgfx::ProgramHandle colorProgram;
+  bool initialized = false;
 
 public:
   MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId = 0);
