@@ -27,13 +27,23 @@ std::shared_ptr<geometry::PointCloud> SceneModel::getPointCloud() {
 }
 
 std::optional<Vector3f> SceneModel::traceRay(const Vector3f& origin, const Vector3f& direction) {
-  if (!rtMesh.has_value()) return {};
-  return rtMesh->traceRay(origin, direction);
+  if (activeView == active_view::MeshView) {
+    if (!rtMesh.has_value()) return {};
+    return rtMesh->traceRay(origin, direction);
+  } else {
+    if (!rtPointCloud.has_value()) return {};
+    return rtPointCloud->traceRay(origin, direction);
+  }
 }
 
 geometry::Intersection SceneModel::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) {
-  if (!rtMesh.has_value()) return {};
-  return rtMesh->traceRayIntersection(origin, direction);
+  if (activeView == active_view::MeshView) {
+    if (!rtMesh.has_value()) return {};
+    return rtMesh->traceRayIntersection(origin, direction);
+  } else {
+    if (!rtPointCloud.has_value()) return {};
+    return rtPointCloud->traceRayIntersection(origin, direction);
+  }
 }
 
 Keypoint SceneModel::addKeypoint(const Vector3f& position) {
@@ -360,6 +370,7 @@ void SceneModel::loadSceneMetadata() {
 
 void SceneModel::loadPointCloud() {
   pointCloud = std::make_shared<geometry::PointCloud>((datasetPath / "scene" / "cloud.ply").string());
+  rtPointCloud.emplace(pointCloud, pointCloudPointSize);
 }
 
 

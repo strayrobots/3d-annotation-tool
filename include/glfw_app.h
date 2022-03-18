@@ -10,6 +10,7 @@ const unsigned int CommandModifier = GLFW_MOD_CONTROL;
 #endif
 const unsigned int ShiftModifier = GLFW_MOD_SHIFT;
 const unsigned int AltModifier = GLFW_MOD_ALT;
+const unsigned int CtrlModifier = GLFW_MOD_CONTROL;
 
 class GLFWApp {
 protected:

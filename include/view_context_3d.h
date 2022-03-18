@@ -1,6 +1,7 @@
 #pragma once
 #include "camera.h"
 #include "input.h"
+#include <optional>
 
 class ViewContext3D {
 public:
@@ -16,5 +17,6 @@ public:
   InputModifier modifiers = 0;
 
   Vector3f rayWorld() const;
+  std::optional<Vector3f> pointingAt;
+  std::optional<Vector3f> pointingAtNormal;
 };
-
