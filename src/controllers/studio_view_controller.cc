@@ -150,8 +150,18 @@ void StudioViewController::resize(const views::Rect& rect) {
   statusBarView.setRect(statusBarRect());
 }
 
+
 bool StudioViewController::keypress(char character, const InputModifier mod) {
   Controller::keypress(character, mod);
+  if (sceneModel.activeView == active_view::PointCloudView) {
+    if (mod & ModCtrl && (character == '+' || character == '=')) {
+      pointCloudView.changeSize(1.0f);
+      return true;
+    } else if (mod & ModCtrl && character == '-') {
+      pointCloudView.changeSize(-1.0f);
+      return true;
+    }
+  }
   if (mod == ModShift && character == '1') {
     sceneModel.activeView = active_view::MeshView;
   } else if (mod == ModShift && character == '2') {
@@ -199,6 +209,17 @@ void StudioViewController::updateViewContext(double x, double y, InputModifier m
   viewContext.modifiers = mod;
   viewContext.mousePositionX = x;
   viewContext.mousePositionY = y;
+
+  const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
+                                                                    viewContext.mousePositionX, viewContext.mousePositionY);
+  auto intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
+  if (intersection.hit) {
+    viewContext.pointingAt = intersection.point;
+    viewContext.pointingAtNormal = intersection.normal;
+  } else {
+    viewContext.pointingAt = {};
+    viewContext.pointingAtNormal = {};
+  }
 }
 
 LabelStudioViewController::LabelStudioViewController(SceneModel& model, Timeline& tl) : StudioViewController(model, tl){};

@@ -19,11 +19,13 @@ private:
   bgfx::IndexBufferHandle indexBuffer;
   bgfx::VertexLayout layout;
   bgfx::ProgramHandle program;
+  bgfx::UniformHandle u_activePoint;
   bool initialized = false;
 public:
   PointCloudView(SceneModel& model, int viewId);
   ~PointCloudView();
   void loadPointCloud();
+  void changeSize(float diff);
   void packVertexData();
   void render(const ViewContext3D& context) const;
 };

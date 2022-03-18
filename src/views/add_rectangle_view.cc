@@ -12,14 +12,14 @@ AddRectangleView::AddRectangleView(SceneModel& model, Timeline& timeline, int vi
 }
 
 bool AddRectangleView::leftButtonUp(const ViewContext3D& viewContext) {
-  if (pointingAt.has_value()) {
+  if (viewContext.pointingAt.has_value()) {
     if (rectangleCorners.size() == 3) {
       rectangleCorners.clear();
       pointView.clearPoints();
     }
-    rectangleCorners.push_back(pointingAt.value());
-    pointView.addPoint(pointingAt.value());
-    computeVertices();
+    rectangleCorners.push_back(viewContext.pointingAt.value());
+    pointView.addPoint(viewContext.pointingAt.value());
+    computeVertices(viewContext);
     if (rectangleCorners.size() == 3) {
       commit();
     }
@@ -33,29 +33,21 @@ bool AddRectangleView::leftButtonDown(const ViewContext3D& context) {
 }
 
 bool AddRectangleView::mouseMoved(const ViewContext3D& context) {
-  const Vector3f& rayDirection = context.camera.computeRayWorld(context.width, context.height,
-                                                                    context.mousePositionX, context.mousePositionY);
-  auto intersection = sceneModel.traceRayIntersection(context.camera.getPosition(), rayDirection);
-  if (intersection.hit) {
-    pointingAt = intersection.point;
-    pointingAtNormal = intersection.normal;
-  }
-
   if (rectangleCorners.size() == 2) {
-    computeVertices();
+    computeVertices(context);
   }
   return false;
 }
 
-void AddRectangleView::computeVertices() {
+void AddRectangleView::computeVertices(const ViewContext3D& context) {
   if (!hasRectangle()) return;
   Vector3f v1 = rectangleCorners[0];
   Vector3f v2 = rectangleCorners[1];
   Vector3f v3;
   if (rectangleCorners.size() == 3) {
     v3 = rectangleCorners[2];
-  } else if (pointingAt.has_value()) {
-    v3 = pointingAt.value();
+  } else if (context.pointingAt.has_value()) {
+    v3 = context.pointingAt.value();
   } else {
     return;
   }
@@ -90,7 +82,7 @@ void AddRectangleView::commit() {
 }
 
 bool AddRectangleView::hasRectangle() const {
-  return rectangleCorners.size() >= 3 || (rectangleCorners.size() >= 2 && pointingAt.has_value());
+  return rectangleCorners.size() >= 3 || rectangleCorners.size() >= 2;
 }
 
 void AddRectangleView::render(const ViewContext3D& context) const {
