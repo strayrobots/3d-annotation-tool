@@ -43,4 +43,10 @@ public:
   void rotateAroundTarget(const Quaternionf& q);
   void translate(const Vector3f& t);
   void zoom(float d);
+
+  /*
+   * Returns the coordinate transformation in computer vision coordinates with
+   * z pointing forward, x to the right and y down.
+   */
+  Affine3f T_WC_computerVisionCoordinates() const;
 };

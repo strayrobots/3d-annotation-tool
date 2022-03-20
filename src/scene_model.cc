@@ -311,6 +311,22 @@ void SceneModel::load() {
   }
 }
 
+void SceneModel::saveCameraPosition(const Camera& camera) {
+  // File format frame_number, x, y, z, qx, qy, qz, qw.
+  // The frame number is left empty until it is generated.
+  std::cout << "Saving camera position" << std::endl;
+  fs::path outPath = datasetPath / "synthetic_frames.csv";
+  std::ofstream file(outPath.string(), std::ios::app);
+  Affine3f T_WC = camera.T_WC_computerVisionCoordinates();
+  const auto xyz = T_WC.translation();
+  const Quaternionf q(T_WC.rotation());
+  file << ",";
+  for (int i=0; i < 3; i++) {
+    file << xyz[i] << ",";
+  }
+  file << q.x() << "," << q.y() << "," << q.z() << "," << q.w() << std::endl;
+}
+
 void SceneModel::initRayTracing() {
   mesh = std::make_shared<geometry::Mesh>((datasetPath / "scene" / "integrated.ply").string());
   rtMesh.emplace(mesh);

@@ -112,3 +112,14 @@ void Camera::zoom(float d) {
     setViewMatrix(newViewMatrix);
   }
 }
+
+Affine3f Camera::T_WC_computerVisionCoordinates() const {
+  Affine3f out = Affine3f::Identity();
+  Matrix3f GlToCv;
+  GlToCv <<  1.0f,  0.0f,  0.0f,
+             0.0f, -1.0f,  0.0f,
+             0.0f,  0.0f, -1.0f;
+  out.rotate(getOrientation() * GlToCv);
+  out.translation() = getPosition();
+  return out;
+}

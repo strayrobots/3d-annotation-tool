@@ -120,6 +120,7 @@ public:
   void save() const;
   void load();
 
+  void saveCameraPosition(const Camera& camera);
 private:
   void initRayTracing();
   void loadCameraParams();

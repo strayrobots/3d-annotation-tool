@@ -186,6 +186,9 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
       sceneModel.currentInstanceId = integerValue;
       getActiveToolView().keypress(character, mod);
     }
+  } else if (character == ' ' && mod == ModNone) {
+    sceneModel.saveCameraPosition(viewContext.camera);
+    return true;
   }
   return false;
 }
