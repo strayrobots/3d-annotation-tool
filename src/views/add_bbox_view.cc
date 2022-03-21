@@ -85,7 +85,7 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
     return true;
   }
   if (translateControl->leftButtonUp(viewContext)) {
-    auto command = std::make_unique<commands::MoveBBoxCommand>(bboxStart, position, orientation);
+    auto command = std::make_unique<commands::MoveBBoxCommand>(bboxStart, position, bboxStart.orientation);
     timeline.pushCommand(std::move(command));
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     if (bbox.has_value()) {
