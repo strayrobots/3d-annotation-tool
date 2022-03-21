@@ -98,9 +98,10 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
   Intersection intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
   if (intersection.hit) {
     InstanceMetadata metadata = sceneModel.datasetMetadata.instanceMetadata[sceneModel.currentInstanceId];
+    Vector3f halfSizeNormal = intersection.normal * metadata.size[2] * 0.5;
     BBox bbox = {.id = -1,
                  .instanceId = sceneModel.currentInstanceId,
-                 .position = intersection.point,
+                 .position = intersection.point - halfSizeNormal,
                  .orientation = Quaternionf::FromTwoVectors(-Vector3f::UnitZ(), intersection.normal), // Z in the direction of the surface normal.
                  .dimensions = metadata.size};
     translateControl->setPosition(bbox.position);
