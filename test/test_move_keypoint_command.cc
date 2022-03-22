@@ -17,10 +17,10 @@ TEST(TestMoveKeypointApplyUndo, BasicCases) {
   Keypoint kp(1, 3, Vector3f::Ones());
   auto command = std::make_unique<AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
-  ASSERT_EQ(kp.instanceId, 3);
+  ASSERT_EQ(kp.classId, 3);
   ASSERT_EQ(sceneModel.getKeypoints().size(), 1);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
-  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 3);
+  ASSERT_EQ(sceneModel.getKeypoints()[0].classId, 3);
 
   Vector3f newPosition(0.25, -0.25, 0.3);
   Keypoint newKp = Keypoint(sceneModel.getKeypoints()[0]);
@@ -31,7 +31,7 @@ TEST(TestMoveKeypointApplyUndo, BasicCases) {
   timeline.undoCommand();
   ASSERT_NE(sceneModel.getKeypoints()[0].position, newPosition);
   ASSERT_EQ(sceneModel.getKeypoints()[0].position, Vector3f::Ones());
-  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 3);
+  ASSERT_EQ(sceneModel.getKeypoints()[0].classId, 3);
 }
 
 int main(int argc, char **argv) {
