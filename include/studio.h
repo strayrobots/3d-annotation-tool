@@ -2,8 +2,6 @@
 #include <bgfx/platform.h>
 #include "glfw_app.h"
 #include "scene_model.h"
-#include "timeline.h"
-
 #include <memory>
 #include <filesystem>
 #include <fstream>
@@ -18,12 +16,10 @@ using namespace commands;
 template <class ViewController>
 class Studio : public GLFWApp {
 public:
-  SceneModel sceneModel;
   ViewController viewController;
   InputModifier inputModifier = ModNone;
 
-  Studio(const std::string& folder) : GLFWApp("Studio", 1200, 800),
-                                      sceneModel(folder), viewController(sceneModel, folder) {
+  Studio(const std::string& folder) : GLFWApp("Studio", 1200, 800), viewController(folder) {
     glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
       double x, y;
       glfwGetCursorPos(window, &x, &y);
@@ -55,7 +51,7 @@ public:
       w->setInputModifier(mods);
       if (action == GLFW_PRESS) {
         if ((CommandModifier == mods) && (GLFW_KEY_S == key)) {
-          w->sceneModel.save();
+          w->viewController.save();
         } else if ((CommandModifier == mods) && (GLFW_KEY_Z == key)) {
           w->undo();
         } else {
@@ -67,7 +63,7 @@ public:
 
     views::Rect rect = {0.0f, 0.0f, float(width), float(height)};
     viewController.viewWillAppear(rect);
-    viewController.loadState();
+    viewController.load();
   }
 
   void leftButtonDown(double x, double y) {

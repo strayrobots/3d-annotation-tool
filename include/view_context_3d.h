@@ -7,7 +7,8 @@ class ViewContext3D {
 public:
   Camera camera;
 
-  ViewContext3D(const Camera& cam) : camera(cam) {}
+  ViewContext3D(const SceneCamera& cam) : camera(cam) {}
+  ViewContext3D() : camera() {}
   double width = 800;
   double height = 600;
   double mousePositionX = 0.0;

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "scene_model.h"
+#include "utils/dataset.h"
 
 std::string datasetPath;
 
@@ -23,7 +24,7 @@ TEST(TestAddKeypointAddRemove, BasicCase) {
   ASSERT_EQ(model.getKeypoints().size(), 0);
   ASSERT_EQ(model.getKeypoints()[1].id, 3);
 
-  BBox bbox = { .id = -1, .position = Vector3f::Ones() };
+  BBox bbox = {.id = -1, .position = Vector3f::Ones()};
   model.addBoundingBox(bbox);
   ASSERT_EQ(bbox.id, 1);
   ASSERT_EQ(model.getBoundingBoxes().size(), 1);
@@ -52,7 +53,7 @@ TEST(TestUpdateKeypoint, BasicCase) {
 
 TEST(SceneModelTest, Camera) {
   SceneModel model(datasetPath);
-  auto trajectory = model.cameraTrajectory();
+  auto trajectory = utils::dataset::getDatasetImagePaths(datasetPath / "color"); // model.cameraTrajectory();
   ASSERT_EQ(trajectory.size(), 474);
   ASSERT_EQ(trajectory[0], Matrix4f::Identity());
   ASSERT_NE(trajectory[1], Matrix4f::Identity());
@@ -66,7 +67,7 @@ TEST(SceneModelTest, Camera) {
   ASSERT_NEAR(camera.fov, 52.6131, 0.1);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   datasetPath = argv[1];
   return RUN_ALL_TESTS();

@@ -4,6 +4,7 @@
 #include "view_context_3d.h"
 #include "views/view.h"
 #include "input.h"
+#include <filesystem>
 
 namespace controllers {
 class Controller {
@@ -16,8 +17,9 @@ protected:
    */
   std::list<std::shared_ptr<Controller>> subControllers;
   void addSubController(std::shared_ptr<Controller> controller) { subControllers.push_back(controller); };
+
 public:
-  virtual ~Controller() {};
+  virtual ~Controller(){};
   /*
    * A view controller manages zero or more views.
    * It manages a rectangular area as defined by the rect.

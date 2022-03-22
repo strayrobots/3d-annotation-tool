@@ -2,23 +2,35 @@
 #include <cassert>
 #include "controllers/studio_view_controller.h"
 #include "commands/keypoints.h"
+#include "commands/bounding_box.h"
 #include "id.h"
+#include "3rdparty/json.hpp"
+#include "utils/serialize.h"
+#include "utils/dataset.h"
+
+namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 using namespace commands;
 using namespace views;
 
-StudioViewController::StudioViewController(SceneModel& model, Timeline& tl) : viewId(IdFactory::getInstance().getId()), sceneModel(model),
-                                                                              viewContext(sceneModel.sceneCamera()),
-                                                                              annotationView(model, viewId),
-                                                                              sceneMeshView(model.getMesh(), viewId),
-                                                                              pointCloudView(model, viewId),
-                                                                              addKeypointView(model, tl, viewId),
-                                                                              moveToolView(model, tl, viewId),
-                                                                              addBBoxView(model, tl, viewId),
-                                                                              addRectangleView(model, tl, viewId),
-                                                                              statusBarView(model, IdFactory::getInstance().getId()) {
-  imageSize = model.imageSize();
-  preview = std::make_shared<controllers::PreviewController>(model, IdFactory::getInstance().getId());
+StudioViewController::StudioViewController(fs::path datasetPath) : viewId(IdFactory::getInstance().getId()),
+                                                                   sceneModel((datasetPath / "scene" / "integrated.ply").string()),
+                                                                   timeline(sceneModel),
+                                                                   datasetPath(datasetPath),
+                                                                   sceneCamera(datasetPath / "camera_intrinsics.json"),
+                                                                   datasetMetadata(utils::dataset::getDatasetMetadata(datasetPath.parent_path() / "metadata.json")),
+                                                                   viewContext(sceneCamera),
+                                                                   annotationView(sceneModel, viewId),
+                                                                   sceneMeshView(sceneModel.getMesh(), viewId),
+                                                                   pointCloudView(sceneModel, viewId),
+                                                                   addKeypointView(sceneModel, timeline, viewId),
+                                                                   moveToolView(sceneModel, timeline, viewId),
+                                                                   addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
+                                                                   addRectangleView(sceneModel, timeline, viewId),
+                                                                   statusBarView(sceneModel, IdFactory::getInstance().getId()) {
+
+  preview = std::make_shared<controllers::PreviewController>(sceneModel, datasetPath, IdFactory::getInstance().getId());
   addSubController(std::static_pointer_cast<controllers::Controller>(preview));
 }
 
@@ -181,7 +193,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   } else if ('0' <= character && character <= '9') {
     const int codePoint0Char = 48;
     int integerValue = int(character) - codePoint0Char;
-    if (integerValue < sceneModel.datasetMetadata.numClasses) {
+    if (integerValue < datasetMetadata.numClasses) {
       sceneModel.currentInstanceId = integerValue;
       getActiveToolView().keypress(character, mod);
     }
@@ -190,7 +202,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
 }
 
 views::Rect StudioViewController::previewRect() const {
-  float aspectRatio = float(imageSize.second) / float(imageSize.first);
+  float aspectRatio = float(sceneCamera.imageHeight) / float(sceneCamera.imageWidth);
   float previewWidth = 0.25 * viewContext.width;
   float previewHeight = aspectRatio * previewWidth;
   return {
@@ -219,4 +231,12 @@ void StudioViewController::updateViewContext(double x, double y, InputModifier m
     viewContext.pointingAt = {};
     viewContext.pointingAtNormal = {};
   }
+}
+
+void StudioViewController::save() const {
+  sceneModel.save(datasetPath / "annotations.json");
+}
+
+void StudioViewController::load() {
+  timeline.load(datasetPath / "annotations.json");
 }

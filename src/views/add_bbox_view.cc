@@ -5,7 +5,7 @@ namespace views {
 
 using namespace geometry;
 
-AddBBoxView::AddBBoxView(SceneModel& model, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline) {
+AddBBoxView::AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline), datasetMetadata(datasetMetadata) {
   rotateControl = std::make_shared<views::controls::RotateControl>(viewId, [&](const Transform<float, 3, Eigen::Affine>& transform) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     Quaternionf newRotation;
@@ -97,7 +97,7 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
                                                                     viewContext.mousePositionX, viewContext.mousePositionY);
   Intersection intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
   if (intersection.hit) {
-    InstanceMetadata metadata = sceneModel.datasetMetadata.instanceMetadata[sceneModel.currentInstanceId];
+    InstanceMetadata metadata = datasetMetadata.instanceMetadata[sceneModel.currentInstanceId];
     Vector3f halfSizeNormal = intersection.normal * metadata.size[2] * 0.5;
     BBox bbox = {.id = -1,
                  .instanceId = sceneModel.currentInstanceId,

@@ -4,20 +4,19 @@
 #include <sstream>
 #include "scene_model.h"
 #include "3rdparty/json.hpp"
+#include "utils/serialize.h"
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-SceneModel::SceneModel(const std::string& datasetFolder, bool rayTracing) : datasetPath(datasetFolder),
-                                                                            keypoints(), boundingBoxes() {
-  loadCameraParams();
-  loadSceneMetadata();
-  if (rayTracing) {
-    initRayTracing();
-  }
-}
+SceneModel::SceneModel(std::optional<std::string> meshPath) : meshPath(meshPath), keypoints(), boundingBoxes() {}
 
-std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() const { return mesh; }
+std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() {
+  if (mesh == nullptr) {
+    loadMesh();
+  }
+  return mesh;
+}
 
 std::shared_ptr<geometry::PointCloud> SceneModel::getPointCloud() {
   if (pointCloud == nullptr) {
@@ -109,26 +108,12 @@ std::optional<BBox> SceneModel::getBoundingBox(int id) const {
   return {};
 }
 
-std::vector<fs::path> SceneModel::imagePaths() const {
-  std::vector<fs::path> colorImages;
-  auto colorDir = datasetPath / "color";
-  for (auto& p : fs::directory_iterator(colorDir)) {
-    // Skip if dotfile.
-    if (p.path().filename().string().at(0) == '.') {
-      continue;
-    }
-    colorImages.push_back(p.path());
-  }
-  std::sort(colorImages.begin(), colorImages.end());
-  return colorImages;
-}
-
 void SceneModel::addBoundingBox(BBox& bbox) {
   bbox.id = boundingBoxes.size() + 1;
   boundingBoxes.push_back(bbox);
 }
 
-template<class T>
+template <class T>
 void removeAnnotation(std::vector<T>& entities, int id) {
   if (entities.empty()) return;
   auto iterator = std::find_if(entities.begin(), entities.end(), [&](const T& annotation) {
@@ -171,122 +156,21 @@ void SceneModel::updateRectangle(const Rectangle& updated) {
   updateAnnotation(rectangles, updated);
 }
 
-Camera SceneModel::sceneCamera() const {
-  return Camera(cameraMatrix, imageHeight);
-}
-
-std::pair<int, int> SceneModel::imageSize() const {
-  return std::make_pair(imageWidth, imageHeight);
-}
-
-std::vector<Matrix4f> SceneModel::cameraTrajectory() const {
-  auto trajectoryLogPath = datasetPath / "scene" / "trajectory.log";
-  if (!std::filesystem::exists(trajectoryLogPath)) {
-    std::cout << "Camera trajectory does not exist at " << trajectoryLogPath.string() << std::endl;
-    exit(1);
+void SceneModel::loadMesh() {
+  if (meshPath) {
+    mesh = std::make_shared<geometry::Mesh>(meshPath.value_or("empty"));
+    rtMesh.emplace(mesh);
   }
-  std::fstream in;
-  in.open(trajectoryLogPath.string(), std::ios::in);
-  if (in.fail()) return {};
-  std::string line;
-  Vector4f row;
-  std::vector<Matrix4f> out;
-  while (true) {
-    if (!std::getline(in, line)) {
-      break;
-    }
-    Matrix4f pose;
-    for (int i = 0; i < 4; i++) {
-      std::getline(in, line);
-      std::stringstream lineStream(line);
-      for (int j = 0; j < 4; j++) {
-        lineStream >> row[j];
-      }
-      pose.row(i) = row;
-    }
-    out.push_back(pose);
+}
+
+void SceneModel::loadPointCloud() {
+  if (pointCloudPath) {
+    pointCloud = std::make_shared<geometry::PointCloud>(pointCloudPath.value_or("empty"));
+    rtPointCloud.emplace(pointCloud, pointCloudPointSize);
   }
-  return out;
 }
 
-nlohmann::json serialize(const Vector3f& v) {
-  auto out = nlohmann::json::array();
-  out[0] = v[0];
-  out[1] = v[1];
-  out[2] = v[2];
-  return out;
-}
-
-nlohmann::json serialize(const Vector2f& v) {
-  auto out = nlohmann::json::array();
-  out[0] = v[0];
-  out[1] = v[1];
-  return out;
-}
-
-nlohmann::json serialize(const Keypoint& keypoint) {
-  auto out = nlohmann::json::object();
-  out["instance_id"] = keypoint.instanceId;
-  out["position"] = serialize(keypoint.position);
-  return out;
-}
-
-nlohmann::json serialize(const BBox& bbox) {
-  auto obj = nlohmann::json::object();
-  obj["position"] = serialize(bbox.position);
-  obj["orientation"] = {
-      {"w", bbox.orientation.w()},
-      {"x", bbox.orientation.x()},
-      {"y", bbox.orientation.y()},
-      {"z", bbox.orientation.z()}};
-  obj["dimensions"] = serialize(bbox.dimensions);
-  obj["instance_id"] = bbox.instanceId;
-  return obj;
-}
-
-nlohmann::json serialize(const Rectangle& rectangle) {
-  auto obj = nlohmann::json::object();
-  obj["center"] = serialize(rectangle.center);
-  obj["orientation"] = {
-      {"w", rectangle.orientation.w()},
-      {"x", rectangle.orientation.x()},
-      {"y", rectangle.orientation.y()},
-      {"z", rectangle.orientation.z()}};
-  obj["size"] = serialize(rectangle.size);
-  obj["class_id"] = rectangle.classId;
-  return obj;
-}
-
-void SceneModel::save() const {
-  auto annotationPath = datasetPath / "annotations.json";
-  nlohmann::json json = nlohmann::json::object();
-  if (!keypoints.empty()) {
-    json["keypoints"] = nlohmann::json::array();
-    for (size_t i = 0; i < keypoints.size(); i++) {
-      json["keypoints"][i] = serialize(keypoints[i]);
-    }
-  }
-  if (!boundingBoxes.empty()) {
-    json["bounding_boxes"] = nlohmann::json::array();
-    for (size_t i = 0; i < boundingBoxes.size(); i++) {
-      const auto& bbox = boundingBoxes[i];
-      json["bounding_boxes"][i] = serialize(bbox);
-    }
-  }
-  if (!rectangles.empty()) {
-    json["rectangles"] = nlohmann::json::array();
-    for (size_t i=0; i < rectangles.size(); i++) {
-      json["rectangles"][i] = serialize(rectangles[i]);
-    }
-  }
-  std::ofstream file(annotationPath.string());
-  file << json.dump(4);
-  std::cout << "Saved annotations to " << annotationPath.string() << std::endl;
-}
-
-void SceneModel::load() {
-  auto annotationPath = datasetPath / "annotations.json";
-
+void SceneModel::load(fs::path annotationPath) {
   nlohmann::json json;
   std::ifstream file(annotationPath);
   file >> json;
@@ -309,68 +193,38 @@ void SceneModel::load() {
         .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
     boundingBoxes.push_back(box);
   }
-}
 
-void SceneModel::initRayTracing() {
-  mesh = std::make_shared<geometry::Mesh>((datasetPath / "scene" / "integrated.ply").string());
-  rtMesh.emplace(mesh);
-}
-
-void SceneModel::loadCameraParams() {
-  auto intrinsicsPath = datasetPath / "camera_intrinsics.json";
-  if (!std::filesystem::exists(intrinsicsPath)) {
-    std::cout << "camera intrinsics do not exist at " << intrinsicsPath.string() << std::endl;
-    exit(1);
-  }
-  std::ifstream file(intrinsicsPath.string());
-  nlohmann::json json;
-  file >> json;
-  auto matrix = json["intrinsic_matrix"];
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-      cameraMatrix(i, j) = matrix[j * 3 + i];
-    }
-  }
-  imageHeight = json["height"];
-  imageWidth = json["width"];
-}
-
-void SceneModel::loadSceneMetadata() {
-  auto metadataPath = datasetPath.parent_path() / "metadata.json";
-  if (fs::exists(metadataPath)) {
-    std::ifstream file(metadataPath.string());
-    json jsonData;
-    file >> jsonData;
-    datasetMetadata.numClasses = jsonData.contains("num_classes") ? jsonData["num_classes"].get<int>() : 10;
-    for (auto& instance : jsonData["instances"]) {
-      int instanceId = instance["instance_id"].get<int>();
-      InstanceMetadata instanceMetadata;
-      if (instance.contains("name")) {
-        instanceMetadata.name = instance["name"].get<std::string>();
-      } else {
-        std::stringstream stream;
-        stream << "Instance " << instanceId;
-        instanceMetadata.name = stream.str();
-      }
-      if (instance.contains("size")) {
-        Vector3f size(instance["size"][0].get<float>(), instance["size"][1].get<float>(), instance["size"][2].get<float>());
-        instanceMetadata.size = size;
-      }
-      datasetMetadata.instanceMetadata[instanceId] = instanceMetadata;
-    }
-    for (int i=0; i < datasetMetadata.numClasses; i++) {
-      if (!datasetMetadata.instanceMetadata.contains(i)) {
-        std::stringstream stream;
-        stream << "Instance " << i;
-        datasetMetadata.instanceMetadata[i] = { .name = stream.str() };
-      }
-    }
+  for (auto& rectangle : json["rectangles"]) {
+    Rectangle rect(0, rectangle["class_id"],
+                   utils::serialize::toVector3(rectangle["center"]),
+                   utils::serialize::toQuaternion(rectangle["orientation"]),
+                   utils::serialize::toVector2(rectangle["size"]));
+    rectangles.push_back(rect);
   }
 }
 
-void SceneModel::loadPointCloud() {
-  pointCloud = std::make_shared<geometry::PointCloud>((datasetPath / "scene" / "cloud.ply").string());
-  rtPointCloud.emplace(pointCloud, pointCloudPointSize);
+void SceneModel::save(fs::path annotationPath) const {
+  nlohmann::json json = nlohmann::json::object();
+  if (!keypoints.empty()) {
+    json["keypoints"] = nlohmann::json::array();
+    for (size_t i = 0; i < keypoints.size(); i++) {
+      json["keypoints"][i] = utils::serialize::serialize(keypoints[i]);
+    }
+  }
+  if (!boundingBoxes.empty()) {
+    json["bounding_boxes"] = nlohmann::json::array();
+    for (size_t i = 0; i < boundingBoxes.size(); i++) {
+      const auto& bbox = boundingBoxes[i];
+      json["bounding_boxes"][i] = utils::serialize::serialize(bbox);
+    }
+  }
+  if (!rectangles.empty()) {
+    json["rectangles"] = nlohmann::json::array();
+    for (size_t i = 0; i < rectangles.size(); i++) {
+      json["rectangles"][i] = utils::serialize::serialize(rectangles[i]);
+    }
+  }
+  std::ofstream file(annotationPath.string());
+  file << json.dump(4);
+  std::cout << "Saved annotations to " << annotationPath.string() << std::endl;
 }
-
-

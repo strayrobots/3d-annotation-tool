@@ -15,6 +15,7 @@ using namespace geometry;
 class AddBBoxView : public views::View3D {
 private:
   SceneModel& sceneModel;
+  DatasetMetadata& datasetMetadata;
   Timeline& timeline;
   std::shared_ptr<views::controls::TranslateControl> translateControl;
   std::shared_ptr<views::controls::RotateControl> rotateControl;
@@ -23,8 +24,9 @@ private:
   Vector3f position = Vector3f::Zero();
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Zero();
+
 public:
-  AddBBoxView(SceneModel& model, Timeline& timeline, int viewId = 0);
+  AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId = 0);
   void refresh();
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool leftButtonDown(const ViewContext3D& context) override;

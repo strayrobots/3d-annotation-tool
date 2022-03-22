@@ -14,11 +14,19 @@
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
 #include "views/add_rectangle_view.h"
+#include <filesystem>
+#include <fstream>
+#include "camera.h"
+
+namespace fs = std::filesystem;
 
 class StudioViewController : public controllers::Controller {
 private:
   int viewId;
-  SceneModel& sceneModel;
+  SceneModel sceneModel;
+  SceneCamera sceneCamera;
+  fs::path datasetPath;
+  DatasetMetadata datasetMetadata;
   std::pair<int, int> imageSize;
 
   // Changing view point.
@@ -42,7 +50,8 @@ private:
   std::shared_ptr<controllers::PreviewController> preview;
 
 public:
-  StudioViewController(SceneModel& model, Timeline& timeline);
+  StudioViewController(fs::path datasetPath);
+  Timeline timeline;
   void viewWillAppear(const views::Rect& r) override;
 
   void render() const;
@@ -54,6 +63,9 @@ public:
   bool scroll(double xoffset, double yoffset, InputModifier mod);
   bool keypress(char character, const InputModifier mod) override;
   void resize(const views::Rect& r) override;
+
+  void save() const;
+  void load();
 
 private:
   views::View3D& getActiveToolView();

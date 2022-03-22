@@ -35,6 +35,8 @@ int main(int argc, char* argv[]) {
   validateFlags(flags);
   std::string dataset = flags["dataset"].as<std::vector<std::string>>()[0];
 
+  std::cout << "DADADAD set " << dataset << std::endl;
+
   Studio<PointCloudViewController> window(dataset);
 
   while (window.update()) {
