@@ -29,7 +29,7 @@ StudioViewController::StudioViewController(fs::path datasetPath) : viewId(IdFact
                                                                    addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
                                                                    addRectangleView(sceneModel, timeline, viewId),
                                                                    statusBarView(sceneModel, IdFactory::getInstance().getId()) {
-
+  sceneModel.setPointCloudPath((datasetPath / "scene" / "cloud.ply").string());
   preview = std::make_shared<controllers::PreviewController>(sceneModel, datasetPath, IdFactory::getInstance().getId());
   addSubController(std::static_pointer_cast<controllers::Controller>(preview));
 }
