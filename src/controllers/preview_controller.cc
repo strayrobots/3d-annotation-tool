@@ -11,8 +11,12 @@
 namespace fs = std::filesystem;
 
 namespace controllers {
-PreviewController::PreviewController(const SceneModel& scene, fs::path datasetPath, int viewId) : viewId(viewId), sceneCamera(datasetPath / "camera_intrinsics.json"),
-                                                                                                  model(scene), viewContext(sceneCamera), datasetPath(datasetPath) {
+PreviewController::PreviewController(const SceneModel& scene, fs::path datasetPath, int viewId) :
+  viewId(viewId),
+  sceneCamera(datasetPath / "camera_intrinsics.json"),
+  model(scene),
+  viewContext(sceneCamera),
+  datasetPath(datasetPath) {
 
   annotationView = std::make_unique<views::AnnotationView>(model, IdFactory::getInstance().getId());
   setRandomImage();

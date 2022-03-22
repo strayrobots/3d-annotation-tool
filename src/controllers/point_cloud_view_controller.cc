@@ -199,7 +199,13 @@ void PointCloudViewController::save() const {
   // TODO: Modify file name according to current point cloud file and not the "root"
   sceneModel.save(datasetPath / "annotations.json");
 };
+
 void PointCloudViewController::load() {
   // TODO: Modify file name according to current point cloud file and not the "root"
   timeline.load(datasetPath / "annotations.json");
 };
+
+void PointCloudViewController::undo() {
+  timeline.undoCommand();
+  refresh();
+}

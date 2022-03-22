@@ -91,7 +91,7 @@ public:
   void advance() {
     if (paused) return;
     currentFrame++;
-    if (currentFrame < colorImages.size()) {
+    if (currentFrame < int(colorImages.size())) {
       imageView->setImage(colorImages[currentFrame]);
       Matrix4f T_C = cameraPoses[currentFrame];
       Vector3f p_C = T_C.block<3, 1>(0, 3);
@@ -103,7 +103,7 @@ public:
   }
 
   bool update() const override {
-    if (currentFrame >= colorImages.size()) return false;
+    if (currentFrame >= int(colorImages.size())) return false;
     bgfx::setViewRect(imageView->viewId, 0, 0, width, height);
     imageView->render();
     bgfx::setViewRect(annotationView.viewId, 0, 0, width, height);

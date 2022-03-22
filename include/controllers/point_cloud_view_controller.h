@@ -15,7 +15,6 @@
 #include <bgfx/platform.h>
 #include "glfw_app.h"
 #include "scene_model.h"
-#include "timeline.h"
 #include <filesystem>
 #include <fstream>
 #include <bgfx/bgfx.h>
@@ -30,15 +29,11 @@ namespace fs = std::filesystem;
 class PointCloudViewController : public controllers::Controller {
 private:
   int viewId;
-  SceneModel sceneModel;
+  Timeline timeline;
   fs::path datasetPath;
+  SceneModel sceneModel;
   DatasetMetadata datasetMetadata;
   std::vector<fs::path> pointCloudPaths;
-  std::pair<int, int> imageSize;
-
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
 
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
@@ -51,6 +46,10 @@ private:
   views::AddRectangleView addRectangleView;
 
   views::StatusBarView statusBarView;
+
+  // Changing view point.
+  double prevX, prevY;
+  bool dragging = false, moved = false;
 
 public:
   PointCloudViewController(fs::path folder);
@@ -66,11 +65,11 @@ public:
   bool keypress(char character, const InputModifier mod) override;
   void resize(const views::Rect& r) override;
 
-  Timeline timeline;
   const std::filesystem::path datasetFolder;
 
   void save() const;
   void load();
+  void undo();
 
 private:
   views::View3D& getActiveToolView();

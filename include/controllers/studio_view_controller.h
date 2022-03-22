@@ -25,11 +25,7 @@ private:
   SceneCamera sceneCamera;
   fs::path datasetPath;
   DatasetMetadata datasetMetadata;
-  std::pair<int, int> imageSize;
-
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
+  Timeline timeline;
 
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
@@ -47,9 +43,12 @@ private:
   // Sub-controllers
   std::shared_ptr<controllers::PreviewController> preview;
 
+  // Changing view point.
+  double prevX, prevY;
+  bool dragging = false, moved = false;
+
 public:
   StudioViewController(fs::path datasetPath);
-  Timeline timeline;
   void viewWillAppear(const views::Rect& r) override;
 
   void render() const;
@@ -64,6 +63,7 @@ public:
 
   void save() const;
   void load();
+  void undo();
 
 private:
   views::View3D& getActiveToolView();

@@ -11,6 +11,7 @@
 #include "commands/bounding_box.h"
 #include "commands/rectangle.h"
 #include "utils/serialize.h"
+#include "timeline.h"
 
 using namespace commands;
 template <class ViewController>
@@ -109,7 +110,6 @@ public:
   }
 
   void undo() {
-    viewController.timeline.undoCommand();
-    viewController.refresh();
+    viewController.undo();
   }
 };

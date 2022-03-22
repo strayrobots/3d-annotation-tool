@@ -15,8 +15,8 @@ using namespace geometry;
 class AddBBoxView : public views::View3D {
 private:
   SceneModel& sceneModel;
-  DatasetMetadata& datasetMetadata;
   Timeline& timeline;
+  DatasetMetadata& datasetMetadata;
   std::shared_ptr<views::controls::TranslateControl> translateControl;
   std::shared_ptr<views::controls::RotateControl> rotateControl;
   std::shared_ptr<views::controls::TranslateControl> sizeControl;

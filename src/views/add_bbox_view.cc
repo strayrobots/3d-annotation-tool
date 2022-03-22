@@ -5,7 +5,11 @@ namespace views {
 
 using namespace geometry;
 
-AddBBoxView::AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId) : views::View3D(viewId), sceneModel(model), timeline(timeline), datasetMetadata(datasetMetadata) {
+AddBBoxView::AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId) :
+    views::View3D(viewId),
+    sceneModel(model),
+    timeline(timeline),
+    datasetMetadata(datasetMetadata) {
   rotateControl = std::make_shared<views::controls::RotateControl>(viewId, [&](const Transform<float, 3, Eigen::Affine>& transform) {
     auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
     Quaternionf newRotation;

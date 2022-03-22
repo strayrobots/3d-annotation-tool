@@ -16,10 +16,10 @@ using namespace views;
 
 StudioViewController::StudioViewController(fs::path datasetPath) : viewId(IdFactory::getInstance().getId()),
                                                                    sceneModel((datasetPath / "scene" / "integrated.ply").string()),
-                                                                   timeline(sceneModel),
-                                                                   datasetPath(datasetPath),
                                                                    sceneCamera(datasetPath / "camera_intrinsics.json"),
+                                                                   datasetPath(datasetPath),
                                                                    datasetMetadata(utils::dataset::getDatasetMetadata(datasetPath.parent_path() / "metadata.json")),
+                                                                   timeline(sceneModel),
                                                                    viewContext(sceneCamera),
                                                                    annotationView(sceneModel, viewId),
                                                                    sceneMeshView(sceneModel.getMesh(), viewId),
@@ -239,4 +239,9 @@ void StudioViewController::save() const {
 
 void StudioViewController::load() {
   timeline.load(datasetPath / "annotations.json");
+}
+
+void StudioViewController::undo() {
+  timeline.undoCommand();
+  refresh();
 }
