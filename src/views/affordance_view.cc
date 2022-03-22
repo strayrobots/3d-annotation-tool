@@ -30,7 +30,7 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
   for (auto& rect : scene.getRectangles()) {
     auto hitType = hitTest(viewContext, rect);
     if (hitType > None) {
-      auto point = intersectionLocal(viewContext, rect);
+      auto point_R = intersectionLocal(viewContext, rect);
 
       if (viewContext.modifiers == ModAlt) {
         Rectangle newRect(rect);
@@ -41,7 +41,7 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
         dragging = {
           .oldRectangle = newRect,
           .newRectangle = newRect,
-          .dragPoint_R = point,
+          .dragPoint_R = point_R,
           .copying = true,
           .dragType = hitType
         };
@@ -49,7 +49,7 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
         dragging = {
           .oldRectangle = rect,
           .newRectangle = rect,
-          .dragPoint_R = point,
+          .dragPoint_R = point_R,
           .copying = false,
           .dragType = hitType
         };
@@ -63,24 +63,18 @@ bool RectangleAffordances::leftButtonDown(const ViewContext3D& viewContext) {
 bool RectangleAffordances::mouseMoved(const ViewContext3D& viewContext) {
   if (isActive()) {
     Dragging& d = dragging.value();
+    TMatrix T_RW = computeT_RW(d.oldRectangle);
     auto intersection_R = intersectionLocal(viewContext, d.oldRectangle);
     if (d.dragType == HitType::Rotate) {
-      AngleAxisf rotation_R = AngleAxisf(Quaternionf::FromTwoVectors(intersection_R, d.dragPoint_R));
-      if (viewContext.modifiers == ModShift) {
-        // If shift key is held down, make the rotation relative to the amount dragged.
-
-        rotation_R.angle() = ((intersection_R - d.dragPoint_R).norm() / d.oldRectangle.width()) * 0.2 * M_PI;
-      }
-      d.newRectangle.orientation = rotation_R * d.oldRectangle.orientation;
+      AngleAxisf rotation_R = AngleAxisf(Quaternionf::FromTwoVectors(d.dragPoint_R, intersection_R));
+      d.newRectangle.orientation = d.oldRectangle.orientation * rotation_R;
     } else if (d.dragType == HitType::Resize) {
       // Compute diff in upper right quadrant.
       auto sizeDiff = intersection_R.array().abs().matrix() - d.dragPoint_R.array().abs().matrix();
       d.newRectangle.size = d.oldRectangle.size + sizeDiff.head<2>();
-      auto T_RW = computeT_RW(d.oldRectangle);
       auto diff_R = intersection_R - d.dragPoint_R;
       d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R * 0.5;
     } else {
-      auto T_RW = computeT_RW(d.oldRectangle);
       Vector3f diff_R = intersection_R - d.dragPoint_R;
       d.newRectangle.center = d.oldRectangle.center + T_RW.rotation().transpose() * diff_R;
     }
