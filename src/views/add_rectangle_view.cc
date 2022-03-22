@@ -75,7 +75,7 @@ void AddRectangleView::computeVertices(const ViewContext3D& context) {
 }
 
 void AddRectangleView::commit() {
-  auto command = std::make_unique<AddRectangleCommand>(vertices, sceneModel.currentInstanceId);
+  auto command = std::make_unique<AddRectangleCommand>(vertices, sceneModel.currentClassId);
   timeline.pushCommand(std::move(command));
   rectangleCorners.clear();
   pointView.clearPoints();

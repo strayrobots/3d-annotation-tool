@@ -16,7 +16,7 @@ private:
   TextBufferManager* bufferManager;
   FontHandle fontHandle;
   TextBufferHandle toolText;
-  TextBufferHandle instanceIdText;
+  TextBufferHandle classIdText;
   int instanceTextWidth;
 
 public:

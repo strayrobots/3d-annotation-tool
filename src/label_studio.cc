@@ -120,7 +120,7 @@ void LabelStudio::loadState() {
   for (auto& keypoint : json["keypoints"]) {
     auto position = keypoint["position"];
     auto k = Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>());
-    Keypoint kp(-1, keypoint["instance_id"].get<int>(), k);
+    Keypoint kp(-1, keypoint["class_id"].get<int>(), k);
     std::unique_ptr<Command> command = std::make_unique<commands::AddKeypointCommand>(kp);
     timeline.pushCommand(std::move(command));
   }
@@ -128,9 +128,9 @@ void LabelStudio::loadState() {
     auto p = bbox["position"];
     auto orn = bbox["orientation"];
     auto d = bbox["dimensions"];
-    auto instanceId = bbox["instance_id"];
+    auto classId = bbox["class_id"];
     BBox box = {
-        .instanceId = instanceId,
+        .classId = classId,
         .position = utils::serialize::toVector3(p),
         .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
         .dimensions = utils::serialize::toVector3(d),

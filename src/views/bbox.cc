@@ -69,7 +69,7 @@ void BBoxView::render(const BBox& bbox) const {
   bgfx::setVertexBuffer(0, vertexBuffer);
   Vector4f scale(bbox.dimensions[0], bbox.dimensions[1], bbox.dimensions[2], 1.0);
   bgfx::setUniform(u_scale, scale.data(), 1);
-  const Vector4f& color = colors::instanceColors[bbox.instanceId % 10];
+  const Vector4f& color = colors::classColors[bbox.classId % 10];
   bgfx::setUniform(u_color, color.data(), 1);
   bgfx::setState(BGFX_STATE_DEFAULT |
                  BGFX_STATE_PT_LINES |

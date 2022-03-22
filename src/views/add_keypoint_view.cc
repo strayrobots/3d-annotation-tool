@@ -9,7 +9,7 @@ AddKeypointView::AddKeypointView(SceneModel& model, Timeline& timeline, int view
 bool AddKeypointView::leftButtonUp(const ViewContext3D& viewContext) {
   if (!pointingAt.has_value()) return false;
 
-  Keypoint kp(-1, sceneModel.currentInstanceId, pointingAt.value());
+  Keypoint kp(-1, sceneModel.currentClassId, pointingAt.value());
   auto command = std::make_unique<commands::AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
   return true;
