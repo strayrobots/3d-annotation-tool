@@ -1,7 +1,6 @@
 #include "views/point_cloud_view.h"
 #include "geometry/point_cloud.h"
 #include "shader_utils.h"
-#include <iostream>
 
 namespace views {
 PointCloudView::PointCloudView(SceneModel& model, int viewId) : views::View3D(viewId), scene(model) {

@@ -1,6 +1,5 @@
 #include "views/point_view.h"
 #include "shader_utils.h"
-#include <iostream>
 
 namespace views {
 
