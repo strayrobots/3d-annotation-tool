@@ -15,8 +15,6 @@
 #include "views/status_bar_view.h"
 #include "views/add_rectangle_view.h"
 #include <filesystem>
-#include <fstream>
-#include "camera.h"
 
 namespace fs = std::filesystem;
 

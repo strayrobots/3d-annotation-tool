@@ -5,7 +5,6 @@
 #include "view_context_3d.h"
 #include "scene_model.h"
 #include <filesystem>
-#include "camera.h"
 
 namespace controllers {
 class PreviewController : public controllers::Controller3D {

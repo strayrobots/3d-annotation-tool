@@ -16,8 +16,6 @@
 #include "glfw_app.h"
 #include "scene_model.h"
 #include "timeline.h"
-
-#include <memory>
 #include <filesystem>
 #include <fstream>
 #include <bgfx/bgfx.h>

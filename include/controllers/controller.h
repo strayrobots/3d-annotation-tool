@@ -4,7 +4,6 @@
 #include "view_context_3d.h"
 #include "views/view.h"
 #include "input.h"
-#include <filesystem>
 
 namespace controllers {
 class Controller {

@@ -38,7 +38,7 @@ void validateFlags(const cxxopts::ParseResult& flags) {
 
 class PreviewApp : public GLFWApp {
 private:
-  fs::path datasetPath;
+  const fs::path datasetPath;
   SceneModel scene;
   SceneCamera sceneCamera;
   ViewContext3D viewContext;
@@ -56,11 +56,9 @@ public:
                                           sceneCamera(datasetPath / "camera_intrinsics.json"),
                                           viewContext(sceneCamera),
                                           annotationView(scene, 1) {
-    colorImages = utils::dataset::getDatasetImagePaths(datasetPath / "color"); //.imagePaths();
+    colorImages = utils::dataset::getDatasetImagePaths(datasetPath / "color");
     scene.load(datasetPath / "annotations.json");
-    // utils::dataset::loadSceneAnnotationsToModel(datasetPath, scene);
-    //  scene.load();
-    cameraPoses = utils::dataset::getDatasetCameraTrajectory(datasetPath / "scene" / "trajectory.log"); //.cameraTrajectory();
+    cameraPoses = utils::dataset::getDatasetCameraTrajectory(datasetPath / "scene" / "trajectory.log");
     imageView = std::make_unique<views::ImagePane>(colorImages[0], 0);
 
     bgfx::setViewClear(imageView->viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f);
