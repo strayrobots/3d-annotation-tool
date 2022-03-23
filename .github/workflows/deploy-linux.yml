@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - 'assets/**'
+      - 'include/**'
+      - 'apps/**'
+      - 'test/**'
 jobs:
   Deploy:
     runs-on: ubuntu-latest
