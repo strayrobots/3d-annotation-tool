@@ -50,16 +50,21 @@ Initialize submodules with `git submodule update --init --recursive`. Initialize
 
 Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4`.
 
-### Mac
+### Install Dependencies - Mac
+1. Install Homebrew: https://brew.sh/
+2. Run `brew update && brew install cmake libomp eigen boost git-lfs`
+
+### Install Dependensies - Linux
+1. RUN `sudo apt install libeigen3-dev libglfw3-dev libomp-dev libxinerama-dev libxcursor-dev libxi-dev git-lfs cmake libboost-all-dev`
+
+### Install the annotation tool
 1. Get the source code `git clone https://github.com/StrayRobots/3d-annotation-tool.git` (requires [git](https://git-scm.com/))
-2. Install Homebrew: https://brew.sh/
-3. Run `brew update && brew install cmake libomp eigen boost git-lfs`
-4. Navigate to the `3d-annotation-tool` directory (e.g. `cd 3d-annotation-tool`)
-5. Initialize git submodules with `git submodule update --init --recursive`
-6. Create a build directory with `mkdir build`
-7. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
-8. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
-9. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
+2. Navigate to the `3d-annotation-tool` directory (e.g. `cd 3d-annotation-tool`)
+3. Initialize git submodules with `git submodule update --init --recursive`
+4. Create a build directory with `mkdir build`
+5. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
+6. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
+7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
 ## Usage
 
 Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
