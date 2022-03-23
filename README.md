@@ -46,7 +46,7 @@ The properties are:
 ### Install Dependensies - Linux
 1. RUN `sudo apt install libeigen3-dev libglfw3-dev libomp-dev libxinerama-dev libxcursor-dev libxi-dev git-lfs cmake libboost-all-dev`
 
-### Build install the annotation tool
+### Build and install the annotation tool
 1. Get the source code `git clone https://github.com/StrayRobots/3d-annotation-tool.git` (requires [git](https://git-scm.com/))
 2. Navigate to the `3d-annotation-tool` directory (e.g. `cd 3d-annotation-tool`)
 3. Initialize git submodules with `git submodule update --init --recursive`
