@@ -53,8 +53,7 @@ The properties are:
 4. Create a build directory with `mkdir build`
 5. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
 6. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
-7. You can also install the built executable with `make install`
-8. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file. If you installed the executable in the previous step, the command will work from anywhere, otherwise you need to be in the `build` directory.
+7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file. If you installed the executable in the previous step, the command will work from anywhere, otherwise you need to be in the `build` directory.
 ## Usage
 
 Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
