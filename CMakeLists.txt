@@ -73,8 +73,10 @@ add_dependencies(studio shaders)
 add_dependencies(preview shaders)
 add_dependencies(pointcloud shaders)
 
-enable_testing()
-add_subdirectory(test EXCLUDE_FROM_ALL)
+if (BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(test EXCLUDE_FROM_ALL)
+endif()
 
 install(TARGETS studio DESTINATION bin)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/compiled_shaders DESTINATION share/stray)
