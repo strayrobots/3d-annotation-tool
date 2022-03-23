@@ -24,9 +24,10 @@ TEST(TestCamera, Init) {
 TEST(TestCamera, CameraMatrixInit) {
   Matrix3f cameraMatrix;
   cameraMatrix << 100.0, 0.0, 50.0,
-               0.0, 100.0, 50.0,
-               0.0, 0.0, 0.0;
-  Camera camera(cameraMatrix, 100.0);
+      0.0, 100.0, 50.0,
+      0.0, 0.0, 0.0;
+  SceneCamera sceneCamera(cameraMatrix, 100, 100);
+  Camera camera(sceneCamera);
   ASSERT_NEAR(camera.fov, 53.1301, 0.01);
 
   // Test moving camera.
@@ -41,8 +42,7 @@ TEST(TestCamera, CameraMatrixInit) {
   ASSERT_EQ(camera.getOrientation().z(), orientation.z());
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

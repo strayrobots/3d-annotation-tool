@@ -6,12 +6,18 @@
 #include <string>
 #include "controllers/preview_controller.h"
 #include "id.h"
+#include "utils/dataset.h"
 
 namespace fs = std::filesystem;
 
 namespace controllers {
-PreviewController::PreviewController(const SceneModel& scene, int viewId) : viewId(viewId),
-    model(scene), viewContext(model.sceneCamera()) {
+PreviewController::PreviewController(const SceneModel& scene, fs::path datasetPath, int viewId) :
+  viewId(viewId),
+  sceneCamera(datasetPath / "camera_intrinsics.json"),
+  model(scene),
+  viewContext(sceneCamera),
+  datasetPath(datasetPath) {
+
   annotationView = std::make_unique<views::AnnotationView>(model, IdFactory::getInstance().getId());
   setRandomImage();
 }
@@ -48,14 +54,14 @@ bool PreviewController::keypress(char keypress, const InputModifier mod) {
 void PreviewController::setRandomImage() {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::mt19937 rng(seed);
-  auto images = model.imagePaths();
+  auto images = utils::dataset::getDatasetImagePaths(datasetPath / "color");
   std::uniform_int_distribution<> distribution(0, images.size());
   int sampled = distribution(rng);
   setImage(sampled);
 }
 
 void PreviewController::setImage(float t) {
-  auto images = model.imagePaths();
+  auto images = utils::dataset::getDatasetImagePaths(datasetPath / "color");
   int imageCount = images.size();
   t = std::clamp(t, 0.0f, 1.0f);
   int imageIndex = std::floor(t * float(imageCount));
@@ -63,8 +69,8 @@ void PreviewController::setImage(float t) {
 }
 
 void PreviewController::setImage(int i) {
-  auto images = model.imagePaths();
-  Matrix4f T_CW = model.cameraTrajectory()[i];
+  auto images = utils::dataset::getDatasetImagePaths(datasetPath / "color");
+  Matrix4f T_CW = utils::dataset::getDatasetCameraTrajectory(datasetPath / "scene" / "trajectory.log")[i]; // model.cameraTrajectory()[i];
   Vector3f p_C = T_CW.block<3, 1>(0, 3);
   Quaternionf R_C(T_CW.block<3, 3>(0, 0));
   auto R_WC = AngleAxisf(M_PI, Vector3f::UnitX());
@@ -81,4 +87,4 @@ void PreviewController::render() const {
   annotationView->render(viewContext);
 }
 
-}
+} // namespace controllers

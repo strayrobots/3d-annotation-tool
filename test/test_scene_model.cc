@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include "scene_model.h"
+#include "utils/dataset.h"
 
 std::string datasetPath;
 
 TEST(TestAddKeypointAddRemove, BasicCase) {
-  SceneModel model(datasetPath);
+  SceneModel model;
   Keypoint kp1(-1, 1, Vector3f::Ones());
   kp1 = model.addKeypoint(kp1);
   ASSERT_TRUE(kp1.id > 0);
@@ -23,7 +24,7 @@ TEST(TestAddKeypointAddRemove, BasicCase) {
   ASSERT_EQ(model.getKeypoints().size(), 0);
   ASSERT_EQ(model.getKeypoints()[1].id, 3);
 
-  BBox bbox = { .id = -1, .position = Vector3f::Ones() };
+  BBox bbox = {.id = -1, .position = Vector3f::Ones()};
   model.addBoundingBox(bbox);
   ASSERT_EQ(bbox.id, 1);
   ASSERT_EQ(model.getBoundingBoxes().size(), 1);
@@ -40,7 +41,7 @@ TEST(TestAddKeypointAddRemove, BasicCase) {
 }
 
 TEST(TestUpdateKeypoint, BasicCase) {
-  SceneModel model(datasetPath);
+  SceneModel model;
   auto kp1 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
   Keypoint kp2(kp1.id, Vector3f::Zero());
   kp2.classId = 3;
@@ -51,8 +52,9 @@ TEST(TestUpdateKeypoint, BasicCase) {
 }
 
 TEST(SceneModelTest, Camera) {
-  SceneModel model(datasetPath);
-  auto trajectory = model.cameraTrajectory();
+  SceneModel model;
+  fs::path path(datasetPath);
+  auto trajectory = utils::dataset::getDatasetCameraTrajectory((path / "scene" / "trajectory.log"));
   ASSERT_EQ(trajectory.size(), 474);
   ASSERT_EQ(trajectory[0], Matrix4f::Identity());
   ASSERT_NE(trajectory[1], Matrix4f::Identity());
@@ -62,11 +64,9 @@ TEST(SceneModelTest, Camera) {
   ASSERT_NEAR(trajectory[1](3, 3), 1.0, 0.001);
   ASSERT_NEAR(trajectory[1](3, 0), 0.0, 0.001);
   ASSERT_NEAR(trajectory[1](3, 1), 0.0, 0.001);
-  auto camera = model.sceneCamera();
-  ASSERT_NEAR(camera.fov, 52.6131, 0.1);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   datasetPath = argv[1];
   return RUN_ALL_TESTS();

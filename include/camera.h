@@ -1,7 +1,18 @@
 #pragma once
 #include <eigen3/Eigen/Dense>
+#include <filesystem>
 
 using namespace Eigen;
+
+class SceneCamera {
+public:
+  int imageWidth;
+  int imageHeight;
+  Eigen::Matrix3f cameraMatrix;
+
+  SceneCamera(const std::filesystem::path intrinsicsPath);
+  SceneCamera(const Eigen::Matrix3f cameraMatrix, double width, double height);
+};
 
 class Camera {
 private:
@@ -19,7 +30,7 @@ private:
 public:
   const float fov = 30.0f;
   Camera();
-  Camera(const Matrix3f cameraMatrix, double height);
+  Camera(const SceneCamera& sceneCamera);
 
   const Vector3f& getPosition() const { return position; }
 

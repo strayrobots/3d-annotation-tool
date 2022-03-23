@@ -16,6 +16,7 @@ class AddBBoxView : public views::View3D {
 private:
   SceneModel& sceneModel;
   Timeline& timeline;
+  DatasetMetadata& datasetMetadata;
   std::shared_ptr<views::controls::TranslateControl> translateControl;
   std::shared_ptr<views::controls::RotateControl> rotateControl;
   std::shared_ptr<views::controls::TranslateControl> sizeControl;
@@ -23,8 +24,9 @@ private:
   Vector3f position = Vector3f::Zero();
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Zero();
+
 public:
-  AddBBoxView(SceneModel& model, Timeline& timeline, int viewId = 0);
+  AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId = 0);
   void refresh();
   bool leftButtonUp(const ViewContext3D& viewContext) override;
   bool leftButtonDown(const ViewContext3D& context) override;

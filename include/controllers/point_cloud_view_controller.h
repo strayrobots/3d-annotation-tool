@@ -1,12 +1,10 @@
 #pragma once
 #include <memory>
 #include "timeline.h"
-#include "views/mesh_view.h"
 #include "views/view.h"
 #include "scene_model.h"
 #include "view_context_3d.h"
 #include "controllers/controller.h"
-#include "controllers/preview_controller.h"
 #include "views/point_cloud_view.h"
 #include "views/annotation_view.h"
 #include "views/add_keypoint_view.h"
@@ -14,22 +12,31 @@
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
 #include "views/add_rectangle_view.h"
+#include <bgfx/platform.h>
+#include "glfw_app.h"
+#include "scene_model.h"
 #include <filesystem>
+#include <fstream>
+#include <bgfx/bgfx.h>
+#include "3rdparty/json.hpp"
+#include "commands/keypoints.h"
+#include "commands/bounding_box.h"
+#include "commands/rectangle.h"
+#include "utils/serialize.h"
 
+using namespace commands;
 namespace fs = std::filesystem;
-
-class StudioViewController : public controllers::Controller {
+class PointCloudViewController : public controllers::Controller {
 private:
   int viewId;
-  SceneModel sceneModel;
-  SceneCamera sceneCamera;
-  fs::path datasetPath;
-  DatasetMetadata datasetMetadata;
   Timeline timeline;
+  fs::path dataPath;
+  fs::path annotationPath;
+  SceneModel sceneModel;
+  DatasetMetadata datasetMetadata;
 
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
-  views::MeshDrawable sceneMeshView;
   views::PointCloudView pointCloudView;
 
   // Tool views.
@@ -40,15 +47,12 @@ private:
 
   views::StatusBarView statusBarView;
 
-  // Sub-controllers
-  std::shared_ptr<controllers::PreviewController> preview;
-
   // Changing view point.
   double prevX, prevY;
   bool dragging = false, moved = false;
 
 public:
-  StudioViewController(fs::path datasetPath);
+  PointCloudViewController(fs::path folder);
   void viewWillAppear(const views::Rect& r) override;
 
   void render() const;
@@ -61,13 +65,14 @@ public:
   bool keypress(char character, const InputModifier mod) override;
   void resize(const views::Rect& r) override;
 
+  const std::filesystem::path datasetFolder;
+
   void save() const;
   void load();
   void undo();
 
 private:
   views::View3D& getActiveToolView();
-  views::Rect previewRect() const;
   views::Rect statusBarRect() const;
   void updateViewContext(double x, double y, InputModifier mod);
 };

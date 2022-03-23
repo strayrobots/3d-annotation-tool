@@ -5,21 +5,20 @@ namespace views {
 
 const float PointRadius = 0.01;
 const uint16_t InstanceStride = sizeof(float) * 8;
-const float PointColor[3] = { 0.5f, 1.0f, 0.5f };
+const float PointColor[3] = {0.5f, 1.0f, 0.5f};
 
-static const uint16_t indices[] = { 0, 1, 2, 0, 2, 3 };
+static const uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 static const float circleVertices[20] = {
-  PointRadius,  -PointRadius, 0.0,  1.0, -1.0,
-  PointRadius,   PointRadius, 0.0,  1.0,  1.0,
-  -PointRadius,  PointRadius, 0.0, -1.0,  1.0,
-  -PointRadius, -PointRadius, 0.0, -1.0, -1.0
-};
+    PointRadius, -PointRadius, 0.0, 1.0, -1.0,
+    PointRadius, PointRadius, 0.0, 1.0, 1.0,
+    -PointRadius, PointRadius, 0.0, -1.0, 1.0,
+    -PointRadius, -PointRadius, 0.0, -1.0, -1.0};
 
 PointView::PointView(int id) : views::View3D(id), points() {
   vertexLayout.begin()
-    .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-    .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
-    .end();
+      .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+      .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+      .end();
 
   auto verticesRef = bgfx::makeRef(&circleVertices[0], sizeof(float) * 20);
   vertexBuffer = bgfx::createVertexBuffer(verticesRef, vertexLayout);
@@ -67,7 +66,7 @@ void PointView::render(const ViewContext3D& context) const {
   bgfx::allocInstanceDataBuffer(&buffer, instanceCount, InstanceStride);
   uint8_t* instanceData = (uint8_t*)buffer.data;
 
-  for (int i=0; i < instanceCount; i++) {
+  for (int i = 0; i < instanceCount; i++) {
     float* vectors = (float*)instanceData;
     const Vector3f& point = points[i];
     vectors[0] = float(point[0]);
@@ -88,4 +87,4 @@ void PointView::render(const ViewContext3D& context) const {
   bgfx::submit(viewId, program);
 }
 
-}
+} // namespace views

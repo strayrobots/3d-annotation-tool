@@ -20,6 +20,7 @@ MeshDrawable::MeshDrawable(std::shared_ptr<geometry::TriangleMesh> m, int viewId
       .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float, true)
       .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
       .end();
+
   packVertexData();
   createBuffers();
 

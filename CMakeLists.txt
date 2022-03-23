@@ -52,6 +52,8 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB_RECURSE SOURCE_FILES src/*.cc)
 file(GLOB_RECURSE BGFX_COMMON submodules/bgfx/bgfx/examples/common/font/*.cpp
   submodules/bgfx/bgfx/examples/common/cube_atlas.cpp)
+
+
 add_executable(studio ${SOURCE_FILES} ${BGFX_COMMON} apps/desktop.cc)
 target_compile_options(studio PRIVATE -Wall)
 target_link_libraries(studio PRIVATE bgfx bx bimg glfw ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES} ${EXTRA_LIBS})
@@ -60,11 +62,16 @@ add_executable(preview ${SOURCE_FILES} ${BGFX_COMMON} apps/preview.cc)
 target_compile_options(preview PRIVATE -Wall)
 target_link_libraries(preview PRIVATE bgfx bx bimg glfw ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES} ${EXTRA_LIBS})
 
+add_executable(pointcloud ${SOURCE_FILES} ${BGFX_COMMON} apps/point_cloud.cc)
+target_compile_options(pointcloud PRIVATE -Wall)
+target_link_libraries(pointcloud PRIVATE bgfx bx bimg glfw ${eigen3_LIBRARIES} ${OpenMP_CXX_LIBRARY} ${Boost_LIBRARIES} ${EXTRA_LIBS})
+
 file(GLOB_RECURSE SHADER_FILES shaders/fs_*.sc shaders/vs_*.sc)
 add_shaders(studio SHADERS ${SHADER_FILES})
 
 add_dependencies(studio shaders)
 add_dependencies(preview shaders)
+add_dependencies(pointcloud shaders)
 
 enable_testing()
 add_subdirectory(test EXCLUDE_FROM_ALL)
@@ -73,6 +80,7 @@ install(TARGETS studio DESTINATION bin)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/compiled_shaders DESTINATION share/stray)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION share/stray)
 install(TARGETS preview DESTINATION bin)
+install(TARGETS pointcloud DESTINATION bin)
 
 include(InstallRequiredSystemLibraries)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")

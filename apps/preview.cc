@@ -2,12 +2,16 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include "3rdparty/cxxopts.h"
 #include "glfw_app.h"
 #include "views/image_pane.h"
 #include "views/annotation_view.h"
 #include "scene_model.h"
+#include "camera.h"
+#include "utils/dataset.h"
+#include "3rdparty/json.hpp"
 #include "camera.h"
 
 namespace fs = std::filesystem;
@@ -32,11 +36,11 @@ void validateFlags(const cxxopts::ParseResult& flags) {
   }
 }
 
-
-class PreviewApp  : public GLFWApp {
+class PreviewApp : public GLFWApp {
 private:
   const fs::path datasetPath;
   SceneModel scene;
+  SceneCamera sceneCamera;
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
   std::vector<fs::path> colorImages;
@@ -44,24 +48,26 @@ private:
   std::unique_ptr<views::ImagePane> imageView;
   int currentFrame = 0;
   bool paused = false;
+
 public:
   PreviewApp(const std::string& folder) : GLFWApp("Stray Preview"),
-      datasetPath(folder),
-      scene(folder, false),
-      viewContext(scene.sceneCamera()),
-      annotationView(scene, 1) {
-    colorImages = scene.imagePaths();
-    scene.load();
-    cameraPoses = scene.cameraTrajectory();
+                                          datasetPath(folder),
+                                          scene(std::nullopt),
+                                          sceneCamera(datasetPath / "camera_intrinsics.json"),
+                                          viewContext(sceneCamera),
+                                          annotationView(scene, 1) {
+    colorImages = utils::dataset::getDatasetImagePaths(datasetPath / "color");
+    scene.load(datasetPath / "annotations.json");
+    cameraPoses = utils::dataset::getDatasetCameraTrajectory(datasetPath / "scene" / "trajectory.log");
     imageView = std::make_unique<views::ImagePane>(colorImages[0], 0);
 
-    bgfx::setViewClear(imageView->viewId, BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f);
+    bgfx::setViewClear(imageView->viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f);
     bgfx::setViewClear(annotationView.viewId, BGFX_CLEAR_DEPTH, 1.0f);
 
     viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
-    auto size = scene.imageSize();
-    viewContext.width = size.first;
-    viewContext.height = size.second;
+
+    viewContext.width = sceneCamera.imageWidth;
+    viewContext.height = sceneCamera.imageHeight;
 
     glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int newWidth, int newHeight) {
       PreviewApp* w = (PreviewApp*)glfwGetWindowUserPointer(window);
@@ -85,7 +91,7 @@ public:
   void advance() {
     if (paused) return;
     currentFrame++;
-    if (currentFrame < colorImages.size()) {
+    if (currentFrame < int(colorImages.size())) {
       imageView->setImage(colorImages[currentFrame]);
       Matrix4f T_C = cameraPoses[currentFrame];
       Vector3f p_C = T_C.block<3, 1>(0, 3);
@@ -97,7 +103,7 @@ public:
   }
 
   bool update() const override {
-    if (currentFrame >= colorImages.size()) return false;
+    if (currentFrame >= int(colorImages.size())) return false;
     bgfx::setViewRect(imageView->viewId, 0, 0, width, height);
     imageView->render();
     bgfx::setViewRect(annotationView.viewId, 0, 0, width, height);
@@ -111,7 +117,7 @@ public:
 int main(int argc, char* argv[]) {
   cxxopts::Options options("LabelStudio", "Annotate the world in 3D.");
   options.add_options()("dataset", "That path to folder of the dataset to annotate.",
-      cxxopts::value<std::vector<std::string>>());
+                        cxxopts::value<std::vector<std::string>>());
   options.parse_positional({"dataset"});
   cxxopts::ParseResult flags = options.parse(argc, argv);
   validateFlags(flags);
@@ -125,4 +131,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
-

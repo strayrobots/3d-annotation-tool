@@ -9,11 +9,17 @@ PointCloud::PointCloud(const std::string& filepath) {
   points.resize(vertices.size(), 3);
   colors.resize(vertexColors.size(), 3);
 
-  for (unsigned int i=0; i < vertices.size(); i++) {
-    for (uint8_t j=0; j < 3; j++) {
+  for (unsigned int i = 0; i < vertices.size(); i++) {
+    for (uint8_t j = 0; j < 3; j++) {
       points(i, j) = vertices[i][j];
       colors(i, j) = vertexColors[i][j];
     }
   }
 }
+
+Eigen::RowVector3f PointCloud::getMean() const {
+  Eigen::RowVector3f mean = points.colwise().mean();
+  return mean;
 }
+
+} // namespace geometry

@@ -57,20 +57,12 @@ namespace fs = std::filesystem;
 
 class SceneModel {
 private:
-  fs::path datasetPath;
-
   std::shared_ptr<geometry::TriangleMesh> mesh;
   std::shared_ptr<geometry::PointCloud> pointCloud;
   std::optional<geometry::RayTraceMesh> rtMesh;
   std::optional<geometry::RayTraceCloud> rtPointCloud;
-
-  // Annotations.
-  std::vector<Keypoint> keypoints;
-  std::vector<BBox> boundingBoxes;
-  std::vector<Rectangle> rectangles;
-  int imageWidth;
-  int imageHeight;
-  Matrix3f cameraMatrix;
+  std::optional<std::string> meshPath;
+  std::optional<std::string> pointCloudPath;
 
 public:
   int activeKeypoint = -1;
@@ -79,11 +71,17 @@ public:
   float pointCloudPointSize = 3.0f;
   active_view::ActiveView activeView = active_view::MeshView;
   ActiveTool activeToolId = AddKeypointToolId;
-  DatasetMetadata datasetMetadata;
 
-  SceneModel(const std::string& datasetFolder, bool rayTracing = true);
+  // Annotations.
+  std::vector<Keypoint> keypoints;
+  std::vector<BBox> boundingBoxes;
+  std::vector<Rectangle> rectangles;
 
-  std::shared_ptr<geometry::TriangleMesh> getMesh() const;
+  SceneModel(std::optional<std::string> meshPath = std::nullopt); // Could be aligned with how point clouds are handled i.e. set the path and load the mesh after initialization, needs small refactoring in mesh_view
+
+  void setPointCloudPath(std::string path) { pointCloudPath = path; }
+
+  std::shared_ptr<geometry::TriangleMesh> getMesh();
   std::shared_ptr<geometry::PointCloud> getPointCloud();
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction);
   geometry::Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction);
@@ -112,18 +110,11 @@ public:
   void removeRectangle(int id);
   void updateRectangle(const Rectangle& rectangle);
 
-  Camera sceneCamera() const;
-  std::pair<int, int> imageSize() const;
-  std::vector<fs::path> imagePaths() const;
-  std::vector<Matrix4f> cameraTrajectory() const;
+  void save(fs::path annotationPath) const;
+  void load(fs::path annotationPath);
 
-  void save() const;
-  void load();
-
-private:
-  void initRayTracing();
-  void loadCameraParams();
-  void loadSceneMetadata();
+  void loadMesh();
   void loadPointCloud();
 };
+
 #endif

@@ -4,18 +4,21 @@
 #include <bgfx/bgfx.h>
 #include "scene_model.h"
 #include "views/add_keypoint_view.h"
+#include <iostream>
 
 std::string datasetPath;
 
 TEST(TestAddKeypointTool, BasicCase) {
-  SceneModel sceneModel(datasetPath);
+  fs::path path(datasetPath);
+  SceneModel sceneModel((path / "scene" / "integrated.ply").string());
+  sceneModel.loadMesh();
   Timeline timeline(sceneModel);
   views::AddKeypointView view(sceneModel, timeline);
-  Camera camera;
-  camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 0.0));
-  camera.setPosition(Vector3f(0.0, 0.0, 0.2));
-  camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
-  ViewContext3D context(camera);
+  SceneCamera sceneCamera(path / "camera_intrinsics.json");
+  ViewContext3D context(sceneCamera);
+  context.camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 0.0));
+  context.camera.setPosition(Vector3f(0.0, 0.0, 0.2));
+  context.camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
   context.mousePositionX = 250;
   context.mousePositionY = 430;
   context.width = 500;
@@ -26,7 +29,7 @@ TEST(TestAddKeypointTool, BasicCase) {
   ASSERT_EQ(timeline.size(), 1);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   bgfx::Init init;
   init.type = bgfx::RendererType::Noop;

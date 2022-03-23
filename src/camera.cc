@@ -1,11 +1,35 @@
 #include "camera.h"
 #include <iostream>
+#include <fstream>
+#include "3rdparty/json.hpp"
+
+using json = nlohmann::json;
+
+SceneCamera::SceneCamera(const std::filesystem::path intrinsicsPath) {
+  if (!std::filesystem::exists(intrinsicsPath)) {
+    std::cout << "camera intrinsics do not exist at " << intrinsicsPath.string() << std::endl;
+    exit(1);
+  }
+  std::ifstream file(intrinsicsPath.string());
+  nlohmann::json json;
+  file >> json;
+  auto matrix = json["intrinsic_matrix"];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      cameraMatrix(i, j) = matrix[j * 3 + i];
+    }
+  }
+  imageHeight = json["height"];
+  imageWidth = json["width"];
+}
+
+SceneCamera::SceneCamera(const Eigen::Matrix3f cameraMatrix, double width, double height) : cameraMatrix(cameraMatrix), imageWidth(width), imageHeight(height) {}
 
 Camera::Camera() {
   reset(Vector3f(-0.1, -0.1, -0.1), Vector3f(0.0, 0.0, 0.0));
 }
 
-Camera::Camera(const Matrix3f cameraMatrix, double height) : fov(2.0 * std::atan(height / (2.0 * cameraMatrix(1, 1))) * 180.0 / M_PI) {
+Camera::Camera(const SceneCamera& sceneCamera) : fov(2.0 * std::atan(sceneCamera.imageHeight / (2.0 * sceneCamera.cameraMatrix(1, 1))) * 180.0 / M_PI) {
 }
 
 void Camera::reset(const Vector3f resetLookat, const Vector3f resetPosition) {

@@ -11,5 +11,6 @@ public:
   RowMatrixf points;
   RowMatrixu8 colors;
   PointCloud(const std::string& filepath);
+  Eigen::RowVector3f getMean() const;
 };
-}
+} // namespace geometry
