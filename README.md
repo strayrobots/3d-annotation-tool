@@ -57,16 +57,13 @@ On Ubuntu these can be installed with `sudo apt-get install libeigen3-dev libglf
 
 Initialize submodules with `git submodule update --init --recursive`. Initialize git large file storage using `git lfs install`.
 
-Create build folder `mkdir -p build && cd build`. Build and run with `cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4 main && ./main`.
+Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4`.
 
 ## Usage
 
-TODO: point cloud tool usage
+Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
 
-Run `./main <dataset-folder>`. The dataset folder is the one containing a `scene/` subdirectory. The `scene/` subdirectory in turn should contain an `integrated.ply` mesh file created by the reconstruction system.
-
-Keypoints are saved at `<dataset-folder>/keypoints.json` as a list of objects with attributes `x`, `y` and `z` which correspond to coordinates in the local coordinate system of the `integrated.ply` mesh.
-
+Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`.
 
 ## Running tests
 
@@ -89,12 +86,6 @@ Install clang-format on Ubuntu:
 
 `sudo apt install clang-format`
 
- There's a script that runs formatting on all .h and .cc files based on the .clang-format file. Usage: `./run_formatting`
-
-## Deploying
-
-To deploy package the package, first install `s3cmd` with `brew install s3cmd` or `sudo apt-get install s3cmd`. Then follow the instructions [here](https://docs.digitalocean.com/products/spaces/resources/s3cmd/) to configure it to with your access key to access the stray-build bucket.
-
-Deploy by running the script `./deploy.sh`. It will build the project from scratch and upload the binary to Digital Ocean for the current platform and machine architecture.
+There's a script that runs formatting on all .h and .cc files based on the .clang-format file. Usage: `./run_formatting`
 
 
