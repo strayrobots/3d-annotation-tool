@@ -58,7 +58,7 @@ Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_B
 5. Initialize git submodules with `git submodule update --init --recursive`
 6. Create a build directory with `mkdir build`
 7. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
-8. To build the project run `cd build && cmake .. && make -j8` (`-j8 specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
+8. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
 9. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
 ## Usage
 
