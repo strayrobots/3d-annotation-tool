@@ -15,6 +15,11 @@ using json = nlohmann::json;
 
 namespace utils::dataset {
 
+fs::path getAnnotationPathForPointCloudPath(const fs::path& path) {
+  fs::path annotationPath(path);
+  return annotationPath.replace_extension(".json");
+}
+
 std::vector<fs::path> getDatasetImagePaths(fs::path path) {
   std::vector<fs::path> colorImages;
   for (auto& p : fs::directory_iterator(path)) {

@@ -30,10 +30,10 @@ class PointCloudViewController : public controllers::Controller {
 private:
   int viewId;
   Timeline timeline;
-  fs::path datasetPath;
+  fs::path dataPath;
+  fs::path annotationPath;
   SceneModel sceneModel;
   DatasetMetadata datasetMetadata;
-  std::vector<fs::path> pointCloudPaths;
 
   ViewContext3D viewContext;
   views::AnnotationView annotationView;

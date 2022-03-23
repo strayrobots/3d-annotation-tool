@@ -9,22 +9,22 @@ using namespace commands;
 using namespace views;
 namespace fs = std::filesystem;
 
-PointCloudViewController::PointCloudViewController(fs::path folder) : viewId(IdFactory::getInstance().getId()),
-                                                                      timeline(sceneModel),
-                                                                      datasetPath(folder),
-                                                                      sceneModel(std::nullopt),
-                                                                      datasetMetadata(utils::dataset::getDatasetMetadata(datasetPath / "metadata.json")),
-                                                                      pointCloudPaths(utils::dataset::getDatasetPointCloudPaths(folder)),
-                                                                      viewContext(),
-                                                                      annotationView(sceneModel, viewId),
-                                                                      pointCloudView(sceneModel, viewId),
-                                                                      addKeypointView(sceneModel, timeline, viewId),
-                                                                      moveToolView(sceneModel, timeline, viewId),
-                                                                      addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
-                                                                      addRectangleView(sceneModel, timeline, viewId),
-                                                                      statusBarView(sceneModel, IdFactory::getInstance().getId()) {
+PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : viewId(IdFactory::getInstance().getId()),
+                                                                              timeline(sceneModel),
+                                                                              dataPath(pointCloudPath),
+                                                                              sceneModel(),
+                                                                              datasetMetadata(utils::dataset::getDatasetMetadata(dataPath.parent_path() / "metadata.json")),
+                                                                              viewContext(),
+                                                                              annotationView(sceneModel, viewId),
+                                                                              pointCloudView(sceneModel, viewId),
+                                                                              addKeypointView(sceneModel, timeline, viewId),
+                                                                              moveToolView(sceneModel, timeline, viewId),
+                                                                              addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
+                                                                              addRectangleView(sceneModel, timeline, viewId),
+                                                                              statusBarView(sceneModel, IdFactory::getInstance().getId()) {
 
-  sceneModel.setPointCloudPath(pointCloudPaths[0]); // TODO: Load a new path/cloud when tab is pressed
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(dataPath);
+  sceneModel.setPointCloudPath(dataPath); // TODO: Load a new path/cloud when tab is pressed
   pointCloudView.loadPointCloud();
   sceneModel.activeView = active_view::PointCloudView;
 }
@@ -197,12 +197,12 @@ void PointCloudViewController::updateViewContext(double x, double y, InputModifi
 
 void PointCloudViewController::save() const {
   // TODO: Modify file name according to current point cloud file and not the "root"
-  sceneModel.save(datasetPath / "annotations.json");
+  sceneModel.save(annotationPath);
 };
 
 void PointCloudViewController::load() {
   // TODO: Modify file name according to current point cloud file and not the "root"
-  timeline.load(datasetPath / "annotations.json");
+  timeline.load(annotationPath);
 };
 
 void PointCloudViewController::undo() {
