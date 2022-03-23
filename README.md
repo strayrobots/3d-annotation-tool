@@ -53,11 +53,11 @@ Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_B
 ### Mac
 1. Get the source code `git clone https://github.com/StrayRobots/3d-annotation-tool.git` (requires [git](https://git-scm.com/))
 2. Install Homebrew: https://brew.sh/
-3. Initialize submodules with `git submodule update --init --recursive`
-4. Run `brew update && brew install cmake libomp eigen boost git-lfs`
-5. Navigate to the `3d-annotation-tool` directory (`cd 3d-annotation-tool`) 
+3. Run `brew update && brew install cmake libomp eigen boost git-lfs`
+4. Navigate to the `3d-annotation-tool` directory (e.g. `cd 3d-annotation-tool`)
+5. Initialize git submodules with `git submodule update --init --recursive`
 6. Create a build directory with `mkdir build`
-7. Pull `git-lfs`objects (helper meshes etc) with `git lfs install && git lfs pull`
+7. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
 8. To build the project run `cd build && cmake .. && make -j8` (`-j8 specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
 ## Usage
 
