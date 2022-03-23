@@ -9,15 +9,17 @@
 std::string datasetPath;
 
 TEST(TestMoveToolView, BasicCase) {
-  SceneModel sceneModel(datasetPath);
+  fs::path path(datasetPath);
+  SceneModel sceneModel((path / "scene" / "integrated.ply").string());
+  sceneModel.loadMesh();
   Timeline timeline(sceneModel);
   views::MoveToolView view(sceneModel, timeline);
 
-  Camera camera;
-  camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0));
-  camera.setPosition(Vector3f(0.0, 0.0, 0.2));
-  camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
-  ViewContext3D context(camera);
+  SceneCamera sceneCamera(path / "camera_intrinsics.json");
+  ViewContext3D context(sceneCamera);
+  context.camera.reset(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 0.0));
+  context.camera.setPosition(Vector3f(0.0, 0.0, 0.2));
+  context.camera.updateLookat(Vector3f(0.0, 0.0, 0.0));
   context.mousePositionX = 250;
   context.mousePositionY = 400;
   context.width = 500;
@@ -26,11 +28,11 @@ TEST(TestMoveToolView, BasicCase) {
   bool hit = view.leftButtonDown(context);
   ASSERT_FALSE(hit);
 
-  auto pointingAt = sceneModel.traceRay(camera.getPosition(), camera.computeRayWorld(context.width, context.height,
-        context.mousePositionX, context.mousePositionY));
+  auto pointingAt = sceneModel.traceRay(context.camera.getPosition(), context.camera.computeRayWorld(context.width, context.height,
+                                                                                                     context.mousePositionX, context.mousePositionY));
   ASSERT_TRUE(pointingAt.has_value());
   Keypoint kp(0, 1, pointingAt.value());
-  auto command  = std::make_unique<commands::AddKeypointCommand>(kp);
+  auto command = std::make_unique<commands::AddKeypointCommand>(kp);
   timeline.pushCommand(std::move(command));
 
   hit = view.leftButtonDown(context);
@@ -59,7 +61,7 @@ TEST(TestMoveToolView, BasicCase) {
   ASSERT_EQ(sceneModel.getKeypoints()[0].classId, 7);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   bgfx::Init init;
   init.type = bgfx::RendererType::Noop;

@@ -77,7 +77,7 @@ public:
   std::vector<BBox> boundingBoxes;
   std::vector<Rectangle> rectangles;
 
-  SceneModel(std::optional<std::string> meshPath); // Could be aligned with how point clouds are handled i.e. set the path and load the mesh after initialization, needs small refactoring in mesh_view
+  SceneModel(std::optional<std::string> meshPath = std::nullopt); // Could be aligned with how point clouds are handled i.e. set the path and load the mesh after initialization, needs small refactoring in mesh_view
 
   void setPointCloudPath(std::string path) { pointCloudPath = path; }
 
@@ -113,7 +113,6 @@ public:
   void save(fs::path annotationPath) const;
   void load(fs::path annotationPath);
 
-private:
   void loadMesh();
   void loadPointCloud();
 };

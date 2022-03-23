@@ -5,7 +5,7 @@
 std::string datasetPath;
 
 TEST(TestAddKeypointAddRemove, BasicCase) {
-  SceneModel model(datasetPath);
+  SceneModel model;
   Keypoint kp1(-1, 1, Vector3f::Ones());
   kp1 = model.addKeypoint(kp1);
   ASSERT_TRUE(kp1.id > 0);
@@ -41,7 +41,7 @@ TEST(TestAddKeypointAddRemove, BasicCase) {
 }
 
 TEST(TestUpdateKeypoint, BasicCase) {
-  SceneModel model(datasetPath);
+  SceneModel model;
   auto kp1 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
   Keypoint kp2(kp1.id, Vector3f::Zero());
   kp2.classId = 3;
@@ -52,8 +52,9 @@ TEST(TestUpdateKeypoint, BasicCase) {
 }
 
 TEST(SceneModelTest, Camera) {
-  SceneModel model(datasetPath);
-  auto trajectory = utils::dataset::getDatasetCameraTrajectory((datasetPath / "scene" / "trajectory.log"));
+  SceneModel model;
+  fs::path path(datasetPath);
+  auto trajectory = utils::dataset::getDatasetCameraTrajectory((path / "scene" / "trajectory.log"));
   ASSERT_EQ(trajectory.size(), 474);
   ASSERT_EQ(trajectory[0], Matrix4f::Identity());
   ASSERT_NE(trajectory[1], Matrix4f::Identity());
@@ -63,8 +64,6 @@ TEST(SceneModelTest, Camera) {
   ASSERT_NEAR(trajectory[1](3, 3), 1.0, 0.001);
   ASSERT_NEAR(trajectory[1](3, 0), 0.0, 0.001);
   ASSERT_NEAR(trajectory[1](3, 1), 0.0, 0.001);
-  // auto camera = model.sceneCamera(); TODO: fix
-  // ASSERT_NEAR(camera.fov, 52.6131, 0.1); TODO: fix
 }
 
 int main(int argc, char** argv) {

@@ -11,6 +11,7 @@ public:
   Eigen::Matrix3f cameraMatrix;
 
   SceneCamera(const std::filesystem::path intrinsicsPath);
+  SceneCamera(const Eigen::Matrix3f cameraMatrix, double width, double height);
 };
 
 class Camera {

@@ -23,6 +23,8 @@ SceneCamera::SceneCamera(const std::filesystem::path intrinsicsPath) {
   imageWidth = json["width"];
 }
 
+SceneCamera::SceneCamera(const Eigen::Matrix3f cameraMatrix, double width, double height) : cameraMatrix(cameraMatrix), imageWidth(width), imageHeight(height) {}
+
 Camera::Camera() {
   reset(Vector3f(-0.1, -0.1, -0.1), Vector3f(0.0, 0.0, 0.0));
 }
