@@ -1,5 +1,12 @@
 name: Run tests
-on: [push]
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'CmakeLists.txt'
+      - 'include/**'
+      - 'apps/**'
+      - 'test/**'
 jobs:
   Run-Tests:
     runs-on: ubuntu-latest
@@ -18,7 +25,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake build-essential ninja-build libeigen3-dev libgtest-dev libboost-all-dev \
-            libomp-dev libxi-dev libxcursor-dev libxinerama-dev mesa-common-dev libgl1-mesa-dev libgl-dev libglx0 libglu1-mesa-dev libx11-dev xorg-dev libglm-dev libxrandr-dev libxext-dev
+            libomp-dev libxi-dev libxcursor-dev li  paths:
+4
+    - 'straymodel/setup.py'
+5
+    - 'straylib/setup.py'
+6
+    - 'docker/detectron2/**bxinerama-dev mesa-common-dev libgl1-mesa-dev libgl-dev libglx0 libglu1-mesa-dev libx11-dev xorg-dev libglm-dev libxrandr-dev libxext-dev
       - name: Build project
         run: |
           mkdir build && cd build
