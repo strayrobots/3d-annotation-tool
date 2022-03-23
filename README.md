@@ -37,15 +37,6 @@ The properties are:
 - `orientation` the rotation taking vectors in local frame to the world frame.
 - `size` width and height of the rectangle.
 
-## Usage
-
-The keyboard shortcuts are:
-- `ctrl+s` to save the annotations.
-- `k` switches to the keypoint tool.
-- `b` switches to the bounding box tool.
-- `r` switches to the rectangle tool.
-- `v` switches to the move tool.
-
 ## Installation
 
 System package dependecies are:
@@ -64,6 +55,13 @@ Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_B
 Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
 
 Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`.
+
+The keyboard shortcuts are:
+- `ctrl+s` to save the annotations.
+- `k` switches to the keypoint tool.
+- `b` switches to the bounding box tool.
+- `r` switches to the rectangle tool.
+- `v` switches to the move tool.
 
 ## Running tests
 
