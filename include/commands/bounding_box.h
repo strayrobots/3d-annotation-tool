@@ -30,7 +30,12 @@ private:
   const Quaternionf newOrientation;
 
 public:
-  MoveBBoxCommand(const BBox& box, const Vector3f& position, const Quaternionf& orientation) : bbox(box), oldPosition(bbox.position), newPosition(position), oldOrientation(bbox.orientation), newOrientation(orientation) {}
+  MoveBBoxCommand(const BBox& box, const Vector3f& position, const Quaternionf& orientation) :
+      bbox(box),
+      oldPosition(bbox.position),
+      newPosition(position),
+      oldOrientation(bbox.orientation),
+      newOrientation(orientation) {}
   void execute(SceneModel& sceneModel) override {
     bbox.position = newPosition;
     bbox.orientation = newOrientation;

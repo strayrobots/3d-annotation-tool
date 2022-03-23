@@ -21,9 +21,8 @@ private:
   std::shared_ptr<views::controls::TranslateControl> sizeControl;
   BBox bboxStart = {.id = -1};
   Vector3f position = Vector3f::Zero();
-  Quaternionf orientation;
+  Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Zero();
-
 public:
   AddBBoxView(SceneModel& model, Timeline& timeline, int viewId = 0);
   void refresh();
