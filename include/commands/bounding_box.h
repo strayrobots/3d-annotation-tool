@@ -75,16 +75,16 @@ public:
   };
 };
 
-class ChangeBBoxInstanceIdCommand : public Command {
+class ChangeBBoxClassIdCommand : public Command {
 private:
   BBox bbox;
-  const int newInstanceId;
+  const int newClassId;
 
 public:
-  ChangeBBoxInstanceIdCommand(const BBox bbox, const int newInstanceId) : newInstanceId(newInstanceId){};
+  ChangeBBoxClassIdCommand(const BBox bbox, const int newClassId) : newClassId(newClassId){};
   void execute(SceneModel& model) {
     BBox updated = bbox;
-    updated.instanceId = newInstanceId;
+    updated.classId = newClassId;
     model.updateBoundingBox(updated);
   }
 

@@ -18,13 +18,13 @@ public:
   void undo(SceneModel& sceneModel) override;
 };
 
-class ChangeKeypointInstanceIdCommand : public Command {
+class ChangeKeypointClassCommand : public Command {
 private:
   const Keypoint keypoint;
-  const int newInstanceId;
+  const int newClassId;
 
 public:
-  ChangeKeypointInstanceIdCommand(const Keypoint kp, int newInstanceId);
+  ChangeKeypointClassCommand(const Keypoint kp, int newClassId);
   void execute(SceneModel& sceneModel) override;
   void undo(SceneModel& sceneModel) override;
 };

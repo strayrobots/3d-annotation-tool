@@ -15,15 +15,15 @@ void AddKeypointCommand::undo(SceneModel& sceneModel) {
   sceneModel.removeKeypoint(keypoint);
 }
 
-ChangeKeypointInstanceIdCommand::ChangeKeypointInstanceIdCommand(const Keypoint kp, int newId) : keypoint(kp), newInstanceId(newId) {}
+ChangeKeypointClassCommand::ChangeKeypointClassCommand(const Keypoint kp, int newId) : keypoint(kp), newClassId(newId) {}
 
-void ChangeKeypointInstanceIdCommand::execute(SceneModel& sceneModel) {
+void ChangeKeypointClassCommand::execute(SceneModel& sceneModel) {
   Keypoint kp = keypoint;
-  kp.instanceId = newInstanceId;
+  kp.classId = newClassId;
   sceneModel.updateKeypoint(kp.id, kp);
 }
 
-void ChangeKeypointInstanceIdCommand::undo(SceneModel& sceneModel) {
+void ChangeKeypointClassCommand::undo(SceneModel& sceneModel) {
   sceneModel.updateKeypoint(keypoint.id, keypoint);
 }
 } // namespace commands

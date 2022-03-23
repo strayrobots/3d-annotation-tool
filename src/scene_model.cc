@@ -47,7 +47,7 @@ geometry::Intersection SceneModel::traceRayIntersection(const Vector3f& origin, 
 }
 
 Keypoint SceneModel::addKeypoint(const Vector3f& position) {
-  Keypoint keypoint(keypoints.size() + 1, currentInstanceId, position);
+  Keypoint keypoint(keypoints.size() + 1, currentClassId, position);
   keypoints.push_back(keypoint);
   return keypoint;
 }
@@ -226,7 +226,7 @@ nlohmann::json serialize(const Vector2f& v) {
 
 nlohmann::json serialize(const Keypoint& keypoint) {
   auto out = nlohmann::json::object();
-  out["instance_id"] = keypoint.instanceId;
+  out["class_id"] = keypoint.classId;
   out["position"] = serialize(keypoint.position);
   return out;
 }
@@ -240,7 +240,7 @@ nlohmann::json serialize(const BBox& bbox) {
       {"y", bbox.orientation.y()},
       {"z", bbox.orientation.z()}};
   obj["dimensions"] = serialize(bbox.dimensions);
-  obj["instance_id"] = bbox.instanceId;
+  obj["class_id"] = bbox.classId;
   return obj;
 }
 
@@ -292,18 +292,18 @@ void SceneModel::load() {
   file >> json;
   for (auto& point : json["keypoints"]) {
     auto position = point["position"];
-    auto instanceId = point["instance_id"].get<int>();
-    Keypoint kp(keypoints.size() + 1, instanceId, Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>()));
+    auto classId = point["class_id"].get<int>();
+    Keypoint kp(keypoints.size() + 1, classId, Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>()));
     keypoints.push_back(kp);
   }
   for (auto& bbox : json["bounding_boxes"]) {
     auto p = bbox["position"];
     auto orn = bbox["orientation"];
     auto d = bbox["dimensions"];
-    auto instanceId = bbox["instance_id"];
+    auto classId = bbox["class_id"];
     BBox box = {
         .id = int(boundingBoxes.size()) + 1,
-        .instanceId = instanceId,
+        .classId = classId,
         .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
         .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
         .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
@@ -343,20 +343,20 @@ void SceneModel::loadSceneMetadata() {
     file >> jsonData;
     datasetMetadata.numClasses = jsonData.contains("num_classes") ? jsonData["num_classes"].get<int>() : 10;
     for (auto& instance : jsonData["instances"]) {
-      int instanceId = instance["instance_id"].get<int>();
+      int classId = instance["class_id"].get<int>();
       InstanceMetadata instanceMetadata;
       if (instance.contains("name")) {
         instanceMetadata.name = instance["name"].get<std::string>();
       } else {
         std::stringstream stream;
-        stream << "Instance " << instanceId;
+        stream << "Instance " << classId;
         instanceMetadata.name = stream.str();
       }
       if (instance.contains("size")) {
         Vector3f size(instance["size"][0].get<float>(), instance["size"][1].get<float>(), instance["size"][2].get<float>());
         instanceMetadata.size = size;
       }
-      datasetMetadata.instanceMetadata[instanceId] = instanceMetadata;
+      datasetMetadata.instanceMetadata[classId] = instanceMetadata;
     }
     for (int i=0; i < datasetMetadata.numClasses; i++) {
       if (!datasetMetadata.instanceMetadata.contains(i)) {
