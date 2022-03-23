@@ -10,10 +10,10 @@ namespace controllers {
 class PreviewController : public controllers::Controller3D {
 private:
   int viewId;
-  const SceneCamera& sceneCamera;
+  fs::path datasetPath;
+  const SceneCamera sceneCamera;
   const SceneModel& model;
   ViewContext3D viewContext;
-  fs::path datasetPath;
 
   std::unique_ptr<views::ImagePane> imageView;
   std::unique_ptr<views::AnnotationView> annotationView;
