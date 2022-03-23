@@ -22,7 +22,7 @@ jobs:
       - name: Build project
         run: |
           mkdir build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -GNinja
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=1 -GNinja
           ninja build_tests
       - name: Run tests
         run: |

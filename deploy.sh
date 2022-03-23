@@ -19,7 +19,7 @@ echo "building $source_dir in $tmp_dir"
 
 pushd "$tmp_dir"
 
-cmake $source_dir -GNinja -DCMAKE_BUILD_TYPE=Release
+cmake $source_dir -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=1
 ninja
 cpack -GZIP
 archive_name="$(find Studio-*.tar.gz)"

@@ -76,7 +76,7 @@ The keyboard shortcuts are:
 
 In your build directory, run:
 ```
-cmake .. &&
+cmake .. -DBUILD_TESTS=1 &&
 make build_tests &&  # or ninja build_tests if using ninja.
 ctest
 ```
