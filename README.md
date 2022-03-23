@@ -54,7 +54,7 @@ Create build folder `mkdir -p build && cd build`. Build with `cmake .. -DCMAKE_B
 
 Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
 
-Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`.
+Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`. An example `cloud.ply` point cloud can be downloaded from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply).
 
 The keyboard shortcuts are:
 - `ctrl+s` to save the annotations.
