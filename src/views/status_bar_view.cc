@@ -64,12 +64,12 @@ StatusBarView::StatusBarView(const SceneModel& model, int viewId) : views::View(
 
   toolText = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
   bufferManager->setTextColor(toolText, TextColor);
-  instanceIdText = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
-  bufferManager->setTextColor(instanceIdText, TextColor);
+  classIdText = bufferManager->createTextBuffer(FONT_TYPE_DISTANCE, BufferType::Transient);
+  bufferManager->setTextColor(classIdText, TextColor);
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, StatusBarColor, 0.0f, 0);
 
-  bufferManager->appendText(instanceIdText, fontHandle, "Instance id: 1");
-  auto rect = bufferManager->getRectangle(instanceIdText);
+  bufferManager->appendText(classIdText, fontHandle, "Class id: 1");
+  auto rect = bufferManager->getRectangle(classIdText);
   instanceTextWidth = rect.width;
 }
 
@@ -119,11 +119,11 @@ void StatusBarView::render() const {
     break;
   }
   bufferManager->submitTextBuffer(toolText, viewId);
-  bufferManager->clearTextBuffer(instanceIdText);
-  bufferManager->setPenPosition(instanceIdText, rect.width - instanceTextWidth - padding, 0.0f);
+  bufferManager->clearTextBuffer(classIdText);
+  bufferManager->setPenPosition(classIdText, rect.width - instanceTextWidth - padding, 0.0f);
   std::stringstream stream;
-  stream << "Instance id: " << model.currentInstanceId;
-  bufferManager->appendText(instanceIdText, fontHandle, stream.str().c_str());
-  bufferManager->submitTextBuffer(instanceIdText, viewId);
+  stream << "Class id: " << model.currentClassId;
+  bufferManager->appendText(classIdText, fontHandle, stream.str().c_str());
+  bufferManager->submitTextBuffer(classIdText, viewId);
 };
 } // namespace views

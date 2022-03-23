@@ -12,7 +12,7 @@ TEST(TestAddKeypointAddRemove, BasicCase) {
   ASSERT_EQ(kp1.position[0], 1.0f);
   ASSERT_EQ(kp1.position[1], 1.0f);
   ASSERT_EQ(kp1.position[2], 1.0f);
-  ASSERT_EQ(kp1.instanceId, 1);
+  ASSERT_EQ(kp1.classId, 1);
   ASSERT_EQ(model.getKeypoints().size(), 1);
   auto kp2 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
   auto kp3 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
@@ -44,11 +44,11 @@ TEST(TestUpdateKeypoint, BasicCase) {
   SceneModel model(datasetPath);
   auto kp1 = model.addKeypoint(Vector3f(1.0, 1.0, 1.0));
   Keypoint kp2(kp1.id, Vector3f::Zero());
-  kp2.instanceId = 3;
+  kp2.classId = 3;
   model.updateKeypoint(kp1.id, kp2);
   ASSERT_EQ(model.getKeypoint(kp1.id).value().position, Vector3f::Zero());
   ASSERT_EQ(model.getKeypoint(kp1.id).value().id, kp2.id);
-  ASSERT_EQ(model.getKeypoint(kp1.id).value().instanceId, 3);
+  ASSERT_EQ(model.getKeypoint(kp1.id).value().classId, 3);
 }
 
 TEST(SceneModelTest, Camera) {

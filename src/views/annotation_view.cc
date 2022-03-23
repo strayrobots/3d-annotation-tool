@@ -14,7 +14,7 @@ void AnnotationView::render(const ViewContext3D& context) const {
     for (const auto& keypoint : keypoints) {
       Matrix4f T = Matrix4f::Identity();
       T.block<3, 1>(0, 3) = keypoint.position;
-      const Vector4f& color = colors::instanceColors[keypoint.instanceId % 10];
+      const Vector4f& color = colors::classColors[keypoint.classId % 10];
       sphereDrawable.render(context, T, color);
     }
   }

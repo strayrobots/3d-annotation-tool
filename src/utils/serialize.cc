@@ -33,7 +33,7 @@ nlohmann::json serialize(const Eigen::Vector2f& v) {
 
 nlohmann::json serialize(const Keypoint& keypoint) {
   auto out = nlohmann::json::object();
-  out["instance_id"] = keypoint.instanceId;
+  out["class_id"] = keypoint.classId;
   out["position"] = serialize(keypoint.position);
   return out;
 }
@@ -47,7 +47,7 @@ nlohmann::json serialize(const BBox& bbox) {
       {"y", bbox.orientation.y()},
       {"z", bbox.orientation.z()}};
   obj["dimensions"] = serialize(bbox.dimensions);
-  obj["instance_id"] = bbox.instanceId;
+  obj["class_id"] = bbox.classId;
   return obj;
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace colors {
-static const Vector4f instanceColors[] = {
+static const Vector4f classColors[] = {
     Vector4f(0.85098039, 0.37254902, 0.00784314, 1.),
     Vector4f(0.10588235, 0.61960784, 0.46666667, 1.),
     Vector4f(0.49803922, 0.78823529, 0.49803922, 1.),

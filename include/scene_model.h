@@ -13,17 +13,17 @@
 
 struct Keypoint {
   int id;
-  int instanceId;
+  int classId;
   Vector3f position;
-  Keypoint(const Vector3f& p) : id(-1), instanceId(0), position(p) {}
-  Keypoint(int id, int instance, const Vector3f& p) : id(id), instanceId(instance), position(p) {}
-  Keypoint(int id, const Vector3f& p) : id(id), instanceId(0), position(p) {}
-  Keypoint(int id) : id(id), instanceId(0), position(Vector3f::Zero()) {}
+  Keypoint(const Vector3f& p) : id(-1), classId(0), position(p) {}
+  Keypoint(int id, int instance, const Vector3f& p) : id(id), classId(instance), position(p) {}
+  Keypoint(int id, const Vector3f& p) : id(id), classId(0), position(p) {}
+  Keypoint(int id) : id(id), classId(0), position(Vector3f::Zero()) {}
 };
 
 struct BBox {
   int id;
-  int instanceId;
+  int classId;
   Vector3f position;
   Quaternionf orientation = Quaternionf::Identity();
   Vector3f dimensions = Vector3f::Ones() * 0.2;
@@ -67,7 +67,7 @@ private:
 public:
   int activeKeypoint = -1;
   int activeBBox = -1;
-  int currentInstanceId = 0;
+  int currentClassId = 0;
   float pointCloudPointSize = 3.0f;
   active_view::ActiveView activeView = active_view::MeshView;
   ActiveTool activeToolId = AddKeypointToolId;

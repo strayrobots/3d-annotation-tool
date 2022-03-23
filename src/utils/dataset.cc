@@ -78,25 +78,25 @@ DatasetMetadata getDatasetMetadata(fs::path path) {
     file >> jsonData;
     datasetMetadata.numClasses = jsonData.contains("num_classes") ? jsonData["num_classes"].get<int>() : 10;
     for (auto& instance : jsonData["instances"]) {
-      int instanceId = instance["instance_id"].get<int>();
+      int classId = instance["class_id"].get<int>();
       InstanceMetadata instanceMetadata;
       if (instance.contains("name")) {
         instanceMetadata.name = instance["name"].get<std::string>();
       } else {
         std::stringstream stream;
-        stream << "Instance " << instanceId;
+        stream << "Instance of class " << classId;
         instanceMetadata.name = stream.str();
       }
       if (instance.contains("size")) {
         Vector3f size(instance["size"][0].get<float>(), instance["size"][1].get<float>(), instance["size"][2].get<float>());
         instanceMetadata.size = size;
       }
-      datasetMetadata.instanceMetadata[instanceId] = instanceMetadata;
+      datasetMetadata.instanceMetadata[classId] = instanceMetadata;
     }
     for (int i = 0; i < datasetMetadata.numClasses; i++) {
       if (!datasetMetadata.instanceMetadata.contains(i)) {
         std::stringstream stream;
-        stream << "Instance " << i;
+        stream << "Instance of class " << i;
         datasetMetadata.instanceMetadata[i] = {.name = stream.str()};
       }
     }

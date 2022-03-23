@@ -52,11 +52,11 @@ TEST(TestMoveToolView, BasicCase) {
   ASSERT_NE(sceneModel.getKeypoints()[0].position, pointingAt.value());
   ASSERT_GT(diff.norm(), 1e-2);
 
-  sceneModel.currentInstanceId = 7;
+  sceneModel.currentClassId = 7;
   bool change = view.keypress('7', 0);
   ASSERT_TRUE(change);
   ASSERT_EQ(timeline.size(), 3);
-  ASSERT_EQ(sceneModel.getKeypoints()[0].instanceId, 7);
+  ASSERT_EQ(sceneModel.getKeypoints()[0].classId, 7);
 }
 
 int main(int argc, char **argv) {

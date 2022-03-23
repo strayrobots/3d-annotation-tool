@@ -167,7 +167,7 @@ bool PointCloudViewController::keypress(char character, const InputModifier mod)
     const int codePoint0Char = 48;
     int integerValue = int(character) - codePoint0Char;
     if (integerValue < datasetMetadata.numClasses) {
-      sceneModel.currentInstanceId = integerValue;
+      sceneModel.currentClassId = integerValue;
       getActiveToolView().keypress(character, mod);
     }
   }

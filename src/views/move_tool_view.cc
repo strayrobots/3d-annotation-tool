@@ -83,8 +83,8 @@ void MoveToolView::refresh() {
 bool MoveToolView::keypress(const char character, const InputModifier& mod) {
   if ('0' <= character && character <= '9') {
     auto kp = currentKeypoint.value();
-    if (kp.instanceId == character - '0') return true;
-    auto command = std::make_unique<commands::ChangeKeypointInstanceIdCommand>(kp, sceneModel.currentInstanceId);
+    if (kp.classId == character - '0') return true;
+    auto command = std::make_unique<commands::ChangeKeypointClassCommand>(kp, sceneModel.currentClassId);
     timeline.pushCommand(std::move(command));
     currentKeypoint = sceneModel.getKeypoint(kp.id);
     return true;
