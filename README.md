@@ -41,7 +41,7 @@ The properties are:
 
 ### Install Dependencies - Mac
 1. Install Homebrew: https://brew.sh/
-2. Run `brew update && brew install cmake libomp eigen boost git-lfs`
+2. Run `brew update && brew install cmake libomp eigen boost git-lfs pkg-config`
 
 ### Install Dependensies - Linux
 1. RUN `sudo apt install libeigen3-dev libglfw3-dev libomp-dev libxinerama-dev libxcursor-dev libxi-dev git-lfs cmake libboost-all-dev`

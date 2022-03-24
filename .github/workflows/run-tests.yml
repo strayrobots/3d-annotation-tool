@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - 'src/**'
-      - 'CmakeLists.txt'
+      - 'CMakeLists.txt'
       - 'include/**'
       - 'apps/**'
       - 'test/**'
