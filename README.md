@@ -91,3 +91,6 @@ Install clang-format on Ubuntu:
 There's a script that runs formatting on all .h and .cc files based on the .clang-format file. Usage: `./run_formatting`
 
 
+## Community
+
+Join our open Slack workspace for discussion about the project, Q&A, and point cloud annotation in general. Join the workspace via the invite link [here](https://join.slack.com/t/pointcloudstu-z352533/shared_invite/zt-15u80fl51-~iwhKfXYjlRH2djTrTYLHg).
