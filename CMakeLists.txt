@@ -42,7 +42,11 @@ if (APPLE)
   set(EXTRA_LIBS ${COCOA_LIBRARY} ${CF_LIBRARY} ${IOKIT_LIBRARY})
 endif(APPLE)
 
-include_directories(include submodules/glfw/include ${eigen3_INCLUDE_DIRS} ${boost_INCLUDE_DIRS})
+include_directories(include
+  submodules/glfw/include
+  submodules/nanoflann/include
+  ${eigen3_INCLUDE_DIRS}
+  ${boost_INCLUDE_DIRS})
 include(cmake/shaders.cmake)
 
 include_directories("submodules/bgfx/bgfx/examples")
