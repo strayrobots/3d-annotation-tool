@@ -1,4 +1,5 @@
 #include "geometry/ray_trace_cloud.h"
+#include <iostream>
 
 using namespace geometry;
 using namespace particle_tracing;
@@ -11,7 +12,11 @@ RayTraceCloud::RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc, float& si
   RowMatrixf vertices = pointCloud->points;
   SphereGeometry sphereGeometry(vertices.data(), 0.01);
   SpherePred spherePredicate(vertices.data());
-  assert(bvh.Build(vertices.rows(), sphereGeometry, spherePredicate, options));
+  bool ret = bvh.Build(vertices.rows(), sphereGeometry, spherePredicate, options);
+  if (!ret) {
+    std::cout << "Failed to initialize bounding volume hierarchy" << std::endl;
+    exit(1);
+  }
 }
 
 Intersection RayTraceCloud::traceRayIntersection(const Vector3f& origin, const Vector3f& direction) const {

@@ -178,6 +178,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   } else if (mod == ModShift && character == '2') {
     pointCloudView.loadPointCloud();
     sceneModel.activeView = active_view::PointCloudView;
+    return true;
   } else if (character == 'K') {
     sceneModel.activeToolId = AddKeypointToolId;
     return true;
