@@ -48,7 +48,7 @@ void PointView::render(const ViewContext3D& context) const {
 
   const auto camera = context.camera;
   float proj[16];
-  bx::mtxProj(proj, camera.fov, float(context.width) / float(context.height), 0.1f, 25.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
+  bx::mtxProj(proj, camera.fov, float(context.width) / float(context.height), 0.1f, 1000.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
   Eigen::Matrix4f viewMatrix = camera.getViewMatrix().matrix();
   bgfx::setViewTransform(viewId, viewMatrix.data(), proj);
 

@@ -80,7 +80,8 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "dense": "cpp"
     },
     "editor.defaultFormatter": "ms-vscode.cpptools"
 }

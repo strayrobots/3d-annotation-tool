@@ -126,13 +126,10 @@ void Camera::rotateAroundTarget(const Quaternionf& q) {
 }
 
 void Camera::zoom(float d) {
-  float norm = (getPosition() - lookat).norm();
-  if (norm > d) {
-    Affine3f newViewMatrix;
-    position += getForwardVector() * d;
-    Quaternionf q = getOrientation().conjugate();
-    newViewMatrix.linear() = q.toRotationMatrix();
-    newViewMatrix.translation() = -(viewMatrix.linear() * getPosition());
-    setViewMatrix(newViewMatrix);
-  }
+  Affine3f newViewMatrix;
+  position += getForwardVector() * d;
+  Quaternionf q = getOrientation().conjugate();
+  newViewMatrix.linear() = q.toRotationMatrix();
+  newViewMatrix.translation() = -(viewMatrix.linear() * getPosition());
+  setViewMatrix(newViewMatrix);
 }

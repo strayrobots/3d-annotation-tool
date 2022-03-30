@@ -17,6 +17,7 @@ PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : vi
                                                                               viewContext(),
                                                                               annotationView(sceneModel, viewId),
                                                                               pointCloudView(sceneModel, viewId),
+                                                                              lookatControl(viewId),
                                                                               addKeypointView(sceneModel, timeline, viewId),
                                                                               moveToolView(sceneModel, timeline, viewId),
                                                                               addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
@@ -30,7 +31,11 @@ PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : vi
 }
 
 void PointCloudViewController::viewWillAppear(const views::Rect& rect) {
-  viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
+  pclMean = sceneModel.getPointCloud()->getMean();
+  pclScale = sceneModel.getPointCloud()->getStd().norm();
+
+  viewContext.camera.reset(pclMean, pclMean);
+  viewContext.camera.zoom(-5 * pclScale);
 
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
@@ -56,7 +61,7 @@ void PointCloudViewController::refresh() {
   moveToolView.refresh();
 }
 
-void PointCloudViewController::render() const {
+void PointCloudViewController::render(InputModifier mod) const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
@@ -70,6 +75,10 @@ void PointCloudViewController::render() const {
 
   pointCloudView.render(viewContext);
   statusBarView.render();
+
+  if (mod & ModCommand) {
+    lookatControl.render(viewContext);
+  }
 }
 
 // Input handling.
@@ -111,8 +120,8 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
 
   if (dragging) {
     moved = true;
-    float diffX = float(x - prevX);
-    float diffY = float(y - prevY);
+    float diffX = float(x - prevX) * pclScale / 10;
+    float diffY = float(y - prevY) * pclScale / 10;
     if (mod & ModCommand) {
       viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
@@ -128,8 +137,14 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
 }
 
 bool PointCloudViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
-  float diff = yoffset * 0.05;
-  viewContext.camera.zoom(diff);
+  float diff = yoffset * pclScale / 10;
+  if (mod & ModCommand) {
+    Vector3f fwd(0.0, 0.0, 1.0);
+    viewContext.camera.translate(fwd * diff);
+  } else {
+    viewContext.camera.zoom(diff);
+  }
+
   return true;
 }
 
@@ -143,10 +158,10 @@ bool PointCloudViewController::keypress(char character, const InputModifier mod)
   // TODO: Load a new path/cloud when tab is pressed
   Controller::keypress(character, mod);
   if (sceneModel.activeView == active_view::PointCloudView) {
-    if (mod & ModCtrl && (character == '+' || character == '=')) {
+    if (mod & ModCommand && (character == '+' || character == '=')) {
       pointCloudView.changeSize(1.0f);
       return true;
-    } else if (mod & ModCtrl && character == '-') {
+    } else if (mod & ModCommand && character == '-') {
       pointCloudView.changeSize(-1.0f);
       return true;
     }

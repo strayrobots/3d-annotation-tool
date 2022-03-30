@@ -20,12 +20,11 @@ public:
   ViewController viewController;
   InputModifier inputModifier = ModNone;
 
-  Studio(const std::string& folder) : GLFWApp("Studio", 1200, 800), viewController(folder) {
+  Studio(const std::string& folder) : GLFWApp("Stray 3D Annotation Tool", 1200, 800), viewController(folder) {
     glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
       double x, y;
       glfwGetCursorPos(window, &x, &y);
       Studio* w = (Studio*)glfwGetWindowUserPointer(window);
-      w->setInputModifier(mods);
       if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         w->leftButtonDown(x, y);
       } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
@@ -49,7 +48,7 @@ public:
 
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
       Studio* w = (Studio*)glfwGetWindowUserPointer(window);
-      w->setInputModifier(mods);
+      w->setInputModifier(key);
       if (action == GLFW_PRESS) {
         if ((CommandModifier == mods) && (GLFW_KEY_S == key)) {
           w->viewController.save();
@@ -70,19 +69,18 @@ public:
   void leftButtonDown(double x, double y) {
     viewController.leftButtonDown(x, y, inputModifier);
   }
-  void setInputModifier(int mods) {
-    inputModifier = ModNone;
-    if (mods & CommandModifier) {
-      inputModifier = inputModifier | ModCommand; // Only set bits of inputModifier
+  void setInputModifier(int key) {
+    if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_LEFT_SUPER) {
+      inputModifier = inputModifier ^ ModCommand;
     }
-    if (mods & ShiftModifier) {
-      inputModifier = inputModifier | ModShift;
+    if (key == GLFW_KEY_LEFT_SHIFT) {
+      inputModifier = inputModifier ^ ModShift;
     }
-    if (mods & AltModifier) {
-      inputModifier = inputModifier | ModAlt;
+    if (key == GLFW_KEY_LEFT_ALT) {
+      inputModifier = inputModifier ^ ModAlt;
     }
-    if (mods & CtrlModifier) {
-      inputModifier = inputModifier | ModCtrl;
+    if (key == GLFW_KEY_LEFT_CONTROL) {
+      inputModifier = inputModifier ^ ModCtrl;
     }
   }
   void leftButtonUp(double x, double y) {
@@ -100,7 +98,7 @@ public:
     viewController.resize(rect);
   }
   bool update() const {
-    viewController.render();
+    viewController.render(inputModifier);
 
     bgfx::frame();
 

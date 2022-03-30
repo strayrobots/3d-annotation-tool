@@ -62,7 +62,7 @@ void StudioViewController::refresh() {
   moveToolView.refresh();
 }
 
-void StudioViewController::render() const {
+void StudioViewController::render(InputModifier mod) const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
