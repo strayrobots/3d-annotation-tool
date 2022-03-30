@@ -9,8 +9,8 @@ uint32_t closestIndices[FindClosest];
 float distances[FindClosest];
 
 RayTraceCloud::RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc, float& size) : pointCloud(pc), pointSize(size),
-    adaptor(pointCloud->points),
-    index(3, adaptor, {10}) {
+                                                                                      adaptor(pointCloud->points),
+                                                                                      index(3, adaptor, {10}) {
   nanort::BVHBuildOptions<float> options;
   options.cache_bbox = false;
   RowMatrixf vertices = pointCloud->points;
@@ -26,13 +26,13 @@ RayTraceCloud::RayTraceCloud(std::shared_ptr<geometry::PointCloud> pc, float& si
 
 Vector3f estimateNormal(const RowVector3f& queryPoint, const RowMatrixf& points, uint32_t* indices) {
   Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor> ps(FindClosest, 3);
-  for (uint32_t i=0; i < FindClosest; i++) {
+  for (uint32_t i = 0; i < FindClosest; i++) {
     ps.row(i) = points.row(indices[i]);
   }
 
-  RowVector3f centroid = ps.rowwise().mean();
+  RowVector3f centroid = ps.colwise().mean();
 
-  for (uint32_t i=0; i < FindClosest; i++) {
+  for (uint32_t i = 0; i < FindClosest; i++) {
     ps.row(i) = ps.row(i) - centroid;
   }
 
@@ -65,7 +65,7 @@ Intersection RayTraceCloud::traceRayIntersection(const Vector3f& origin, const V
 
     nanoflann::KNNResultSet<float, uint32_t, uint32_t> resultSet(FindClosest);
     resultSet.init(&closestIndices[0], &distances[0]);
-    float queryPoint[3] = { position[0], position[1], position[2] };
+    float queryPoint[3] = {position[0], position[1], position[2]};
     index.findNeighbors(resultSet, &queryPoint[0], nanoflann::SearchParams(10));
     Vector3f normal = estimateNormal(position, pointCloud->points, &closestIndices[0]).normalized();
 
