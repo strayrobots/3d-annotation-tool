@@ -24,6 +24,7 @@
 #include "commands/rectangle.h"
 #include "utils/serialize.h"
 #include "views/controls/lookat.h"
+#include "camera/camera_controls.h"
 
 using namespace commands;
 namespace fs = std::filesystem;
@@ -52,9 +53,7 @@ private:
 
   views::StatusBarView statusBarView;
 
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
+  camera::CameraControls cameraControls;
 
 public:
   PointCloudViewController(fs::path folder);

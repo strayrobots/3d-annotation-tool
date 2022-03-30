@@ -34,6 +34,7 @@ void PointCloudViewController::viewWillAppear(const views::Rect& rect) {
   pclMean = sceneModel.getPointCloud()->getMean();
   pclScale = sceneModel.getPointCloud()->getStd().norm();
 
+  cameraControls.setSceneScale(pclScale);
   viewContext.camera.reset(pclMean, pclMean);
   viewContext.camera.zoom(-5 * pclScale); // TODO: Is there a better strategy? Seems to be fine for bot large and small scenes
 
@@ -88,26 +89,15 @@ bool PointCloudViewController::leftButtonDown(double x, double y, InputModifier 
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
-  dragging = true;
-  moved = false;
-  prevX = x;
-  prevY = y;
-  return true;
+  return cameraControls.leftButtonDown(viewContext);
 }
 
 bool PointCloudViewController::leftButtonUp(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
-  if (!moved) {
-    if (getActiveToolView().leftButtonUp(viewContext)) {
-      dragging = false;
-      moved = false;
-      return true;
-    }
-  } else {
-    moved = false;
+  if (!cameraControls.leftButtonUp(viewContext)) {
+    return getActiveToolView().leftButtonUp(viewContext);
   }
-  dragging = false;
   return false;
 }
 
@@ -118,33 +108,14 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
     return true;
   }
 
-  if (dragging) {
-    moved = true;
-    float diffX = float(x - prevX); // TODO: scale according to cloud size
-    float diffY = float(y - prevY); // TODO: scale according to cloud size
-    if (mod & ModCommand) {
-      viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
-    } else {
-      Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
-      viewContext.camera.rotateAroundTarget(q);
-    }
+  if (cameraControls.mouseMoved(viewContext)) {
+    return true;
   }
-
-  prevX = x;
-  prevY = y;
-
-  return true;
+  return false;
 }
 
 bool PointCloudViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
-  float diff = yoffset * pclScale / 5; // TODO: is there a better heuristic?
-  if (mod & ModCommand) {
-    Vector3f fwd(0.0, 0.0, 1.0);
-    viewContext.camera.translate(fwd * diff);
-  } else {
-    viewContext.camera.zoom(diff);
-  }
-
+  cameraControls.scroll(xoffset, yoffset, viewContext);
   return true;
 }
 
