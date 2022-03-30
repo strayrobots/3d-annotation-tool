@@ -4,3 +4,6 @@
 [submodule "submodules/glfw"]
 	path = submodules/glfw
 	url = https://github.com/glfw/glfw
+[submodule "submodules/nanoflann"]
+	path = submodules/nanoflann
+	url = https://github.com/jlblancoc/nanoflann

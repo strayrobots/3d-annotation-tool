@@ -19,5 +19,4 @@ public:
 
   Vector3f rayWorld() const;
   std::optional<Vector3f> pointingAt;
-  std::optional<Vector3f> pointingAtNormal;
 };

@@ -188,10 +188,8 @@ void PointCloudViewController::updateViewContext(double x, double y, InputModifi
   auto intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
   if (intersection.hit) {
     viewContext.pointingAt = intersection.point;
-    viewContext.pointingAtNormal = intersection.normal;
   } else {
     viewContext.pointingAt = {};
-    viewContext.pointingAtNormal = {};
   }
 }
 
