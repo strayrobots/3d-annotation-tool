@@ -77,7 +77,7 @@ void PointCloudViewController::render(InputModifier mod) const {
   pointCloudView.render(viewContext);
   statusBarView.render();
 
-  if (mod & ModCommand) {
+  if (cameraControls.active()) {
     lookatControl.render(viewContext);
   }
 }

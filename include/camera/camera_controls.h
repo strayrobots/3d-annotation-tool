@@ -12,7 +12,7 @@ public:
   /*
    * Returns true if the user is currently dragging and moving the camera.
    */
-  bool active();
+  bool active() const;
   bool leftButtonDown(ViewContext3D& viewContext);
   bool leftButtonUp(ViewContext3D& viewContext);
   bool mouseMoved(ViewContext3D& viewContext);

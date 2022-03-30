@@ -7,8 +7,8 @@ void CameraControls::setSceneScale(double scale) {
   sceneScale = scale;
 }
 
-bool CameraControls::active() {
-  return dragging;
+bool CameraControls::active() const {
+  return dragging && moved;
 }
 
 bool CameraControls::leftButtonDown(ViewContext3D& viewContext) {
@@ -32,9 +32,13 @@ bool CameraControls::leftButtonUp(ViewContext3D& viewContext) {
 
 bool CameraControls::mouseMoved(ViewContext3D& viewContext) {
   if (dragging) {
-    moved = true;
     float diffX = float(viewContext.mousePositionX - prevX); // TODO: scale according to cloud size
     float diffY = float(viewContext.mousePositionY - prevY); // TODO: scale according to cloud size
+    // ignore tiny movements.
+    if (!moved && (std::abs(diffX) + std::abs(diffY)) < 4.0) {
+      return false;
+    }
+    moved = true;
     if (viewContext.modifiers & ModCommand) {
       viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
