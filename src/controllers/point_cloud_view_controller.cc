@@ -35,7 +35,7 @@ void PointCloudViewController::viewWillAppear(const views::Rect& rect) {
   pclScale = sceneModel.getPointCloud()->getStd().norm();
 
   viewContext.camera.reset(pclMean, pclMean);
-  viewContext.camera.zoom(-5 * pclScale);
+  viewContext.camera.zoom(-5 * pclScale); // TODO: Is there a better strategy? Seems to be fine for bot large and small scenes
 
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
@@ -120,8 +120,8 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
 
   if (dragging) {
     moved = true;
-    float diffX = float(x - prevX) * pclScale / 10;
-    float diffY = float(y - prevY) * pclScale / 10;
+    float diffX = float(x - prevX); // TODO: scale according to cloud size
+    float diffY = float(y - prevY); // TODO: scale according to cloud size
     if (mod & ModCommand) {
       viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
     } else {
@@ -137,7 +137,7 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
 }
 
 bool PointCloudViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
-  float diff = yoffset * pclScale / 10;
+  float diff = yoffset * pclScale / 5; // TODO: is there a better heuristic?
   if (mod & ModCommand) {
     Vector3f fwd(0.0, 0.0, 1.0);
     viewContext.camera.translate(fwd * diff);
