@@ -109,7 +109,9 @@ bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod)
 bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
-  if (!cameraControls.leftButtonUp(viewContext)) {
+  if (preview->leftButtonUp(viewContext)) {
+    return true;
+  } else if (!cameraControls.leftButtonUp(viewContext)) {
     return getActiveToolView().leftButtonUp(viewContext);
   }
   return false;
