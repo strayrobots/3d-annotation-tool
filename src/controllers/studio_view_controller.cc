@@ -24,6 +24,7 @@ StudioViewController::StudioViewController(fs::path datasetPath) : viewId(IdFact
                                                                    annotationView(sceneModel, viewId),
                                                                    sceneMeshView(sceneModel.getMesh(), viewId),
                                                                    pointCloudView(sceneModel, viewId),
+                                                                   lookatControl(viewId),
                                                                    addKeypointView(sceneModel, timeline, viewId),
                                                                    moveToolView(sceneModel, timeline, viewId),
                                                                    addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
@@ -62,7 +63,7 @@ void StudioViewController::refresh() {
   moveToolView.refresh();
 }
 
-void StudioViewController::render() const {
+void StudioViewController::render(InputModifier mod) const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
@@ -85,6 +86,10 @@ void StudioViewController::render() const {
   }
   statusBarView.render();
   preview->render();
+
+  if (cameraControls.active()) {
+    lookatControl.render(viewContext);
+  }
 }
 
 // Input handling.
@@ -98,29 +103,17 @@ bool StudioViewController::leftButtonDown(double x, double y, InputModifier mod)
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
-  dragging = true;
-  moved = false;
-  prevX = x;
-  prevY = y;
-  return true;
+  return cameraControls.leftButtonDown(viewContext);
 }
 
 bool StudioViewController::leftButtonUp(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
-  if (!moved) {
-    if (preview->leftButtonUp(viewContext)) {
-      return true;
-    }
-    if (getActiveToolView().leftButtonUp(viewContext)) {
-      dragging = false;
-      moved = false;
-      return true;
-    }
-  } else {
-    moved = false;
+  if (preview->leftButtonUp(viewContext)) {
+    return true;
+  } else if (!cameraControls.leftButtonUp(viewContext)) {
+    return getActiveToolView().leftButtonUp(viewContext);
   }
-  dragging = false;
   return false;
 }
 
@@ -130,29 +123,11 @@ bool StudioViewController::mouseMoved(double x, double y, InputModifier mod) {
   if (getActiveToolView().mouseMoved(viewContext)) {
     return true;
   }
-
-  if (dragging) {
-    moved = true;
-    float diffX = float(x - prevX);
-    float diffY = float(y - prevY);
-    if (mod & ModCommand) {
-      viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
-    } else {
-      Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
-      viewContext.camera.rotateAroundTarget(q);
-    }
-  }
-
-  prevX = x;
-  prevY = y;
-
-  return true;
+  return cameraControls.mouseMoved(viewContext);
 }
 
 bool StudioViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
-  float diff = yoffset * 0.05;
-  viewContext.camera.zoom(diff);
-  return true;
+  return cameraControls.scroll(xoffset, yoffset, viewContext);
 }
 
 void StudioViewController::resize(const views::Rect& rect) {

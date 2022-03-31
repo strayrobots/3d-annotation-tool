@@ -14,6 +14,8 @@
 #include "views/add_bbox_view.h"
 #include "views/status_bar_view.h"
 #include "views/add_rectangle_view.h"
+#include "views/controls/lookat.h"
+#include "camera/camera_controls.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -31,6 +33,7 @@ private:
   views::AnnotationView annotationView;
   views::MeshDrawable sceneMeshView;
   views::PointCloudView pointCloudView;
+  views::controls::LookatControl lookatControl;
 
   // Tool views.
   views::AddKeypointView addKeypointView;
@@ -43,15 +46,12 @@ private:
   // Sub-controllers
   std::shared_ptr<controllers::PreviewController> preview;
 
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
-
+  camera::CameraControls cameraControls;
 public:
   StudioViewController(fs::path datasetPath);
   void viewWillAppear(const views::Rect& r) override;
 
-  void render() const;
+  void render(InputModifier mod) const;
   void refresh();
 
   bool leftButtonDown(double x, double y, InputModifier mod);

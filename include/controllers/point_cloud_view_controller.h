@@ -23,6 +23,8 @@
 #include "commands/bounding_box.h"
 #include "commands/rectangle.h"
 #include "utils/serialize.h"
+#include "views/controls/lookat.h"
+#include "camera/camera_controls.h"
 
 using namespace commands;
 namespace fs = std::filesystem;
@@ -35,9 +37,13 @@ private:
   SceneModel sceneModel;
   DatasetMetadata datasetMetadata;
 
+  Vector3f pclMean;
+  float pclScale;
+
   ViewContext3D viewContext;
   views::AnnotationView annotationView;
   views::PointCloudView pointCloudView;
+  views::controls::LookatControl lookatControl;
 
   // Tool views.
   views::AddKeypointView addKeypointView;
@@ -47,15 +53,13 @@ private:
 
   views::StatusBarView statusBarView;
 
-  // Changing view point.
-  double prevX, prevY;
-  bool dragging = false, moved = false;
+  camera::CameraControls cameraControls;
 
 public:
   PointCloudViewController(fs::path folder);
   void viewWillAppear(const views::Rect& r) override;
 
-  void render() const;
+  void render(InputModifier mod) const;
   void refresh();
 
   bool leftButtonDown(double x, double y, InputModifier mod);

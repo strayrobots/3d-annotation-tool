@@ -17,6 +17,7 @@ PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : vi
                                                                               viewContext(),
                                                                               annotationView(sceneModel, viewId),
                                                                               pointCloudView(sceneModel, viewId),
+                                                                              lookatControl(viewId),
                                                                               addKeypointView(sceneModel, timeline, viewId),
                                                                               moveToolView(sceneModel, timeline, viewId),
                                                                               addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
@@ -30,7 +31,12 @@ PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : vi
 }
 
 void PointCloudViewController::viewWillAppear(const views::Rect& rect) {
-  viewContext.camera.reset(Vector3f::UnitZ(), Vector3f::Zero());
+  pclMean = sceneModel.getPointCloud()->getMean();
+  pclScale = sceneModel.getPointCloud()->getStd().norm();
+
+  cameraControls.setSceneScale(pclScale);
+  viewContext.camera.reset(pclMean, pclMean);
+  viewContext.camera.zoom(-5 * pclScale); // TODO: Is there a better strategy? Seems to be fine for bot large and small scenes
 
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
@@ -56,7 +62,7 @@ void PointCloudViewController::refresh() {
   moveToolView.refresh();
 }
 
-void PointCloudViewController::render() const {
+void PointCloudViewController::render(InputModifier mod) const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 
@@ -70,6 +76,10 @@ void PointCloudViewController::render() const {
 
   pointCloudView.render(viewContext);
   statusBarView.render();
+
+  if (cameraControls.active()) {
+    lookatControl.render(viewContext);
+  }
 }
 
 // Input handling.
@@ -79,26 +89,15 @@ bool PointCloudViewController::leftButtonDown(double x, double y, InputModifier 
   if (getActiveToolView().leftButtonDown(viewContext)) {
     return true;
   }
-  dragging = true;
-  moved = false;
-  prevX = x;
-  prevY = y;
-  return true;
+  return cameraControls.leftButtonDown(viewContext);
 }
 
 bool PointCloudViewController::leftButtonUp(double x, double y, InputModifier mod) {
   updateViewContext(x, y, mod);
 
-  if (!moved) {
-    if (getActiveToolView().leftButtonUp(viewContext)) {
-      dragging = false;
-      moved = false;
-      return true;
-    }
-  } else {
-    moved = false;
+  if (!cameraControls.leftButtonUp(viewContext)) {
+    return getActiveToolView().leftButtonUp(viewContext);
   }
-  dragging = false;
   return false;
 }
 
@@ -109,27 +108,14 @@ bool PointCloudViewController::mouseMoved(double x, double y, InputModifier mod)
     return true;
   }
 
-  if (dragging) {
-    moved = true;
-    float diffX = float(x - prevX);
-    float diffY = float(y - prevY);
-    if (mod & ModCommand) {
-      viewContext.camera.translate(Vector3f(-diffX / float(viewContext.width), diffY / float(viewContext.height), 0));
-    } else {
-      Quaternionf q = AngleAxisf(diffX * M_PI / 2000, Vector3f::UnitY()) * AngleAxisf(diffY * M_PI / 2000, Vector3f::UnitX());
-      viewContext.camera.rotateAroundTarget(q);
-    }
+  if (cameraControls.mouseMoved(viewContext)) {
+    return true;
   }
-
-  prevX = x;
-  prevY = y;
-
-  return true;
+  return false;
 }
 
 bool PointCloudViewController::scroll(double xoffset, double yoffset, InputModifier mod) {
-  float diff = yoffset * 0.05;
-  viewContext.camera.zoom(diff);
+  cameraControls.scroll(xoffset, yoffset, viewContext);
   return true;
 }
 
@@ -143,10 +129,10 @@ bool PointCloudViewController::keypress(char character, const InputModifier mod)
   // TODO: Load a new path/cloud when tab is pressed
   Controller::keypress(character, mod);
   if (sceneModel.activeView == active_view::PointCloudView) {
-    if (mod & ModCtrl && (character == '+' || character == '=')) {
+    if (mod & ModCommand && (character == '+' || character == '=')) {
       pointCloudView.changeSize(1.0f);
       return true;
-    } else if (mod & ModCtrl && character == '-') {
+    } else if (mod & ModCommand && character == '-') {
       pointCloudView.changeSize(-1.0f);
       return true;
     }
