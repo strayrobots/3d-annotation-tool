@@ -98,7 +98,7 @@ public:
     viewController.resize(rect);
   }
   bool update() const {
-    viewController.render(inputModifier);
+    viewController.render();
 
     bgfx::frame();
 

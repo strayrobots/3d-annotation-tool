@@ -62,7 +62,7 @@ void PointCloudViewController::refresh() {
   moveToolView.refresh();
 }
 
-void PointCloudViewController::render(InputModifier mod) const {
+void PointCloudViewController::render() const {
   bgfx::setViewRect(viewId, 0, 0, viewContext.width, viewContext.height);
   annotationView.render(viewContext);
 

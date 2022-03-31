@@ -51,7 +51,7 @@ public:
   StudioViewController(fs::path datasetPath);
   void viewWillAppear(const views::Rect& r) override;
 
-  void render(InputModifier mod) const;
+  void render() const;
   void refresh();
 
   bool leftButtonDown(double x, double y, InputModifier mod);
