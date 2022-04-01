@@ -68,4 +68,11 @@ void PointCloudView::render(const ViewContext3D& context) const {
   bgfx::setIndexBuffer(indexBuffer);
   bgfx::submit(viewId, program);
 }
+
+void PointCloudView::reload() {
+  initialized = false;
+  bgfx::destroy(vertexBuffer);
+  bgfx::destroy(indexBuffer);
+  loadPointCloud();
+}
 } // namespace views

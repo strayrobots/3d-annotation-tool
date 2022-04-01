@@ -69,6 +69,12 @@ void SceneModel::removeKeypoint(const Keypoint& kp) {
   keypoints.erase(iterator);
 }
 
+void SceneModel::reset() {
+  keypoints.clear();
+  boundingBoxes.clear();
+  rectangles.clear();
+}
+
 std::optional<Keypoint> SceneModel::getKeypoint(int id) const {
   for (unsigned int i = 0; i < keypoints.size(); i++) {
     if (keypoints[i].id == id) {
@@ -76,6 +82,11 @@ std::optional<Keypoint> SceneModel::getKeypoint(int id) const {
     }
   }
   return {};
+}
+
+void SceneModel::setPointCloudPath(std::string path) {
+  pointCloud = nullptr;
+  pointCloudPath = path;
 }
 
 void SceneModel::setKeypoint(const Keypoint& updated) {

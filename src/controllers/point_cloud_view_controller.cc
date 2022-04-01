@@ -9,11 +9,12 @@ using namespace commands;
 using namespace views;
 namespace fs = std::filesystem;
 
-PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : viewId(IdFactory::getInstance().getId()),
+PointCloudViewController::PointCloudViewController(fs::path pcPath) : viewId(IdFactory::getInstance().getId()),
                                                                               timeline(sceneModel),
-                                                                              dataPath(pointCloudPath),
+                                                                              pointCloudPath(pcPath),
+                                                                              dataset(pcPath),
                                                                               sceneModel(),
-                                                                              datasetMetadata(utils::dataset::getDatasetMetadata(dataPath.parent_path() / "metadata.json")),
+                                                                              datasetMetadata(utils::dataset::getDatasetMetadata(pointCloudPath.parent_path() / "metadata.json")),
                                                                               viewContext(),
                                                                               annotationView(sceneModel, viewId),
                                                                               pointCloudView(sceneModel, viewId),
@@ -24,8 +25,8 @@ PointCloudViewController::PointCloudViewController(fs::path pointCloudPath) : vi
                                                                               addRectangleView(sceneModel, timeline, viewId),
                                                                               statusBarView(sceneModel, IdFactory::getInstance().getId()) {
 
-  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(dataPath);
-  sceneModel.setPointCloudPath(dataPath); // TODO: Load a new path/cloud when tab is pressed
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pointCloudPath);
+  sceneModel.setPointCloudPath(pointCloudPath); // TODO: Load a new path/cloud when tab is pressed
   pointCloudView.loadPointCloud();
   sceneModel.activeView = active_view::PointCloudView;
 }
@@ -156,6 +157,9 @@ bool PointCloudViewController::keypress(char character, const InputModifier mod)
       sceneModel.currentClassId = integerValue;
       getActiveToolView().keypress(character, mod);
     }
+  } else if (int(character) == 2) {
+    // Tab pressed.
+    nextPointCloud();
   }
   return false;
 }
@@ -193,3 +197,14 @@ void PointCloudViewController::undo() {
   timeline.undoCommand();
   refresh();
 }
+
+void PointCloudViewController::nextPointCloud() {
+  pointCloudPath = dataset.next();
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pointCloudPath);
+  sceneModel.reset();
+  sceneModel.setPointCloudPath(pointCloudPath);
+  pointCloudView.reload();
+  load();
+
+}
+
