@@ -11,10 +11,9 @@ namespace fs = std::filesystem;
 
 PointCloudViewController::PointCloudViewController(fs::path pcPath) : viewId(IdFactory::getInstance().getId()),
                                                                               timeline(sceneModel),
-                                                                              pointCloudPath(pcPath),
                                                                               dataset(pcPath),
                                                                               sceneModel(),
-                                                                              datasetMetadata(utils::dataset::getDatasetMetadata(pointCloudPath.parent_path() / "metadata.json")),
+                                                                              datasetMetadata(utils::dataset::getDatasetMetadata(pcPath.parent_path() / "metadata.json")),
                                                                               viewContext(),
                                                                               annotationView(sceneModel, viewId),
                                                                               pointCloudView(sceneModel, viewId),
@@ -25,8 +24,8 @@ PointCloudViewController::PointCloudViewController(fs::path pcPath) : viewId(IdF
                                                                               addRectangleView(sceneModel, timeline, viewId),
                                                                               statusBarView(sceneModel, IdFactory::getInstance().getId()) {
 
-  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pointCloudPath);
-  sceneModel.setPointCloudPath(pointCloudPath); // TODO: Load a new path/cloud when tab is pressed
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pcPath);
+  sceneModel.setPointCloud(dataset.getCurrentCloud());
   pointCloudView.loadPointCloud();
   sceneModel.activeView = active_view::PointCloudView;
 }
@@ -199,12 +198,11 @@ void PointCloudViewController::undo() {
 }
 
 void PointCloudViewController::nextPointCloud() {
-  pointCloudPath = dataset.next();
-  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pointCloudPath);
+  auto pointCloud = dataset.next();
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(dataset.currentPath());
   sceneModel.reset();
-  sceneModel.setPointCloudPath(pointCloudPath);
+  sceneModel.setPointCloud(pointCloud);
   pointCloudView.reload();
   load();
-
 }
 

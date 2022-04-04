@@ -34,7 +34,6 @@ private:
   int viewId;
   Timeline timeline;
 
-  fs::path pointCloudPath;
   fs::path annotationPath;
   model::PointCloudDataset dataset;
   SceneModel sceneModel;

@@ -79,7 +79,7 @@ public:
 
   SceneModel(std::optional<std::string> meshPath = std::nullopt); // Could be aligned with how point clouds are handled i.e. set the path and load the mesh after initialization, needs small refactoring in mesh_view
 
-  void setPointCloudPath(std::string path);
+  void setPointCloud(std::shared_ptr<geometry::PointCloud> pc);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh();
   std::shared_ptr<geometry::PointCloud> getPointCloud();
@@ -118,7 +118,6 @@ public:
   void load(fs::path annotationPath);
 
   void loadMesh();
-  void loadPointCloud();
 };
 
 #endif

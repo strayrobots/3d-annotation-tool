@@ -1,4 +1,6 @@
 #include <filesystem>
+#include <memory>
+#include "geometry/point_cloud.h"
 
 namespace fs = std::filesystem;
 
@@ -7,6 +9,7 @@ class PointCloudDataset {
 private:
   fs::path path;
   fs::path currentPointCloud;
+  std::shared_ptr<geometry::PointCloud> currentCloud;
   std::vector<fs::path> pointClouds;
   int currentIndex = -1;
 public:
@@ -17,11 +20,16 @@ public:
       return pc == current;
     });
     currentIndex = it - pointClouds.begin();
+    currentCloud = std::make_shared<geometry::PointCloud>(currentPointCloud.string());
   }
 
-  fs::path next() {
+  std::shared_ptr<geometry::PointCloud> getCurrentCloud() const { return currentCloud; }
+
+  fs::path currentPath() const { return currentPointCloud; }
+  std::shared_ptr<geometry::PointCloud> next() {
     currentIndex = (currentIndex + 1) % int(pointClouds.size());
-    return pointClouds[currentIndex];
+    currentPointCloud = pointClouds[currentIndex];
+    return std::make_shared<geometry::PointCloud>(currentPointCloud.string());
   }
 
 private:

@@ -19,9 +19,6 @@ std::shared_ptr<geometry::TriangleMesh> SceneModel::getMesh() {
 }
 
 std::shared_ptr<geometry::PointCloud> SceneModel::getPointCloud() {
-  if (pointCloud == nullptr) {
-    loadPointCloud();
-  }
   return pointCloud;
 }
 
@@ -84,9 +81,9 @@ std::optional<Keypoint> SceneModel::getKeypoint(int id) const {
   return {};
 }
 
-void SceneModel::setPointCloudPath(std::string path) {
-  pointCloud = nullptr;
-  pointCloudPath = path;
+void SceneModel::setPointCloud(std::shared_ptr<geometry::PointCloud> pc) {
+  pointCloud = pc;
+  rtPointCloud.emplace(pointCloud, pointCloudPointSize);
 }
 
 void SceneModel::setKeypoint(const Keypoint& updated) {
@@ -171,13 +168,6 @@ void SceneModel::loadMesh() {
   if (meshPath) {
     mesh = std::make_shared<geometry::Mesh>(meshPath.value_or("empty"));
     rtMesh.emplace(mesh);
-  }
-}
-
-void SceneModel::loadPointCloud() {
-  if (pointCloudPath) {
-    pointCloud = std::make_shared<geometry::PointCloud>(pointCloudPath.value_or("empty"));
-    rtPointCloud.emplace(pointCloud, pointCloudPointSize);
   }
 }
 
