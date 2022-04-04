@@ -56,7 +56,7 @@ The properties are:
 7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
 ## Usage
 
-Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
+Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension. In the point cloud annotation tool, you can move to the next point cloud in the same directory as `<path-to-pointcloud>` using `tab`.
 
 Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`. An example `cloud.ply` point cloud can be downloaded from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply).
 
@@ -67,7 +67,6 @@ The keyboard shortcuts are:
 - `r` switches to the rectangle tool.
 - `v` switches to the move tool.
 
-In the point cloud annotation tool, you can move to the next point cloud in the dataset using `tab`.
 
 ## Running tests
 
