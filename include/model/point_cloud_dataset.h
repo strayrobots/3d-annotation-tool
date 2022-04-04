@@ -1,15 +1,19 @@
 #include <filesystem>
 #include <memory>
+#include <future>
+#include <thread>
 #include "geometry/point_cloud.h"
 
 namespace fs = std::filesystem;
 
 namespace model {
+using PointCloudPtr = std::shared_ptr<geometry::PointCloud>;
+
 class PointCloudDataset {
 private:
   fs::path path;
   fs::path currentPointCloud;
-  std::shared_ptr<geometry::PointCloud> currentCloud;
+  std::shared_future<PointCloudPtr> currentCloud, nextCloud;
   std::vector<fs::path> pointClouds;
   int currentIndex = -1;
 public:
@@ -20,18 +24,27 @@ public:
       return pc == current;
     });
     currentIndex = it - pointClouds.begin();
-    currentCloud = std::make_shared<geometry::PointCloud>(currentPointCloud.string());
+    currentCloud = fetchPointCloud(currentPointCloud);
+    nextCloud = fetchPointCloud(nextPath());
   }
 
-  std::shared_ptr<geometry::PointCloud> getCurrentCloud() const { return currentCloud; }
+  const std::shared_future<PointCloudPtr>& getCurrentCloud() const {
+    return currentCloud;
+  }
 
   fs::path currentPath() const { return currentPointCloud; }
-  std::shared_ptr<geometry::PointCloud> next() {
-    currentIndex = (currentIndex + 1) % int(pointClouds.size());
-    currentPointCloud = pointClouds[currentIndex];
-    return std::make_shared<geometry::PointCloud>(currentPointCloud.string());
+  fs::path nextPath() const {
+    int nextIndex = (currentIndex + 1) % int(pointClouds.size());
+    return pointClouds[nextIndex];
   }
 
+  std::shared_future<PointCloudPtr> next() {
+    currentIndex = (currentIndex + 1) % int(pointClouds.size());
+    currentPointCloud = pointClouds[currentIndex];
+    currentCloud = nextCloud;
+    nextCloud = fetchPointCloud(nextPath());
+    return currentCloud;
+  }
 private:
   void indexPointClouds() {
     for (auto& p : fs::directory_iterator(path)) {
@@ -41,6 +54,20 @@ private:
         pointClouds.push_back(file);
       }
     }
+  }
+
+  std::shared_future<PointCloudPtr> fetchPointCloud(fs::path pcPath) {
+    auto path = nextPath();
+    std::promise<PointCloudPtr> promise;
+    std::shared_future<PointCloudPtr> theFuture = promise.get_future();
+    auto getFunction = [&, theFuture]() -> PointCloudPtr {
+      PointCloudPtr ptr = std::make_shared<geometry::PointCloud>(pcPath.string());
+      promise.set_value(ptr);
+      theFuture.wait();
+      return ptr;
+    };
+    auto result = std::async(std::launch::async, getFunction);
+    return theFuture;
   }
 };
 }

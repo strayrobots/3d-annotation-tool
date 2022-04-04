@@ -25,7 +25,9 @@ PointCloudViewController::PointCloudViewController(fs::path pcPath) : viewId(IdF
                                                                               statusBarView(sceneModel, IdFactory::getInstance().getId()) {
 
   annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(pcPath);
-  sceneModel.setPointCloud(dataset.getCurrentCloud());
+  auto future = dataset.getCurrentCloud();
+  future.wait();
+  sceneModel.setPointCloud(future.get());
   pointCloudView.loadPointCloud();
   sceneModel.activeView = active_view::PointCloudView;
 }
@@ -198,11 +200,13 @@ void PointCloudViewController::undo() {
 }
 
 void PointCloudViewController::nextPointCloud() {
-  auto pointCloud = dataset.next();
-  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(dataset.currentPath());
-  sceneModel.reset();
+  auto future = dataset.next();
+  future.wait();
+  auto pointCloud = future.get();
   sceneModel.setPointCloud(pointCloud);
+  sceneModel.reset();
   pointCloudView.reload();
+  annotationPath = utils::dataset::getAnnotationPathForPointCloudPath(dataset.currentPath());
   load();
 }
 
