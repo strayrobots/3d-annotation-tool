@@ -30,7 +30,7 @@ StudioViewController::StudioViewController(fs::path datasetPath) : viewId(IdFact
                                                                    addBBoxView(sceneModel, datasetMetadata, timeline, viewId),
                                                                    addRectangleView(sceneModel, timeline, viewId),
                                                                    statusBarView(sceneModel, IdFactory::getInstance().getId()) {
-  sceneModel.setPointCloudPath((datasetPath / "scene" / "cloud.ply").string());
+  pointCloudPath = datasetPath / "scene" / "cloud.ply";
   preview = std::make_shared<controllers::PreviewController>(sceneModel, datasetPath, IdFactory::getInstance().getId());
   addSubController(std::static_pointer_cast<controllers::Controller>(preview));
 }
@@ -151,7 +151,7 @@ bool StudioViewController::keypress(char character, const InputModifier mod) {
   if (mod == ModShift && character == '1') {
     sceneModel.activeView = active_view::MeshView;
   } else if (mod == ModShift && character == '2') {
-    pointCloudView.loadPointCloud();
+    loadPointCloud();
     sceneModel.activeView = active_view::PointCloudView;
     return true;
   } else if (character == 'K') {
@@ -219,3 +219,11 @@ void StudioViewController::undo() {
   timeline.undoCommand();
   refresh();
 }
+
+void StudioViewController::loadPointCloud() {
+  if (sceneModel.getPointCloud() == nullptr) {
+    sceneModel.setPointCloud(std::make_shared<geometry::PointCloud>(pointCloudPath));
+  }
+  pointCloudView.loadPointCloud();
+}
+

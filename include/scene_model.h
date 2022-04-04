@@ -79,13 +79,17 @@ public:
 
   SceneModel(std::optional<std::string> meshPath = std::nullopt); // Could be aligned with how point clouds are handled i.e. set the path and load the mesh after initialization, needs small refactoring in mesh_view
 
-  void setPointCloudPath(std::string path) { pointCloudPath = path; }
+  void setPointCloud(std::shared_ptr<geometry::PointCloud> pc);
 
   std::shared_ptr<geometry::TriangleMesh> getMesh();
   std::shared_ptr<geometry::PointCloud> getPointCloud();
   std::optional<Vector3f> traceRay(const Vector3f& origin, const Vector3f& direction);
   geometry::Intersection traceRayIntersection(const Vector3f& origin, const Vector3f& direction);
 
+  /*
+   * Called when changing the scene.
+   */
+  void reset();
   // Keypoints
   const std::vector<Keypoint>& getKeypoints() const { return keypoints; };
   Keypoint addKeypoint(const Vector3f& kp);
@@ -114,7 +118,6 @@ public:
   void load(fs::path annotationPath);
 
   void loadMesh();
-  void loadPointCloud();
 };
 
 #endif

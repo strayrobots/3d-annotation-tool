@@ -28,5 +28,9 @@ public:
   void changeSize(float diff);
   void packVertexData();
   void render(const ViewContext3D& context) const;
+  /*
+   * Called when the point cloud has changed.
+   */
+  void reload();
 };
 }

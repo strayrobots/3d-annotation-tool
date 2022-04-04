@@ -27,6 +27,7 @@ public:
   Timeline(Timeline const& other) = delete;
 
   void load(fs::path annotationPath) {
+    commandStack.clear();
     if (!std::filesystem::exists(annotationPath))
       return;
     std::ifstream file(annotationPath.string());

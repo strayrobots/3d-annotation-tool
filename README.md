@@ -43,7 +43,7 @@ The properties are:
 1. Install Homebrew: https://brew.sh/
 2. Run `brew update && brew install cmake libomp eigen boost git-lfs pkg-config`
 
-### Install Dependensies - Linux
+### Install Dependencies - Linux
 1. RUN `sudo apt install libeigen3-dev libglfw3-dev libomp-dev libxinerama-dev libxcursor-dev libxi-dev git-lfs cmake libboost-all-dev`
 
 ### Build and install the annotation tool
@@ -53,10 +53,10 @@ The properties are:
 4. Create a build directory with `mkdir build`
 5. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
 6. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
-7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file. 
+7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
 ## Usage
 
-Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension.
+Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension. In the point cloud annotation tool, you can move to the next point cloud in the same directory as `<path-to-pointcloud>` using `tab`.
 
 Stray scenes can be opened with the `./studio` program running `./studio <path-to-scene>`. An example `cloud.ply` point cloud can be downloaded from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply).
 
@@ -66,6 +66,7 @@ The keyboard shortcuts are:
 - `b` switches to the bounding box tool.
 - `r` switches to the rectangle tool.
 - `v` switches to the move tool.
+
 
 ## Running tests
 

@@ -25,6 +25,7 @@
 #include "utils/serialize.h"
 #include "views/controls/lookat.h"
 #include "camera/camera_controls.h"
+#include "model/point_cloud_dataset.h"
 
 using namespace commands;
 namespace fs = std::filesystem;
@@ -32,8 +33,9 @@ class PointCloudViewController : public controllers::Controller {
 private:
   int viewId;
   Timeline timeline;
-  fs::path dataPath;
+
   fs::path annotationPath;
+  model::PointCloudDataset dataset;
   SceneModel sceneModel;
   DatasetMetadata datasetMetadata;
 
@@ -79,4 +81,5 @@ private:
   views::View3D& getActiveToolView();
   views::Rect statusBarRect() const;
   void updateViewContext(double x, double y, InputModifier mod);
+  void nextPointCloud();
 };

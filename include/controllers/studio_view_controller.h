@@ -26,6 +26,8 @@ private:
   SceneModel sceneModel;
   SceneCamera sceneCamera;
   fs::path datasetPath;
+  fs::path pointCloudPath;
+
   DatasetMetadata datasetMetadata;
   Timeline timeline;
 
@@ -70,4 +72,5 @@ private:
   views::Rect previewRect() const;
   views::Rect statusBarRect() const;
   void updateViewContext(double x, double y, InputModifier mod);
+  void loadPointCloud();
 };
