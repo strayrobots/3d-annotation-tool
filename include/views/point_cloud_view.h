@@ -1,3 +1,4 @@
+#pragma once
 #include <bgfx/bgfx.h>
 #include "scene_model.h"
 #include "views/view.h"

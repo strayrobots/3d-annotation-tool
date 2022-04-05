@@ -1,4 +1,4 @@
-# 3D Data Annotation Tool
+# Stray Studio - 3D Data Annotation Tool
 
 This project is a graphical user interface for annotating point clouds and [Stray scenes](https://docs.strayrobots.io/formats/data.html).
 
@@ -53,10 +53,13 @@ The properties are:
 4. Create a build directory with `mkdir build`
 5. Pull `git-lfs` objects (helper meshes etc) with `git lfs install && git lfs pull`
 6. To build the project run `cd build && cmake .. && make -j8` (`-j8` specifies the number of parallel jobs, for a fewer jobs use a lower number (than `8`))
-7. The executable is called `pointcloud`, it can be executed with `./pointcloud <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
+7. The executable is called `studio`, it can be executed with `./studio <path-to-pointcloud>`. You can find an example `cloud.ply` point cloud  from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply). `<path-to-pointcloud>` should then specify the absolute path to the downloaded file.
+
 ## Usage
 
-Run `./pointcloud <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension. In the point cloud annotation tool, you can move to the next point cloud in the same directory as `<path-to-pointcloud>` using `tab`. An example `cloud.ply` point cloud can be downloaded from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply).
+Run `./studio <path-to-pointcloud>` to open a point cloud in the viewer. Currently only `.ply` point clouds are supported. Annotations are saved into a file of with the same filename but a `.json` file extension. When annotating point clouds, you can move to the next point cloud in the same directory as `<path-to-pointcloud>` using `tab`.
+
+An example `cloud.ply` point cloud can be downloaded from [here](https://stray-data.nyc3.digitaloceanspaces.com/tutorials/cloud.ply).
 
 The keyboard shortcuts are:
 - `ctrl+s` to save the annotations.
@@ -65,6 +68,11 @@ The keyboard shortcuts are:
 - `r` switches to the rectangle tool.
 - `v` switches to the move tool.
 
+## The Stray Toolkit
+
+This project is part of the [Stray command line interface](https://docs.strayrobots.io/), a toolkit to make building 3D computer vision applications easy. Stray Studio can be used through the `stray studio` command.
+
+The Stray toolkit allows you to build point clouds out of handheld or robot mounted RGB-D scans. It also contains utility functions to manage datasets and export labels into commonly used formats, such as Yolo for object detection.
 
 ## Running tests
 
