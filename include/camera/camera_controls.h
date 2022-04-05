@@ -1,3 +1,4 @@
+#pragma once
 #include "view_context_3d.h"
 
 namespace camera {
