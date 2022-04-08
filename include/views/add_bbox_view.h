@@ -32,5 +32,8 @@ public:
   bool leftButtonDown(const ViewContext3D& context) override;
   bool mouseMoved(const ViewContext3D& context) override;
   void render(const ViewContext3D& context) const;
+
+private:
+  void setBoundingBox(const BBox& bbox);
 };
 } // namespace views
