@@ -40,6 +40,13 @@ void StudioViewController::viewWillAppear(const views::Rect& rect) {
 
   viewContext.width = rect.width;
   viewContext.height = rect.height - views::StatusBarHeight;
+  auto mesh = sceneModel.getMesh();
+  if (mesh != nullptr) {
+    auto mean = mesh->getMeshMean();
+    float sceneScale = mesh->getMeshStd().norm();
+    viewContext.camera.reset(mean, mean);
+    viewContext.camera.zoom(-1 * sceneScale);
+  }
 
   bgfx::setViewClear(viewId, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
   preview->viewWillAppear(previewRect());
