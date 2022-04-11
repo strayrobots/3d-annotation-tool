@@ -171,6 +171,39 @@ void SceneModel::loadMesh() {
   }
 }
 
+void SceneModel::load(fs::path annotationPath) {
+  nlohmann::json json;
+  std::ifstream file(annotationPath);
+  file >> json;
+  for (auto& point : json["keypoints"]) {
+    auto position = point["position"];
+    auto classId = point["class_id"].get<int>();
+    Keypoint kp(keypoints.size() + 1, classId, Vector3f(position[0].get<float>(), position[1].get<float>(), position[2].get<float>()));
+    keypoints.push_back(kp);
+  }
+  for (auto& bbox : json["bounding_boxes"]) {
+    auto p = bbox["position"];
+    auto orn = bbox["orientation"];
+    auto d = bbox["dimensions"];
+    auto classId = bbox["class_id"];
+    BBox box = {
+        .id = int(boundingBoxes.size()) + 1,
+        .classId = classId,
+        .position = Vector3f(p[0].get<float>(), p[1].get<float>(), p[2].get<float>()),
+        .orientation = Quaternionf(orn["w"].get<float>(), orn["x"].get<float>(), orn["y"].get<float>(), orn["z"].get<float>()),
+        .dimensions = Vector3f(d[0].get<float>(), d[1].get<float>(), d[2].get<float>())};
+    boundingBoxes.push_back(box);
+  }
+
+  for (auto& rectangle : json["rectangles"]) {
+    Rectangle rect(0, rectangle["class_id"],
+                   utils::serialize::toVector3(rectangle["center"]),
+                   utils::serialize::toQuaternion(rectangle["orientation"]),
+                   utils::serialize::toVector2(rectangle["size"]));
+    rectangles.push_back(rect);
+  }
+}
+
 void SceneModel::save(fs::path annotationPath) const {
   nlohmann::json json = nlohmann::json::object();
   if (!keypoints.empty()) {
