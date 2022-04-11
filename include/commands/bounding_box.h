@@ -18,6 +18,12 @@ public:
   };
   void undo(SceneModel& sceneModel) override {
     sceneModel.removeBoundingBox(bbox.id);
+    auto bboxes = sceneModel.getBoundingBoxes();
+    if (sceneModel.getBoundingBox(bbox.id).has_value()) {
+      sceneModel.activeBBox = bbox.id;
+    } else if (!bboxes.empty()) {
+      bboxes.back().id;
+    }
   };
 };
 
@@ -46,7 +52,12 @@ public:
     bbox.position = oldPosition;
     bbox.orientation = oldOrientation;
     sceneModel.updateBoundingBox(bbox);
-    sceneModel.activeBBox = bbox.id;
+    auto bboxes = sceneModel.getBoundingBoxes();
+    if (sceneModel.getBoundingBox(bbox.id).has_value()) {
+      sceneModel.activeBBox = bbox.id;
+    } else if (!bboxes.empty()) {
+      sceneModel.activeBBox = bboxes.back().id;
+    }
   };
 };
 

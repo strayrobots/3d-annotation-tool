@@ -57,6 +57,17 @@ Eigen::RowVector3f TriangleMesh::getMeshMean() const {
   return mean;
 }
 
+Eigen::RowVector3f TriangleMesh::getMeshStd() const {
+  Eigen::VectorXf x = V.col(0);
+  Eigen::VectorXf y = V.col(1);
+  Eigen::VectorXf z = V.col(2);
+
+  float std_x = std::sqrt(((x - x.mean() * Eigen::VectorXf::Ones(x.size())).array().square().sum() / (x.size() - 1)));
+  float std_y = std::sqrt(((y - y.mean() * Eigen::VectorXf::Ones(y.size())).array().square().sum() / (y.size() - 1)));
+  float std_z = std::sqrt(((z - z.mean() * Eigen::VectorXf::Ones(z.size())).array().square().sum() / (z.size() - 1)));
+  return RowVector3f(std_x, std_y, std_z);
+}
+
 Sphere::Sphere(const Matrix4f T, float radius) : TriangleMesh(T), radius(radius) {
   createSphere();
 }

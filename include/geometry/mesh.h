@@ -34,6 +34,7 @@ public:
   const RowMatrixf& getVertexNormals() const { return vertexNormals; }
   const Eigen::Matrix<uint8_t, Eigen::Dynamic, 3, Eigen::RowMajor>& getVertexColors() const { return vertexColors; }
   Eigen::RowVector3f getMeshMean() const;
+  Eigen::RowVector3f getMeshStd() const;
 
 protected:
   void computeNormals();

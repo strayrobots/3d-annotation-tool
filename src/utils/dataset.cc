@@ -83,7 +83,7 @@ DatasetMetadata getDatasetMetadata(fs::path path) {
     file >> jsonData;
     datasetMetadata.numClasses = jsonData.contains("num_classes") ? jsonData["num_classes"].get<int>() : 10;
     for (auto& instance : jsonData["instances"]) {
-      int classId = instance["class_id"].get<int>();
+      int classId = instance.value("class_id", 0);
       InstanceMetadata instanceMetadata;
       if (instance.contains("name")) {
         instanceMetadata.name = instance["name"].get<std::string>();

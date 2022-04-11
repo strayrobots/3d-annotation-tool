@@ -115,7 +115,6 @@ public:
   void updateRectangle(const Rectangle& rectangle);
 
   void save(fs::path annotationPath) const;
-  void load(fs::path annotationPath);
 
   void loadMesh();
 };

@@ -5,6 +5,22 @@ namespace views {
 
 using namespace geometry;
 
+bool boxRayIntersectionTest(const Vector3f& origin, const Vector3f& direction, const BBox& bbox) {
+  Vector3f leftBottom = -bbox.dimensions * 0.5;
+  Vector3f rightTop = bbox.dimensions * 0.5;
+  float t1 = (leftBottom[0] - origin[0]) / direction[0];
+  float t2 = (rightTop[0] - origin[0]) / direction[0];
+  float t3 = (leftBottom[1] - origin[1]) / direction[1];
+  float t4 = (rightTop[1] - origin[1]) / direction[1];
+  float t5 = (leftBottom[2] - origin[2]) / direction[2];
+  float t6 = (rightTop[2] - origin[2]) / direction[2];
+  float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
+  float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+  if (tmax < 0) return false;
+  if (tmin > tmax) return false;
+  return true;
+}
+
 AddBBoxView::AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Timeline& timeline, int viewId) : views::View3D(viewId),
                                                                                                                 sceneModel(model),
                                                                                                                 timeline(timeline),
@@ -53,15 +69,7 @@ AddBBoxView::AddBBoxView(SceneModel& model, DatasetMetadata& datasetMetadata, Ti
 void AddBBoxView::refresh() {
   auto bbox = sceneModel.getBoundingBox(sceneModel.activeBBox);
   if (bbox.has_value()) {
-    bboxStart = bbox.value();
-    rotateControl->setPosition(bbox->position);
-    rotateControl->setOrientation(bbox->orientation);
-
-    translateControl->setPosition(bbox->position);
-    translateControl->setOrientation(bbox->orientation);
-
-    sizeControl->setPosition(bbox->position + bbox->orientation * bbox->dimensions * 0.5);
-    sizeControl->setOrientation(bbox->orientation);
+    setBoundingBox(bbox.value());
   } else {
     bboxStart.id = -1;
   }
@@ -96,6 +104,15 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
     }
     return true;
   }
+  auto r_W = viewContext.rayWorld();
+  for (const auto& bbox : sceneModel.getBoundingBoxes()) {
+    auto o_B = viewContext.camera.getPosition() - bbox.position;
+    bool hit = boxRayIntersectionTest(o_B, r_W, bbox);
+    if (hit) {
+      setBoundingBox(bbox);
+      return true;
+    }
+  }
   const Vector3f& rayDirection = viewContext.camera.computeRayWorld(viewContext.width, viewContext.height,
                                                                     viewContext.mousePositionX, viewContext.mousePositionY);
   Intersection intersection = sceneModel.traceRayIntersection(viewContext.camera.getPosition(), rayDirection);
@@ -107,17 +124,10 @@ bool AddBBoxView::leftButtonUp(const ViewContext3D& viewContext) {
                  .position = intersection.point - halfSizeNormal,
                  .orientation = Quaternionf::FromTwoVectors(-Vector3f::UnitZ(), intersection.normal), // Z in the direction of the surface normal.
                  .dimensions = metadata.size};
-    translateControl->setPosition(bbox.position);
-    translateControl->setOrientation(bbox.orientation);
-    rotateControl->setPosition(bbox.position);
-    rotateControl->setOrientation(bbox.orientation);
-    Vector3f sizePos = bbox.position + (bbox.orientation * bbox.dimensions) * 0.5;
-    sizeControl->setOrientation(bbox.orientation);
-    sizeControl->setPosition(sizePos);
     auto command = std::make_unique<commands::AddBBoxCommand>(bbox);
     timeline.pushCommand(std::move(command));
     if (sceneModel.getBoundingBox(sceneModel.activeBBox).has_value()) {
-      bboxStart = sceneModel.getBoundingBox(sceneModel.activeBBox).value();
+      setBoundingBox(sceneModel.getBoundingBox(sceneModel.activeBBox).value());
     }
     return true;
   } else {
@@ -139,5 +149,17 @@ void AddBBoxView::render(const ViewContext3D& context) const {
     translateControl->render(context.camera);
     sizeControl->render(context.camera);
   }
+}
+
+void AddBBoxView::setBoundingBox(const BBox& bbox) {
+  translateControl->setPosition(bbox.position);
+  translateControl->setOrientation(bbox.orientation);
+  rotateControl->setPosition(bbox.position);
+  rotateControl->setOrientation(bbox.orientation);
+  Vector3f sizePos = bbox.position + (bbox.orientation * bbox.dimensions) * 0.5;
+  sizeControl->setOrientation(bbox.orientation);
+  sizeControl->setPosition(sizePos);
+  bboxStart = bbox;
+  sceneModel.activeBBox = bbox.id;
 }
 } // namespace views
